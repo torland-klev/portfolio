@@ -1,0 +1,61 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    background-color: black;
+    color: white;
+    max-height: 100px;
+
+    .logo {
+        flex: 1;
+        text-align: right;
+        img {
+            height: 100%;
+        }
+    }
+
+    .navbar {
+        display: flex;
+        flex: 2;
+        align-items: center;
+        justify-content: flex-end;
+        margin-right: 10vw;
+        a {
+            text-decoration: none;
+            color: white;
+            margin-right: 40px;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .socials {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex: 1;
+
+        .smaller {
+            margin-right: 20px;
+            img {
+                height: 35px !important;
+                width: 35px !important;
+            }
+        }
+    }
+
+    .social {
+        width: fit-content;
+        height: fit-content;
+        margin-right: 10px;
+
+        img {
+            height: 45px;
+            width: 45px;
+            background-color: white;
+        }
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
