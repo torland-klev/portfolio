@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from './styles.module.scss'
-import linkedinLogo from '../../images/linkedin.png'
-import githubLogo from '../../images/github.png'
-import netlightLogo from '../../images/netlight.png'
+import linkedinLogo from '../../images/linkedin.svg'
+import githubLogo from '../../images/github.svg'
+import netlightLogo from '../../images/netlight.svg'
 
 export default function Socials() {
     return (
@@ -16,7 +16,6 @@ export default function Socials() {
                 logo={githubLogo}
                 link={'https://github.com/torland-klev'}
                 alt={'Github logo'}
-                style={styles.smaller}
             />
             <Social
                 logo={netlightLogo}
@@ -31,16 +30,14 @@ function Social({
     logo,
     link,
     alt,
-    style,
 }: {
     logo: string
     link: string
     alt: string
-    style?: string
 }) {
     return (
         <div
-            className={styles.social + ' ' + style}
+            className={styles.social}
             onClick={() => (window.location.href = link)}
         >
             <img src={logo} alt={alt} />
