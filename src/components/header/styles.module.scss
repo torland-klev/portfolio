@@ -1,30 +1,33 @@
 .header {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     background-color: #111111;
     color: white;
     height: 90px;
+    padding: 0 5vw;
 
     .logo {
-        flex: 1;
-        text-align: right;
         img {
             height: 100%;
+            transition: transform 0.7s ease-in-out;
+        }
+        img:hover {
+            transform: rotate(360deg);
         }
     }
 
     .navbar {
         display: flex;
-        flex: 4;
         align-items: center;
-        justify-content: flex-end;
-        margin-right: 5vw;
+        justify-content: center;
         a {
             text-decoration: none;
             color: white;
-            margin-right: 40px;
+            width: 80px;
             &:hover {
-                text-decoration: underline;
+                font-weight: 600;
+                font-size: large;
             }
         }
     }
@@ -33,9 +36,6 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-end;
-        flex: 1;
-        padding-right: 5vw;
     }
 
     .social {
@@ -47,9 +47,10 @@
             height: 40px;
             width: 40px;
             background-color: white;
+            transition: transform 0.7s ease-in-out;
             &:hover {
                 cursor: pointer;
-                background-color: darkgrey !important;
+                transform: rotate(360deg);
             }
         }
     }
