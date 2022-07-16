@@ -104,42 +104,62 @@ function EmailBox() {
     const [email, setEmail] = useState('')
     const [message, setMessage] = useState('')
     const [success, setSuccess] = useState(false)
-    const [error, setError] = useState<EmailJSResponseStatus | undefined>(
-        undefined
-    )
+    const [emailError, setEmailError] = useState<
+        EmailJSResponseStatus | undefined
+    >(undefined)
+    const [validationError, setValidationError] = useState<string>('')
+
+    function capitalizeFirstLetter(string: string): string {
+        return string.charAt(0).toUpperCase() + string.slice(1)
+    }
+
+    function checkErrors(): string {
+        const errors = []
+        if (!name) errors.push('missing name')
+        if (!email) errors.push('missing name')
+        else if (!email.includes('@') || !email.includes('.'))
+            errors.push('not a valid email')
+        if (!message) errors.push('missing message')
+        return capitalizeFirstLetter(errors.join(', '))
+    }
 
     function handleSubmit(e: React.FormEvent) {
+        e.preventDefault()
         setSuccess(false)
-        setError(undefined)
+        setEmailError(undefined)
+        setValidationError('')
         const templateParams = {
             domain: 'test',
             name: name,
             email: email,
             message: message,
         }
-        e.preventDefault()
-        emailjs
-            .send(
-                'default_service',
-                process.env.REACT_APP_EMAILJS_TEMPLATE_ID!!,
-                templateParams,
-                process.env.REACT_APP_EMAILJS_PUBLIC_KEY!! + 'kjh'
-            )
-            .then(
-                (_: EmailJSResponseStatus) => {
-                    setSuccess(true)
-                    setError(undefined)
-                },
-                (error: EmailJSResponseStatus) => {
-                    setSuccess(false)
-                    setError(error)
-                }
-            )
-            .finally(() => {
-                setName('')
-                setEmail('')
-                setMessage('')
-            })
+
+        const validationErrors = checkErrors()
+        setValidationError(validationErrors)
+        if (!validationErrors)
+            emailjs
+                .send(
+                    'default_service',
+                    process.env.REACT_APP_EMAILJS_TEMPLATE_ID!!,
+                    templateParams,
+                    process.env.REACT_APP_EMAILJS_PUBLIC_KEY!!
+                )
+                .then(
+                    (_: EmailJSResponseStatus) => {
+                        setSuccess(true)
+                        setEmailError(undefined)
+                    },
+                    (err: EmailJSResponseStatus) => {
+                        setSuccess(false)
+                        setEmailError(err)
+                    }
+                )
+                .finally(() => {
+                    setName('')
+                    setEmail('')
+                    setMessage('')
+                })
     }
 
     return (
@@ -149,34 +169,49 @@ function EmailBox() {
                 <div className={styles.nameEmail}>
                     <label htmlFor="name">Name</label>
                     <input
+                        required
                         id="name"
                         name="name"
                         autoComplete={'name'}
-                        placeholder={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value)
+                            setValidationError('')
+                        }}
                     />
                     <label htmlFor="email">Email</label>
                     <input
+                        required
                         autoComplete={'email'}
                         type="email"
                         id="email"
                         name="email"
-                        placeholder={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value)
+                            setValidationError('')
+                        }}
                     />
-                    {error && (
+                    {emailError && (
                         <span
-                            className={
-                                styles.response + ' ' + styles.responseError
-                            }
+                            className={`${styles.response} ${styles.responseError} ${styles.responseFadeInOut}`}
                         >
                             It seems like something's a bit off right now. Try
                             contacting me through any of the other links above
                             instead!
                         </span>
                     )}
+                    {validationError && (
+                        <span
+                            className={`${styles.response} ${styles.responseError} ${styles.responseFadeIn}`}
+                        >
+                            {validationError}
+                        </span>
+                    )}
                     {success && (
-                        <span className={styles.response}>
+                        <span
+                            className={`${styles.response} ${styles.responseFadeInOut}`}
+                        >
                             Thanks for the email! I'll get back to you as soon
                             as I can!
                         </span>
@@ -185,18 +220,22 @@ function EmailBox() {
                 <div className={styles.messageAndButton}>
                     <label htmlFor="message">Message</label>
                     <textarea
+                        required
                         id="message"
                         name="message"
                         rows={4}
                         cols={50}
-                        placeholder={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        value={message}
+                        onChange={(e) => {
+                            setMessage(e.target.value)
+                            setValidationError('')
+                        }}
                     />
                     <button
                         className={styles.submitButton}
                         onClick={handleSubmit}
                     >
-                        Send email
+                        Send
                     </button>
                 </div>
             </form>

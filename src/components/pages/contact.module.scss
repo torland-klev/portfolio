@@ -162,8 +162,8 @@ $elementBorderRadius: 4px;
                 margin-left: 5px;
 
                 .submitButton {
-                    width: 150px;
-                    height: 50px;
+                    width: 100px;
+                    height: 40px;
                     align-self: flex-end;
                     color: #fcfcfc;
                     background-color: #393e46;
@@ -179,12 +179,17 @@ $elementBorderRadius: 4px;
             }
 
             .response {
-                animation: fadeInOut 10s;
-                opacity: 0;
                 font-size: large;
                 max-width: 438px;
                 &Error {
                     color: darkred;
+                }
+                &FadeInOut {
+                    opacity: 0;
+                    animation: fadeInOut 10s;
+                }
+                &FadeIn {
+                    animation: fadeIn 1s;
                 }
             }
         }
