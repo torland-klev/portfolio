@@ -17,7 +17,7 @@ export default function ContactPage() {
 
 function ContactMain() {
     return (
-        <div className={`${styles.section} ${styles.contactWrapper}`}>
+        <div className={styles.section}>
             <div className={styles.element} />
             <div className={styles.element}>
                 <TextBox />
@@ -32,7 +32,11 @@ function ContactMain() {
 
 function EmilMe() {
     return (
-        <div className={`${styles.section} ${styles.emailWrapper}`}>Email</div>
+        <div className={`${styles.section} ${styles.emailWrapper}`}>
+            <div className={styles.element} />
+            <EmailBox />
+            <div className={styles.element} />
+        </div>
     )
 }
 
@@ -88,6 +92,23 @@ function SocialsBox() {
                         'https://www.snapchat.com/add/henklev?share_id=RDgwQjQ4QjQtNkUxMC00RTQyLTg2QTktMjEzQUY0NDQ2NjQ3&locale=nb_NO&fbclid=IwAR31A4EXuL0IDQEP05bD0-r1uzZ2Wt6DbpwWgzmNkdfnc7f8UPnOKN07iB0')
                 }
             />
+        </div>
+    )
+}
+
+function EmailBox() {
+    return (
+        <div className={styles.emailContainer}>
+            <div className={styles.title}>Send me an email!</div>
+            <form>
+                <label htmlFor="name">Name</label>
+                <input id="name" name="name" />
+                <label htmlFor="email">Email</label>
+                <input type="email" id="email" name="email" />
+                <label htmlFor="message">Message</label>
+                <textarea id="message" name="message" rows={4} cols={50} />
+                <button type={'submit'}>Send email</button>
+            </form>
         </div>
     )
 }
