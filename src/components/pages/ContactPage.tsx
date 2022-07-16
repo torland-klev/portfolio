@@ -20,10 +20,11 @@ export default function ContactPage() {
 function ContactMain() {
     return (
         <div className={styles.section}>
-            <div className={styles.element} />
             <div className={styles.element}>
-                <TextBox />
-                <SocialsBox />
+                <div className={styles.contactBody}>
+                    <TextBox />
+                    <SocialsBox />
+                </div>
             </div>
             <div className={styles.imageContainer}>
                 <img src={contact} alt={'loading...'} />
@@ -44,7 +45,7 @@ function EmilMe() {
 
 function TextBox() {
     return (
-        <div className={styles.contactContainer}>
+        <div className={styles.textBox}>
             <div className={styles.title}>
                 <div>Get in touch!</div>
             </div>
