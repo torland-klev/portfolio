@@ -13,17 +13,17 @@ const scienceBody =
 
 const ScienceTitleComponent = () => (
     <div className={styles.emojiTitle}>
-        <Emoji symbol={'🔬'} marginRight={'6px'} />
+        <Emoji symbol={'🔬'} />
         <div className={styles.title}>science</div>
-        <Emoji symbol={'🧪'} transform={'rotate(315deg)'} />
+        <Emoji symbol={'🧪'} />
     </div>
 )
 
 const CodeTitleComponent = () => (
     <div className={styles.emojiTitle}>
-        <Emoji symbol={'💻'} marginTop={'32px'} />
+        <Emoji symbol={'💻'} />
         <div className={styles.title}>code</div>
-        <Emoji symbol={'💾'} marginTop={'32px'} />
+        <Emoji symbol={'💾'} />
     </div>
 )
 
