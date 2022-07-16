@@ -6,21 +6,22 @@
     color: white;
     height: 9vh;
     padding: 0 5vw;
+    animation: slideDown 1s;
 
     .logo {
         display: flex;
         align-items: center;
         justify-content: center;
         height: 100%;
-        width: 250px;
+        width: 230px;
         img {
             height: 90%;
-            width: 230px;
+            width: 225px;
             transition: height, width 300ms;
         }
         img:hover {
             height: 95%;
-            width: 250px;
+            width: 230px;
             transition: height, width 300ms;
         }
     }
@@ -69,5 +70,14 @@
                 width: 45px;
             }
         }
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        margin-top: -9vh;
+    }
+    100% {
+        margin-top: 0;
     }
 }

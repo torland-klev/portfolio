@@ -1,12 +1,14 @@
-import HomePage from './components/HomePage'
+import HomePage from './components/pages/HomePage'
 import { Route, Routes } from 'react-router-dom'
 import React from 'react'
 import Header from './components/header/Header'
 import styles from './app.module.scss'
+import Footer from './components/footer/Footer'
+import ContactPage from './components/pages/ContactPage'
 
-function App() {
+export default function App() {
     return (
-        <div className={styles.App}>
+        <div className={styles.app}>
             <Header />
             <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -14,10 +16,9 @@ function App() {
                 <Route path="featured" element={<div> featured </div>} />
                 <Route path="blog" element={<div> blog </div>} />
                 <Route path="portfolio" element={<div> portfolio </div>} />
-                <Route path="contact" element={<div> contact </div>} />
+                <Route path="contact" element={<ContactPage />} />
             </Routes>
+            <Footer />
         </div>
     )
 }
-
-export default App
