@@ -5,6 +5,7 @@ import Header from './components/header/Header'
 import styles from './app.module.scss'
 import Footer from './components/footer/Footer'
 import ContactPage from './components/pages/ContactPage'
+import PortfolioPage from './components/pages/PortfolioPage'
 
 export default function App() {
     return (
@@ -15,7 +16,7 @@ export default function App() {
                 <Route path="about" element={<div> about </div>} />
                 <Route path="featured" element={<div> featured </div>} />
                 <Route path="blog" element={<div> blog </div>} />
-                <Route path="portfolio" element={<div> portfolio </div>} />
+                <Route path="portfolio" element={<PortfolioPage />} />
                 <Route path="contact" element={<ContactPage />} />
             </Routes>
             <Footer />
