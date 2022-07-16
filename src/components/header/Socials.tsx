@@ -1,8 +1,8 @@
 import React from 'react'
-import styles from './styles.module.scss'
-import linkedinLogo from '../../images/linkedin.svg'
-import githubLogo from '../../images/github.svg'
-import netlightLogo from '../../images/netlight.svg'
+import styles from './header.module.scss'
+import linkedinLogo from '../../images/linkedin.jpg'
+import githubLogo from '../../images/github.jpg'
+import netlightLogo from '../../images/netlight.jpg'
 
 export default function Socials() {
     return (

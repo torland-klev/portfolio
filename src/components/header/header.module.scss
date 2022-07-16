@@ -4,7 +4,7 @@
     justify-content: space-between;
     background-color: #111111;
     color: white;
-    height: 90px;
+    height: 9vh;
     padding: 0 5vw;
 
     .logo {
@@ -25,7 +25,11 @@
             text-decoration: none;
             color: white;
             width: 80px;
+            font-weight: 400;
+            font-size: medium;
+            transition: font-weight, font-size 300ms;
             &:hover {
+                transition: font-weight, font-size 300ms;
                 font-weight: 600;
                 font-size: large;
             }
@@ -39,18 +43,22 @@
     }
 
     .social {
-        width: fit-content;
-        height: fit-content;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
         margin-right: 15px;
 
         img {
             height: 40px;
             width: 40px;
-            background-color: white;
-            transition: transform 0.7s ease-in-out;
+            transition: width, height 300ms;
             &:hover {
                 cursor: pointer;
-                transform: rotate(360deg);
+                transition: width, height 300ms;
+                height: 45px;
+                width: 45px;
             }
         }
     }
