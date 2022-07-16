@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './homepage.module.scss'
-import color from '../../images/color.png'
-import pastel from '../../images/pastel.jpg'
+import color from '../../images/colorblur.png'
+import pastel from '../../images/pastelblur.jpg'
 import Emoji from '../common/Emoji'
 
 const codeBody =
