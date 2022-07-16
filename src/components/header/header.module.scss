@@ -2,18 +2,26 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #111111;
+    background-color: #393e46;
     color: white;
     height: 9vh;
     padding: 0 5vw;
 
     .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 250px;
         img {
-            height: 100%;
-            transition: transform 0.7s ease-in-out;
+            height: 90%;
+            width: 230px;
+            transition: height, width 300ms;
         }
         img:hover {
-            transform: rotate(360deg);
+            height: 95%;
+            width: 250px;
+            transition: height, width 300ms;
         }
     }
 

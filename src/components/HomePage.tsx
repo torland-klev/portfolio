@@ -1,6 +1,7 @@
 import React from 'react'
 import styles from './homepage.module.scss'
 import color from '../images/color.png'
+import pastel from '../images/pastel.jpg'
 import Emoji from './common/Emoji'
 
 const codeBody =
@@ -12,17 +13,33 @@ const scienceBody =
 
 const ScienceTitleComponent = () => (
     <div className={styles.emojiTitle}>
-        <Emoji symbol={'🔬'} fontSize={'32px'} />
+        <Emoji symbol={'🔬'} marginRight={'6px'} />
         <div className={styles.title}>science</div>
-        <Emoji symbol={'🧪'} fontSize={'32px'} transform={'rotate(315deg)'} />
+        <Emoji symbol={'🧪'} transform={'rotate(315deg)'} />
+    </div>
+)
+
+const CodeTitleComponent = () => (
+    <div className={styles.emojiTitle}>
+        <Emoji symbol={'💻'} marginTop={'32px'} />
+        <div className={styles.title}>code</div>
+        <Emoji symbol={'💾'} marginTop={'32px'} />
     </div>
 )
 
 export default function HomePage() {
     return (
         <div className={styles.homepage}>
-            <HalfPage title={'<code>'} body={codeBody} image={color} />
-            <HalfPage title={<ScienceTitleComponent />} body={scienceBody} />
+            <HalfPage
+                title={<CodeTitleComponent />}
+                body={codeBody}
+                image={color}
+            />
+            <HalfPage
+                title={<ScienceTitleComponent />}
+                body={scienceBody}
+                image={pastel}
+            />
         </div>
     )
 }

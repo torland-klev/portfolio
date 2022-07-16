@@ -5,11 +5,15 @@ export default function Emoji({
     symbol,
     fontSize,
     transform,
+    marginTop,
+    marginRight,
 }: {
     label?: string
     symbol: string
     fontSize?: string
     transform?: string
+    marginTop?: string
+    marginRight?: string
 }) {
     return (
         <span
@@ -18,8 +22,9 @@ export default function Emoji({
             aria-label={label}
             aria-hidden={!label}
             style={{
-                fontSize: fontSize,
-                marginTop: '29px',
+                fontSize: fontSize ?? '22pt',
+                marginTop: marginTop ?? '32px',
+                marginRight: marginRight ?? 'auto',
                 margin: 'auto',
                 transform: transform,
             }}
