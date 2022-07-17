@@ -2,7 +2,13 @@ import React, { useState } from 'react'
 import styles from './header.module.scss'
 import { Link } from 'react-router-dom'
 
-export default function Navbar() {
+export default function Navbar({
+    navigateToHome,
+    clickHandler,
+}: {
+    navigateToHome?: boolean
+    clickHandler: (active: string) => void
+}) {
     const [active, setActive] = useState('')
 
     function NavBarLink({ title }: { title: string }) {
@@ -10,11 +16,15 @@ export default function Navbar() {
             <Link
                 to={`/${title}`}
                 className={
-                    active === title || window.location.href.includes(title)
+                    !navigateToHome &&
+                    (active === title || window.location.href.includes(title))
                         ? styles.active
-                        : ''
+                        : styles.inactive
                 }
-                onClick={() => setActive(title)}
+                onClick={() => {
+                    setActive(title)
+                    clickHandler(title)
+                }}
             >
                 {title}
             </Link>

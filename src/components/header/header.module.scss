@@ -5,6 +5,7 @@
     background-color: #393e46;
     color: white;
     height: 9vh;
+    min-height: 100px;
     padding: 0 5vw;
     animation: slideDown 1s;
 
@@ -46,6 +47,12 @@
         .active {
             font-weight: 600;
             font-size: large;
+            transition: font-weight, font-size 300ms;
+        }
+        .inactive {
+            font-weight: 400;
+            font-size: medium;
+            transition: font-weight, font-size 300ms;
         }
     }
 
