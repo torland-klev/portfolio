@@ -9,6 +9,7 @@ import tripletexIntegrations from '../../images/tripletex-integrations.png'
 import uio from '../../images/uio.png'
 import { wait } from '@testing-library/user-event/dist/utils'
 import LeftRight from '../common/LeftRight'
+import Tags from '../common/Tags'
 
 export default function PortfolioPage() {
     return (
@@ -294,10 +295,6 @@ function PopoutCard({
         })
     }
 
-    function Tag({ tag }: { tag: string }) {
-        return <div className={styles.tag}>{tag}</div>
-    }
-
     return (
         <>
             {visible && (
@@ -331,13 +328,7 @@ function PopoutCard({
                             <div className={styles.popoutCardBodyText}>
                                 {text}
                             </div>
-                            {tags.length > 0 && (
-                                <div className={styles.popoutCardBodyTags}>
-                                    {tags.sort().map((tag) => (
-                                        <Tag key={tag} tag={tag} />
-                                    ))}
-                                </div>
-                            )}
+                            <Tags tags={tags} />
                         </div>
                     </div>
                 </div>

@@ -6,19 +6,22 @@ import scratcher from '../../images/scratcher.jpg'
 import runners from '../../images/runners.jpg'
 import fireside from '../../images/fireside.jpg'
 import fitness from '../../images/fitness.jpg'
+import netlight from '../../images/netlight-color.png'
 import beginners from '../../images/beginners.jpg'
 import coder from '../../images/coder.gif'
 import designer from '../../images/designer.gif'
 import Emoji from '../common/Emoji'
 import HalfPage from '../common/HalfPage'
+import Tags, { TagCategory } from '../common/Tags'
 import Typewriter from 'typewriter-effect'
+import { Link } from 'react-router-dom'
 
 export default function AboutPage() {
     return (
         <div className={styles.about}>
             <AboutMain />
-            <Developer />
             <Hobbies />
+            <Developer />
             <Skills />
             <Consultant />
             <Story />
@@ -67,10 +70,10 @@ function AboutMain() {
                 the specification.
                 <br />
                 <br />
-                Meanwhile, while waiting for the specification to magically sort
-                itself out, I've been working primarily in the financial sector
-                where I've been developing accounting software, banking
-                integrations and payment solutions.
+                While the specification is magically sorting itself out, I'm
+                working primarily in the financial sector. <br /> Here I've been
+                developing accounting software, banking integrations and payment
+                solutions.
             </LeftRight>
             <ImageSlide />
         </div>
@@ -166,11 +169,93 @@ function Hobbies() {
 }
 
 function Skills() {
-    return <div></div>
+    return (
+        <div className={styles.skills}>
+            <div className={styles.skillsTitle}>
+                Technologies I love and enjoy
+            </div>
+            <div style={{ maxWidth: '1200px', marginBottom: '2vh' }}>
+                <Tags
+                    tags={[
+                        { tag: 'Kotlin', category: TagCategory.LANGUAGE },
+                        { tag: 'Java', category: TagCategory.LANGUAGE },
+                        { tag: 'Android', category: TagCategory.FRAMEWORK },
+                        {
+                            tag: 'Jetpack Compose',
+                            category: TagCategory.FRAMEWORK,
+                        },
+                        { tag: 'R', category: TagCategory.LANGUAGE },
+                        { tag: 'Matlab', category: TagCategory.LANGUAGE },
+                        { tag: 'JSP', category: TagCategory.LANGUAGE },
+                        { tag: 'JML', category: TagCategory.OTHER },
+                        { tag: 'KeY', category: TagCategory.TOOL },
+                        { tag: 'Azure', category: TagCategory.DEVOPS },
+                        { tag: 'AWS', category: TagCategory.DEVOPS },
+                        { tag: 'SQL', category: TagCategory.TECHNOLOGY },
+                        { tag: 'Git', category: TagCategory.TECHNOLOGY },
+                        { tag: 'Dagger', category: TagCategory.TECHNOLOGY },
+                        { tag: 'Spring', category: TagCategory.FRAMEWORK },
+                        { tag: 'Hibernate', category: TagCategory.TECHNOLOGY },
+                        { tag: 'React', category: TagCategory.FRAMEWORK },
+                        { tag: 'TypeScript', category: TagCategory.LANGUAGE },
+                        { tag: 'HTML', category: TagCategory.LANGUAGE },
+                        { tag: 'CSS', category: TagCategory.TECHNOLOGY },
+                        { tag: 'SASS', category: TagCategory.TECHNOLOGY },
+                        { tag: 'IntelliJ', category: TagCategory.TOOL },
+                        { tag: 'Docker', category: TagCategory.TECHNOLOGY },
+                        {
+                            tag: 'React Redux',
+                            category: TagCategory.TECHNOLOGY,
+                        },
+                        { tag: 'React Saga', category: TagCategory.TECHNOLOGY },
+                        { tag: 'Jenkins', category: TagCategory.DEVOPS },
+                        { tag: 'GitHub', category: TagCategory.TOOL },
+                        { tag: 'Gradle', category: TagCategory.DEVOPS },
+                        { tag: 'Maven', category: TagCategory.DEVOPS },
+                        { tag: 'UNIX', category: TagCategory.TECHNOLOGY },
+                        { tag: 'Windows', category: TagCategory.OTHER },
+                        { tag: 'Scheme', category: TagCategory.LANGUAGE },
+                        { tag: 'Stata', category: TagCategory.TOOL },
+                        { tag: 'Firebase', category: TagCategory.TECHNOLOGY },
+                        { tag: 'PostgreSQL', category: TagCategory.LANGUAGE },
+                        { tag: 'Android Studio', category: TagCategory.TOOL },
+                        { tag: 'JUnit', category: TagCategory.FRAMEWORK },
+                        { tag: 'Mockito', category: TagCategory.FRAMEWORK },
+                    ].sort((a, b) => a.tag.localeCompare(b.tag))}
+                />
+                <br />
+                <div className={styles.skillsTitle}>
+                    ...and probably a lot more that I've forgotten about!
+                </div>
+                <div className={styles.skillsTitle}>
+                    Looking for something specific?{' '}
+                    <Link to={'/contact'}>Contact</Link> me!
+                </div>
+            </div>
+        </div>
+    )
 }
 
 function Consultant() {
-    return <div></div>
+    return (
+        <div className={styles.consultant}>
+            <div className={styles.consultantLeft}>
+                <div className={styles.consultantTitle}>
+                    Did you know you can hire me?
+                </div>
+                <div className={styles.consultantText}>
+                    I'm part the the incredible consulting firm{' '}
+                    <Link to={'https://www.netlight.com/'}>Netlight</Link>,
+                    which means that there is always a possibility that I can
+                    join your team. To check if I'm available and interested,
+                    you can contact me any way you'd like.
+                </div>
+            </div>
+            <div className={styles.consultantRight}>
+                <img src={netlight} alt={'Loading...'} />
+            </div>
+        </div>
+    )
 }
 
 function Story() {
