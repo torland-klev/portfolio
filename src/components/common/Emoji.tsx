@@ -4,10 +4,12 @@ export default function Emoji({
     label,
     symbol,
     fontSize,
+    margin,
 }: {
     label?: string
     symbol: string
     fontSize?: string
+    margin?: string
 }) {
     return (
         <span
@@ -16,7 +18,7 @@ export default function Emoji({
             aria-hidden={!label}
             style={{
                 fontSize: fontSize ?? '22pt',
-                margin: '15px 5px 0 5px',
+                margin: margin ?? '15px 5px 0 5px',
             }}
         >
             {symbol}

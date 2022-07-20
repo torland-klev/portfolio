@@ -8,6 +8,7 @@ import technicalDebt from '../../images/technical-debt.png'
 import tripletexIntegrations from '../../images/tripletex-integrations.png'
 import uio from '../../images/uio.png'
 import { wait } from '@testing-library/user-event/dist/utils'
+import LeftRight from '../common/LeftRight'
 
 export default function PortfolioPage() {
     return (
@@ -20,22 +21,19 @@ export default function PortfolioPage() {
 
 function PortfolioTitle() {
     return (
-        <div className={styles.portfolioTitle}>
-            <div className={styles.left}>
-                <div className={styles.title}>My portfolio</div>
-                <div className={styles.text}>
-                    I've been working at a couple of project over the last few
-                    years, and you'll find most of them here.
-                    <br />
-                    <br />
-                    Feel free to poke around, and, should any question arise,
-                    feel free to contact me about any of them!
-                </div>
-            </div>
-            <div className={styles.right}>
-                <img src={colorsplash} alt={'Loading...'} />
-            </div>
-        </div>
+        <LeftRight
+            title={'My portfolio'}
+            img={colorsplash}
+            imgStyles={{ width: '80%' }}
+            height={'20%'}
+        >
+            I've been working at a couple of project over the last few years,
+            and you'll find most of them here.
+            <br />
+            <br />
+            Feel free to poke around, and, should any question arise, feel free
+            to contact me about any of them!
+        </LeftRight>
     )
 }
 

@@ -6,41 +6,6 @@
     height: 91vh;
     animation: fadeIn 1200ms;
 
-    &Title {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 80%;
-        height: 20%;
-        .left {
-            width: 45%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-end;
-            margin-top: 15vh;
-
-            .title {
-                width: 300px;
-                font-weight: bold;
-                font-size: xx-large;
-                margin-bottom: 10px;
-                text-align: left;
-            }
-
-            .text {
-                width: 300px;
-                text-align: left;
-                font-size: large;
-            }
-        }
-        .right {
-            width: 45%;
-            img {
-                width: 80%;
-            }
-        }
-    }
     &Body {
         height: 63%;
         margin-top: 15vh;

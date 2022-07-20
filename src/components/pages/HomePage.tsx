@@ -3,6 +3,7 @@ import styles from './homepage.module.scss'
 import color from '../../images/colorblur.png'
 import pastel from '../../images/pastelblur.jpg'
 import Emoji from '../common/Emoji'
+import HalfPage from '../common/HalfPage'
 
 const codeBody =
     'Fullstack developer with a passion for clean code, ' +
@@ -32,38 +33,20 @@ export default function HomePage() {
         <div className={styles.homepage}>
             <HalfPage
                 title={<CodeTitleComponent />}
-                body={codeBody}
                 image={color}
                 onClick={() => (window.location.href = '/portfolio')}
-            />
+                titleFontSize={'42pt'}
+            >
+                {codeBody}
+            </HalfPage>
             <HalfPage
                 title={<ScienceTitleComponent />}
-                body={scienceBody}
                 image={pastel}
                 onClick={() => (window.location.href = '/blog')}
-            />
-        </div>
-    )
-}
-
-function HalfPage({
-    title,
-    body,
-    image,
-    onClick,
-}: {
-    title: string | JSX.Element
-    body: string
-    image?: string
-    onClick: () => {}
-}) {
-    return (
-        <div className={styles.halfPage} onClick={onClick}>
-            <div className={styles.textContainer}>
-                <div className={styles.title}>{title}</div>
-                <div className={styles.body}>{body}</div>
-            </div>
-            {image && <img src={image} alt={'loading...'} />}
+                titleFontSize={'42pt'}
+            >
+                {scienceBody}
+            </HalfPage>
         </div>
     )
 }
