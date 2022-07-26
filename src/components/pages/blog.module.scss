@@ -1,0 +1,114 @@
+$elementBorderRadius: 4px;
+
+.blog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 91vh;
+    animation: fadeIn 1200ms;
+    color: #333333;
+    text-align: left;
+
+    &Wrapper {
+        height: 100%;
+        width: fit-content;
+        overflow-y: scroll;
+        margin-top: 50px;
+
+        &::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        &::-webkit-scrollbar {
+            background-color: transparent;
+            width: 20px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: transparent;
+        }
+        &:hover {
+            &::-webkit-scrollbar-thumb {
+                background-color: darkgrey;
+                border-radius: 20px;
+                border: 6px solid transparent;
+                background-clip: content-box;
+            }
+            &::-webkit-scrollbar-thumb:hover {
+                background-color: #393e46;
+            }
+        }
+    }
+
+    &Card {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        height: fit-content;
+        width: fit-content;
+        max-width: 40vw;
+        min-width: 600px;
+        border-bottom: 2px solid #ececec;
+    }
+
+    &Image {
+        max-width: 100%;
+        border-radius: 4px;
+        max-height: 40vh;
+    }
+
+    &Title {
+        font-size: xx-large;
+        font-weight: 450;
+        margin: 10px 0;
+    }
+
+    &Subtitle {
+        font-size: large;
+    }
+
+    &ReadMore {
+        text-decoration: none;
+        color: #333333;
+        border: 1px solid #393e46;
+        width: fit-content;
+        padding: 8px 16px;
+        margin-top: 10px;
+        border-radius: 4px;
+        background-color: transparent;
+        transition: background-color 200ms, color 200ms;
+        font-weight: 450;
+
+        &:hover {
+            transition: background-color 200ms, color 200ms;
+            background-color: #393e46;
+            color: #fcfcfc;
+        }
+    }
+
+    &Meta {
+        display: flex;
+        flex-direction: row;
+        margin: 20px 0;
+        align-items: center;
+        &Image {
+            height: 80px;
+        }
+        &Text {
+            font-size: large;
+            font-weight: 400;
+            margin-left: 10px;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

@@ -12,11 +12,11 @@ import coder from '../../images/coder.gif'
 import designer from '../../images/designer.gif'
 import Emoji from '../common/Emoji'
 import HalfPage from '../common/HalfPage'
-import Tags, { TagCategory } from '../common/Tags'
+import Tags from '../common/Tags'
 import Typewriter from 'typewriter-effect'
 import { Link } from 'react-router-dom'
 import { Chrono } from 'react-chrono'
-import { storyItems } from './storyItems'
+import { skillTags, storyItems } from './items'
 import SocialsBox from '../common/SocialsBox'
 
 export default function AboutPage() {
@@ -188,54 +188,7 @@ function Skills() {
     return (
         <div className={styles.skills}>
             <div style={{ maxWidth: '1200px', margin: '2vh 0' }}>
-                <Tags
-                    tags={[
-                        { tag: 'Kotlin', category: TagCategory.LANGUAGE },
-                        { tag: 'Java', category: TagCategory.LANGUAGE },
-                        { tag: 'Android', category: TagCategory.FRAMEWORK },
-                        {
-                            tag: 'Jetpack Compose',
-                            category: TagCategory.FRAMEWORK,
-                        },
-                        { tag: 'R', category: TagCategory.LANGUAGE },
-                        { tag: 'Matlab', category: TagCategory.LANGUAGE },
-                        { tag: 'JSP', category: TagCategory.LANGUAGE },
-                        { tag: 'JML', category: TagCategory.OTHER },
-                        { tag: 'KeY', category: TagCategory.TOOL },
-                        { tag: 'Azure', category: TagCategory.DEVOPS },
-                        { tag: 'AWS', category: TagCategory.DEVOPS },
-                        { tag: 'SQL', category: TagCategory.TECHNOLOGY },
-                        { tag: 'Git', category: TagCategory.TECHNOLOGY },
-                        { tag: 'Dagger', category: TagCategory.TECHNOLOGY },
-                        { tag: 'Spring', category: TagCategory.FRAMEWORK },
-                        { tag: 'Hibernate', category: TagCategory.TECHNOLOGY },
-                        { tag: 'React', category: TagCategory.FRAMEWORK },
-                        { tag: 'TypeScript', category: TagCategory.LANGUAGE },
-                        { tag: 'HTML', category: TagCategory.LANGUAGE },
-                        { tag: 'CSS', category: TagCategory.TECHNOLOGY },
-                        { tag: 'SASS', category: TagCategory.TECHNOLOGY },
-                        { tag: 'IntelliJ', category: TagCategory.TOOL },
-                        { tag: 'Docker', category: TagCategory.TECHNOLOGY },
-                        {
-                            tag: 'React Redux',
-                            category: TagCategory.TECHNOLOGY,
-                        },
-                        { tag: 'React Saga', category: TagCategory.TECHNOLOGY },
-                        { tag: 'Jenkins', category: TagCategory.DEVOPS },
-                        { tag: 'GitHub', category: TagCategory.TOOL },
-                        { tag: 'Gradle', category: TagCategory.DEVOPS },
-                        { tag: 'Maven', category: TagCategory.DEVOPS },
-                        { tag: 'UNIX', category: TagCategory.TECHNOLOGY },
-                        { tag: 'Windows', category: TagCategory.OTHER },
-                        { tag: 'Scheme', category: TagCategory.LANGUAGE },
-                        { tag: 'Stata', category: TagCategory.TOOL },
-                        { tag: 'Firebase', category: TagCategory.TECHNOLOGY },
-                        { tag: 'PostgreSQL', category: TagCategory.LANGUAGE },
-                        { tag: 'Android Studio', category: TagCategory.TOOL },
-                        { tag: 'JUnit', category: TagCategory.FRAMEWORK },
-                        { tag: 'Mockito', category: TagCategory.FRAMEWORK },
-                    ].sort((a, b) => a.tag.localeCompare(b.tag))}
-                />
+                <Tags tags={skillTags} />
                 <br />
                 <div className={styles.skillsTitle}>
                     ...and probably a lot more that I've forgotten about!

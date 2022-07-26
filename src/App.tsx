@@ -7,6 +7,7 @@ import Footer from './components/footer/Footer'
 import ContactPage from './components/pages/ContactPage'
 import PortfolioPage from './components/pages/PortfolioPage'
 import AboutPage from './components/pages/AboutPage'
+import BlogPage from './components/pages/BlogPage'
 
 export default function App() {
     return (
@@ -16,7 +17,7 @@ export default function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="about" element={<AboutPage />} />
                 <Route path="featured" element={<div> featured </div>} />
-                <Route path="blog" element={<div> blog </div>} />
+                <Route path="blog" element={<BlogPage />} />
                 <Route path="portfolio" element={<PortfolioPage />} />
                 <Route path="contact" element={<ContactPage />} />
             </Routes>
