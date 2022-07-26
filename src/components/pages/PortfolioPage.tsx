@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styles from './portfolio.module.scss'
-import colorsplash from '../../images/colorsplash.png'
+import colorbanner from '../../images/colorbanner.png'
 import tripletex from '../../images/tripletex.png'
 import ztl from '../../images/ztl.png'
 import payex from '../../images/payex.png'
@@ -24,8 +24,8 @@ function PortfolioTitle() {
     return (
         <LeftRight
             title={'My portfolio'}
-            img={colorsplash}
-            imgStyles={{ width: '80%' }}
+            img={colorbanner}
+            imgStyles={{ height: 'calc(91vh + 2px)', marginTop: '-1px' }}
             height={'20%'}
         >
             I've been working at a couple of project over the last few years,
