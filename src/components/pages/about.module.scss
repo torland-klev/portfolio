@@ -16,6 +16,10 @@
         width: 100%;
         height: 450px;
         border-top: 2px solid #ececec;
+
+        img {
+            max-width: 497px;
+        }
     }
 
     .hobbies {
@@ -45,6 +49,7 @@
         flex-direction: row;
         width: 100%;
         border-top: 2px solid #ececec;
+        background-color: #fafafa;
         min-width: 500px;
         height: 450px;
         align-items: center;
@@ -58,6 +63,7 @@
         &Text {
             font-size: large;
             max-width: 50%;
+            margin-bottom: 50px;
             a {
                 color: #333333;
             }
@@ -96,10 +102,29 @@
         min-width: 500px;
         align-items: center;
         justify-content: center;
-        background-color: #fafafa;
 
         &Title {
             font-size: xx-large;
+        }
+
+        a {
+            color: #333333;
+        }
+    }
+
+    .story {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-top: 2px solid #ececec;
+        background-color: #fafafa;
+        width: 100%;
+        padding: 2vh 0;
+
+        &Title {
+            font-size: xx-large;
+            margin-bottom: 10px;
         }
 
         a {

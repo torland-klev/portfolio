@@ -15,6 +15,9 @@ import HalfPage from '../common/HalfPage'
 import Tags, { TagCategory } from '../common/Tags'
 import Typewriter from 'typewriter-effect'
 import { Link } from 'react-router-dom'
+import { Chrono } from 'react-chrono'
+import { storyItems } from './storyItems'
+import SocialsBox from '../common/SocialsBox'
 
 export default function AboutPage() {
     return (
@@ -22,10 +25,9 @@ export default function AboutPage() {
             <AboutMain />
             <Hobbies />
             <Developer />
+            <Story />
             <Skills />
             <Consultant />
-            <Story />
-            <FollowMe />
         </div>
     )
 }
@@ -171,10 +173,7 @@ function Hobbies() {
 function Skills() {
     return (
         <div className={styles.skills}>
-            <div className={styles.skillsTitle}>
-                Technologies I love and enjoy
-            </div>
-            <div style={{ maxWidth: '1200px', marginBottom: '2vh' }}>
+            <div style={{ maxWidth: '1200px', margin: '2vh 0' }}>
                 <Tags
                     tags={[
                         { tag: 'Kotlin', category: TagCategory.LANGUAGE },
@@ -249,7 +248,12 @@ function Consultant() {
                     which means that there is always a possibility that I can
                     join your team. To check if I'm available and interested,
                     you can contact me any way you'd like.
+                    <br />
+                    <br />
+                    Even if you're not interested in hiring me, you should reach
+                    out anyways! I'll buy you a coffee.
                 </div>
+                <SocialsBox />
             </div>
             <div className={styles.consultantRight}>
                 <img src={netlight} alt={'Loading...'} />
@@ -259,9 +263,32 @@ function Consultant() {
 }
 
 function Story() {
-    return <div></div>
-}
+    const theme = {
+        primary: '#333333',
+        secondary: '#393e46',
+        cardBgColor: '#fcfcfc',
+        cardForeColor: '#333333',
+        titleColor: '#333333',
+        titleColorActive: '#fcfcfc',
+    }
 
-function FollowMe() {
-    return <div></div>
+    return (
+        <div className={styles.story}>
+            <div className={styles.storyTitle}>
+                In southernmost Norway, born and raised...
+            </div>
+            <div style={{ maxWidth: '3000px', width: '100%' }}>
+                <Chrono
+                    items={storyItems}
+                    mode="HORIZONTAL"
+                    theme={theme}
+                    hideControls
+                    cardPositionHorizontal={'TOP'}
+                    cardWidth={1000}
+                    itemWidth={350}
+                    cardHeight={120}
+                />
+            </div>
+        </div>
+    )
 }
