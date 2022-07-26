@@ -20,8 +20,22 @@ import { storyItems } from './storyItems'
 import SocialsBox from '../common/SocialsBox'
 
 export default function AboutPage() {
+    function repeat(func: () => void, times: number, timeout: number) {
+        func()
+        times && --times && setTimeout(func, timeout)
+    }
+
+    repeat(
+        function () {
+            // eslint-disable-next-line no-restricted-globals
+            scroll(0, 0)
+        },
+        2,
+        200
+    )
+
     return (
-        <div className={styles.about}>
+        <div className={styles.about} id={'about-id'}>
             <AboutMain />
             <Hobbies />
             <Developer />
