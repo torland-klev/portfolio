@@ -1,7 +1,6 @@
 import React from 'react'
 import styles from './blog.module.scss'
 import { BlogItem, blogItems, BlogItemMetaData } from './items'
-import { Link } from 'react-router-dom'
 
 export default function BlogPage() {
     return (
@@ -16,6 +15,8 @@ export default function BlogPage() {
 }
 
 function BlogCard({ blogItem }: { blogItem: BlogItem }) {
+    const [expanded, setExpanded] = React.useState(false)
+
     return (
         <div className={styles.blogCard}>
             <img
@@ -26,9 +27,13 @@ function BlogCard({ blogItem }: { blogItem: BlogItem }) {
             <div className={styles.blogTitle}>{blogItem.title}</div>
             <div className={styles.blogSubtitle}>{blogItem.subtitle}</div>
             <BlogMetaData data={blogItem.meta} />
-            <Link to={'/blog/' + blogItem.id} className={styles.blogReadMore}>
-                Read more
-            </Link>
+            {expanded && <div className={styles.body}>{blogItem.body}</div>}
+            <button
+                className={styles.blogReadMore}
+                onClick={() => setExpanded(!expanded)}
+            >
+                Read {expanded ? 'less' : 'more'}
+            </button>
         </div>
     )
 }

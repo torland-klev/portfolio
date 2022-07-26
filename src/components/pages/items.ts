@@ -138,7 +138,7 @@ export const blogItems: BlogItem[] = [
         title: 'Hosting a website',
         subtitle:
             "Creating a website is cool, but it's not really useful unless others can see it. To get others to see it, you need to put it on the world wide web. Here is how I did that.",
-        body: 'Body',
+        body: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
@@ -151,7 +151,7 @@ export const blogItems: BlogItem[] = [
         title: 'Creating a website',
         subtitle:
             "In this day and age, everyone who is anything has a website. But creating one isn't always a walk in the park. This is how I did it.",
-        body: 'Body',
+        body: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',

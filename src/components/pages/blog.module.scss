@@ -51,6 +51,11 @@ $elementBorderRadius: 4px;
         max-width: 40vw;
         min-width: 600px;
         border-bottom: 2px solid #ececec;
+
+        .body {
+            width: 100%;
+            max-width: 38vw;
+        }
     }
 
     &Image {
@@ -73,7 +78,7 @@ $elementBorderRadius: 4px;
         text-decoration: none;
         color: #333333;
         border: 1px solid #393e46;
-        width: fit-content;
+        width: 120px;
         padding: 8px 16px;
         margin-top: 10px;
         border-radius: 4px;
