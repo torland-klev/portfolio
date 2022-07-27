@@ -1,13 +1,15 @@
 import React from 'react'
 import styles from './blog.module.scss'
-import { BlogItem, blogItems, BlogItemMetaData } from './items'
+import { BlogItem, BlogItemMetaData, blogItems } from './items'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function BlogPage() {
     return (
         <div className={styles.blog}>
             <div className={styles.blogWrapper}>
                 {blogItems.map((item) => (
-                    <BlogCard blogItem={item} />
+                    <BlogCard blogItem={item} key={item.id} />
                 ))}
             </div>
         </div>
@@ -16,6 +18,13 @@ export default function BlogPage() {
 
 function BlogCard({ blogItem }: { blogItem: BlogItem }) {
     const [expanded, setExpanded] = React.useState(false)
+
+    function readTime(body: string): string {
+        const wpm = 200
+        const words = body.trim().split(/\s+/).length
+        const time = Math.ceil(words / wpm)
+        return time === 1 || time === 0 ? '1 minute' : time + ' minutes'
+    }
 
     return (
         <div className={styles.blogCard}>
@@ -27,13 +36,25 @@ function BlogCard({ blogItem }: { blogItem: BlogItem }) {
             <div className={styles.blogTitle}>{blogItem.title}</div>
             <div className={styles.blogSubtitle}>{blogItem.subtitle}</div>
             <BlogMetaData data={blogItem.meta} />
-            {expanded && <div className={styles.body}>{blogItem.body}</div>}
-            <button
-                className={styles.blogReadMore}
-                onClick={() => setExpanded(!expanded)}
-            >
-                Read {expanded ? 'less' : 'more'}
-            </button>
+            <div className={styles.blogReadMore}>
+                <button
+                    className={styles.blogReadMoreButton}
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    Read {expanded ? 'less' : 'more'}
+                </button>
+                <div className={styles.blogReadMoreTime}>
+                    Estimated read time {readTime(blogItem.body)}
+                </div>
+            </div>
+            {expanded && (
+                <div className={styles.body}>
+                    <ReactMarkdown
+                        children={blogItem.body}
+                        remarkPlugins={[remarkGfm]}
+                    />
+                </div>
+            )}
         </div>
     )
 }

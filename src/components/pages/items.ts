@@ -142,7 +142,7 @@ export const blogItems: BlogItem[] = [
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
-            publishDate: '15 Aug 2022',
+            publishDate: '29 Aug 2022',
         },
     },
     {
@@ -151,7 +151,13 @@ export const blogItems: BlogItem[] = [
         title: 'Creating a website',
         subtitle:
             "In this day and age, everyone who is anything has a website. But creating one isn't always a walk in the park. This is how I did it.",
-        body: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
+        body:
+            'Anything that has ever been purposefully created has started out as an idea. That idea is sometimes blurry, oftentimes ambitious, but nearly always exciting. As the idea manifests, its grandiosity increase. And suddenly, what starts as a tiny subconscious spark, fulfills itself in ecstatic glory. \n\n' +
+            'For me, the idea of having a personal website came long before I have any idea what it would look like. I only knew I wanted someplace I could portray myself and display my work. Not only because it would benefit me professionally, but also because I was curious. I was curious as to what I could accomplish, to how the result would end up, and to what the process would be.\n\n' +
+            'The first step was to get an idea of how the website would look like. It is often at this point that the ambitions can take overhand, which can cause things to feel overwhelming. At this point you should probably remind yourself that millions of other people have created a website before you, and there is probably a bunch of inspiration to find elsewhere. So why not start googling? That is what I did, and I then came across an article [30 Web Developer Portfolios to Inspire You](https://hashnode.com/post/30-web-developer-portfolios-to-inspire-you-cknfx6wdg069kxws1bjjv8mhw), which was exceptionally helpful. The helpfulness came from the wide variety of websites displayed; even though most of them looked like all the designers of GitHub got together to create a website. There were still quite a few that were extremely unique and interesting. After clicking around a bit, it became a bit clearer to me what I wanted. However, it became a lot clearer what I didn’t want. Eventually, I ended up using the website of [Adham Dannaway](https://www.adhamdannaway.com/) as a template. That way I had something to work with.\n\n' +
+            'At this point I sort of knew my layout, but there was still a long way to go. The next step is to create the “infrastructure”; that is, the components that will hold images, text and styling. At this point, I simply had to trust the process and have fun with it. Keep asking questions, such as “what if this looked like this…” and “perhaps I should move this…”. Remember to be critical with questions like “do I need this…” and “did this really look that good…?”. Before you know it, you have a product you can be proud of. \n' +
+            'The final step is to add things to the site, and here also, only your imagination can stop you. Photos, stories, anecdotes, travel tips, previous work. Remember that you’re doing this only for yourself, and in all honesty, you’re the only one that’s ever going to read what ever you write here. \n\n ' +
+            'If you’ve read this far, then definitely contact me. We should have coffee together.',
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',

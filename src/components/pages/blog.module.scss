@@ -11,8 +11,11 @@ $elementBorderRadius: 4px;
     text-align: left;
 
     &Wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         height: 100%;
-        width: fit-content;
+        width: 90%;
         overflow-y: scroll;
         margin-top: 50px;
 
@@ -54,7 +57,9 @@ $elementBorderRadius: 4px;
 
         .body {
             width: 100%;
-            max-width: 38vw;
+            max-width: 39vw;
+            white-space: pre-wrap;
+            line-height: 28px;
         }
     }
 
@@ -75,21 +80,30 @@ $elementBorderRadius: 4px;
     }
 
     &ReadMore {
-        text-decoration: none;
-        color: #333333;
-        border: 1px solid #393e46;
-        width: 120px;
-        padding: 8px 16px;
-        margin-top: 10px;
-        border-radius: 4px;
-        background-color: transparent;
-        transition: background-color 200ms, color 200ms;
-        font-weight: 450;
-
-        &:hover {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 10px;
+        &Button {
+            text-decoration: none;
+            color: #333333;
+            border: 1px solid #393e46;
+            width: 120px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: transparent;
             transition: background-color 200ms, color 200ms;
-            background-color: #393e46;
-            color: #fcfcfc;
+            font-weight: 450;
+
+            &:hover {
+                transition: background-color 200ms, color 200ms;
+                background-color: #393e46;
+                color: #fcfcfc;
+            }
+        }
+
+        &Time {
+            width: 120px;
+            margin-left: 30px;
         }
     }
 
@@ -98,11 +112,12 @@ $elementBorderRadius: 4px;
         flex-direction: row;
         margin: 20px 0;
         align-items: center;
+        font-size: large;
+
         &Image {
             height: 80px;
         }
         &Text {
-            font-size: large;
             font-weight: 400;
             margin-left: 10px;
         }
