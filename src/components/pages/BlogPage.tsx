@@ -44,7 +44,7 @@ function BlogCard({ blogItem }: { blogItem: BlogItem }) {
                     Read {expanded ? 'less' : 'more'}
                 </button>
                 <div className={styles.blogReadMoreTime}>
-                    Estimated read time {readTime(blogItem.body)}
+                    {readTime(blogItem.body)}
                 </div>
             </div>
             {expanded && (
