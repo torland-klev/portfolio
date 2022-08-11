@@ -20,20 +20,6 @@ import { skillTags, storyItems } from './items'
 import SocialsBox from '../common/SocialsBox'
 
 export default function AboutPage() {
-    function repeat(func: () => void, times: number, timeout: number) {
-        func()
-        times && --times && setTimeout(func, timeout)
-    }
-
-    repeat(
-        function () {
-            // eslint-disable-next-line no-restricted-globals
-            scroll(0, 0)
-        },
-        2,
-        200
-    )
-
     return (
         <div className={styles.about} id={'about-id'}>
             <AboutMain />
@@ -241,9 +227,7 @@ function Story() {
 
     return (
         <div className={styles.story}>
-            <div className={styles.storyTitle}>
-                In southernmost Norway, born and raised...
-            </div>
+            <div className={styles.storyTitle} />
             <div style={{ maxWidth: '3000px', width: '100%' }}>
                 <Chrono
                     items={storyItems}
@@ -254,6 +238,7 @@ function Story() {
                     cardWidth={1000}
                     itemWidth={350}
                     cardHeight={120}
+                    focusActiveItemOnLoad={false}
                 />
             </div>
         </div>
