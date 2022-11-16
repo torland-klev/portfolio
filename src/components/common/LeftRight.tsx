@@ -7,6 +7,7 @@ type LeftRightProps = {
     imgAlt?: string
     imgStyles?: CSSProperties
     height?: string
+    minHeight?: string
 }
 
 export default function LeftRight({
@@ -16,11 +17,15 @@ export default function LeftRight({
     imgAlt,
     imgStyles,
     height,
+    minHeight,
 }: React.PropsWithChildren<LeftRightProps>) {
     return (
         <div
             className={styles.leftRight}
-            style={{ height: height ?? 'fit-content' }}
+            style={{
+                height: height ?? 'fit-content',
+                minHeight: minHeight ?? '0px',
+            }}
         >
             <div className={styles.left}>
                 <div className={styles.title}>{title}</div>

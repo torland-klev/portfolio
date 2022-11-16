@@ -8,7 +8,7 @@ export default function ContactPage() {
     return (
         <div className={styles.contact}>
             <ContactMain />
-            <EmilMe />
+            <EmailMe />
         </div>
     )
 }
@@ -29,7 +29,7 @@ function ContactMain() {
     )
 }
 
-function EmilMe() {
+function EmailMe() {
     return (
         <div className={`${styles.section} ${styles.emailWrapper}`}>
             <div className={styles.element} />

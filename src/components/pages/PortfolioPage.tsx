@@ -26,7 +26,8 @@ function PortfolioTitle() {
             title={'My portfolio'}
             img={colorbanner}
             imgStyles={{ height: 'calc(91vh + 2px)', marginTop: '-1px' }}
-            height={'20%'}
+            height={'25vh'}
+            minHeight={'200px'}
         >
             I've been working at a couple of project over the last few years,
             and you'll find most of them here.

@@ -1,17 +1,11 @@
 import React from 'react'
 import styles from './header.module.scss'
-import linkedinLogo from '../../images/linkedin.png'
 import githubLogo from '../../images/github.png'
 import netlightLogo from '../../images/netlight.jpg'
 
 export default function Socials() {
     return (
         <div className={styles.socials}>
-            <Social
-                logo={linkedinLogo}
-                link={'https://no.linkedin.com/in/henrik-klev-5b5938192'}
-                alt={'LinkedIn Logo'}
-            />
             <Social
                 logo={githubLogo}
                 link={'https://github.com/torland-klev'}

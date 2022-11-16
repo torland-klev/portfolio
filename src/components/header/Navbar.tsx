@@ -34,7 +34,6 @@ export default function Navbar({
     return (
         <div className={styles.navbar}>
             <NavBarLink title={'about'} />
-            <NavBarLink title={'featured'} />
             <NavBarLink title={'blog'} />
             <NavBarLink title={'portfolio'} />
             <NavBarLink title={'contact'} />
