@@ -28,11 +28,11 @@ export default function LeftRight({
             }}
         >
             <div className={styles.left}>
-                <div className={styles.title}>{title}</div>
+                <h1 className={styles.title}>{title}</h1>
                 <div className={styles.text}>{children}</div>
             </div>
             <div className={styles.right}>
-                <img style={imgStyles} src={img} alt={imgAlt ?? 'Loading...'} />
+                <img style={imgStyles} src={img} alt={imgAlt ?? ''} />
             </div>
         </div>
     )

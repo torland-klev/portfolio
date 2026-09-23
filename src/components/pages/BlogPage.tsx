@@ -1,10 +1,12 @@
-import React from 'react'
+import { Link } from 'react-router-dom'
 import styles from './blog.module.scss'
 import { BlogItem, BlogItemMetaData, blogItems } from './items'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { formatDate, readTime } from './blogFormat'
+import { usePageTitle } from '../../hooks'
 
 export default function BlogPage() {
+    usePageTitle('Blog')
+
     return (
         <div className={styles.blog}>
             <div className={styles.blogWrapper}>
@@ -17,59 +19,43 @@ export default function BlogPage() {
 }
 
 function BlogCard({ blogItem }: { blogItem: BlogItem }) {
-    const [expanded, setExpanded] = React.useState(false)
-
-    function readTime(body: string): string {
-        const wpm = 200
-        const words = body.trim().split(/\s+/).length
-        const time = Math.ceil(words / wpm)
-        return time === 1 || time === 0 ? '1 minute' : time + ' minutes'
-    }
+    const to = `/blog/${blogItem.id}`
 
     return (
-        <div className={styles.blogCard}>
-            <img
-                src={blogItem.image}
-                alt={blogItem.id}
-                className={styles.blogImage}
-            />
-            <div className={styles.blogTitle}>{blogItem.title}</div>
+        <article className={styles.blogCard}>
+            <Link to={to} tabIndex={-1} aria-hidden>
+                <img src={blogItem.image} alt="" className={styles.blogImage} />
+            </Link>
+            <h2 className={styles.blogTitle}>
+                <Link to={to}>{blogItem.title}</Link>
+            </h2>
             <div className={styles.blogSubtitle}>{blogItem.subtitle}</div>
             <BlogMetaData data={blogItem.meta} />
             <div className={styles.blogReadMore}>
-                <button
-                    className={styles.blogReadMoreButton}
-                    onClick={() => setExpanded(!expanded)}
-                >
-                    Read {expanded ? 'less' : 'more'}
-                </button>
+                <Link to={to} className={styles.blogReadMoreButton}>
+                    Read more
+                </Link>
                 <div className={styles.blogReadMoreTime}>
                     {readTime(blogItem.body)}
                 </div>
             </div>
-            {expanded && (
-                <div className={styles.body}>
-                    <ReactMarkdown
-                        children={blogItem.body}
-                        remarkPlugins={[remarkGfm]}
-                    />
-                </div>
-            )}
-        </div>
+        </article>
     )
 }
 
-function BlogMetaData({ data }: { data: BlogItemMetaData }) {
+export function BlogMetaData({ data }: { data: BlogItemMetaData }) {
     return (
         <div className={styles.blogMeta}>
             <img
                 src={data.authorImage}
-                alt={'author'}
+                alt=""
                 className={styles.blogMetaImage}
             />
             <div className={styles.blogMetaText}>
                 {data.authorName} <br />
-                {data.publishDate}
+                <time dateTime={data.publishDate}>
+                    {formatDate(data.publishDate)}
+                </time>
             </div>
         </div>
     )

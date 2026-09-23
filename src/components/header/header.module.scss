@@ -1,29 +1,67 @@
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    box-sizing: border-box;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #393e46;
-    color: #fcfcfc;
-    height: 9vh;
-    min-height: 100px;
+    align-items: center;
+    height: var(--header-h);
     padding: 0 5vw;
-    animation: slideDown 1s;
+    color: var(--text);
+    // A faint glass by default, so page content that scrolls under stays out of the way.
+    background-color: color-mix(in srgb, var(--bg) 96%, transparent);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    border-bottom: 1px solid transparent;
+    transition:
+        background-color 300ms,
+        border-color 300ms;
+
+    &.scrolled {
+        border-bottom-color: var(--border);
+    }
+
+    // Over the home scenes: no background at all.
+    &.overScene {
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border-bottom-color: transparent;
+    }
 
     .logo {
         display: flex;
         align-items: center;
-        justify-content: center;
         height: 100%;
-        width: 230px;
-        img {
-            height: 90%;
-            width: 225px;
-            transition: height, width 300ms;
+        color: inherit;
+        text-decoration: none;
+
+        &Text {
+            display: inline-flex;
+            align-items: baseline;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
         }
-        img:hover {
-            height: 95%;
-            width: 230px;
-            transition: height, width 300ms;
+
+        // The one identifier: a small accent dot, like a full stop.
+        &Dot {
+            width: 9px;
+            height: 9px;
+            margin-left: 3px;
+            border-radius: 50%;
+            background-color: #8b6cff;
+            transition: transform 300ms;
+        }
+
+        &:hover &Dot,
+        &:focus-visible &Dot {
+            transform: scale(1.3);
         }
     }
 
@@ -31,28 +69,47 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 8px;
+
         a {
+            position: relative;
             text-decoration: none;
-            color: white;
-            width: 80px;
-            font-weight: 400;
-            font-size: medium;
-            transition: font-weight, font-size 300ms;
-            &:hover {
-                transition: font-weight, font-size 300ms;
-                font-weight: 600;
-                font-size: large;
+            color: inherit;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.85;
+            transition: opacity 200ms;
+
+            // Underline instead of a size change, so the links never shift.
+            &::after {
+                content: '';
+                position: absolute;
+                left: 12px;
+                right: 12px;
+                bottom: 2px;
+                height: 2px;
+                border-radius: 1px;
+                background-color: currentColor;
+                transform: scaleX(0);
+                transition: transform 200ms;
+            }
+
+            &:hover,
+            &:focus-visible {
+                opacity: 1;
+                &::after {
+                    transform: scaleX(0.6);
+                }
             }
         }
+
         .active {
-            font-weight: 600;
-            font-size: large;
-            transition: font-weight, font-size 300ms;
-        }
-        .inactive {
-            font-weight: 400;
-            font-size: medium;
-            transition: font-weight, font-size 300ms;
+            opacity: 1;
+            &::after,
+            &:hover::after {
+                transform: scaleX(1);
+            }
         }
     }
 
@@ -60,35 +117,72 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+        gap: 12px;
     }
 
     .social {
         display: flex;
+        border-radius: 8px;
         align-items: center;
         justify-content: center;
-        width: 45px;
-        height: 45px;
-        margin-right: 15px;
+        width: 36px;
+        height: 36px;
+        color: inherit;
 
-        img {
-            height: 40px;
-            width: 40px;
-            transition: width, height 300ms;
-            &:hover {
-                cursor: pointer;
-                transition: width, height 300ms;
-                height: 45px;
-                width: 45px;
-            }
+        img,
+        svg {
+            height: 27px;
+            width: 27px;
+            transition: transform 200ms;
+        }
+        &:hover > *,
+        &:focus-visible > * {
+            transform: scale(1.1);
+        }
+    }
+
+    .themeToggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        transition: background-color 200ms;
+
+        &:hover,
+        &:focus-visible {
+            background-color: color-mix(in srgb, currentColor 12%, transparent);
         }
     }
 }
 
-@keyframes slideDown {
-    0% {
-        margin-top: -9vh;
-    }
-    100% {
-        margin-top: 0;
+@media (max-width: 800px) {
+    .header {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 16px 0;
+
+        .logo {
+            height: 48px;
+
+            &Text {
+                font-size: 26px;
+            }
+        }
+
+        .navbar {
+            order: 3;
+            width: 100%;
+            justify-content: space-around;
+            gap: 0;
+            padding: 4px 0;
+        }
     }
 }

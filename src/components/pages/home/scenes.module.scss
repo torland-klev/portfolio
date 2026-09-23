@@ -1,0 +1,310 @@
+.scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    // Each animation turns on only while its scene is visible (see homepage.module.scss).
+    // !important, because each animation shorthand below would reset it.
+    * {
+        animation-play-state: paused !important;
+    }
+}
+
+// SVG transforms need the element's own box as the reference.
+.sway,
+.sunSink,
+.shimmer,
+.drift,
+.twinkle {
+    transform-box: fill-box;
+}
+
+.sway {
+    transform-origin: 0% 100%;
+    animation: sway 6s ease-in-out infinite alternate;
+}
+
+.sunSink {
+    transform-origin: 50% 50%;
+    animation: sunSink 16s ease-in-out infinite alternate;
+}
+
+.sunStripes {
+    animation: stripes 3.5s linear infinite;
+}
+
+.twinkle {
+    transform-origin: 50% 50%;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+.flicker {
+    animation: flicker 7s steps(1) infinite;
+}
+
+.neon {
+    filter: drop-shadow(0 0 6px currentColor);
+    animation: neon 4s ease-in-out infinite alternate;
+}
+
+.shimmer {
+    transform-origin: 50% 50%;
+    animation: shimmer 2.8s ease-in-out infinite alternate;
+}
+
+.drift {
+    animation: drift ease-in-out infinite alternate;
+}
+
+// Papercraft: a soft shadow under each paper layer.
+.paper {
+    filter: drop-shadow(0 5px 5px rgba(70, 40, 100, 0.2));
+}
+
+.breathe {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: breathe 9s ease-in-out infinite alternate;
+}
+
+.cloudDrift {
+    animation: cloudDrift linear infinite alternate;
+}
+
+.waveBob {
+    animation: waveBob ease-in-out infinite alternate;
+}
+
+.confetti {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: confetti ease-in-out infinite alternate;
+}
+
+// Code strips on the paper cards appear one by one, like typing.
+.typeStrip {
+    transform-box: fill-box;
+    transform-origin: 0% 50%;
+    animation: typeStrip 9s ease-out infinite;
+}
+
+@keyframes breathe {
+    from {
+        transform: scale(0.97);
+    }
+    to {
+        transform: scale(1.03);
+    }
+}
+
+@keyframes cloudDrift {
+    from {
+        transform: translateX(-60px);
+    }
+    to {
+        transform: translateX(120px);
+    }
+}
+
+@keyframes waveBob {
+    from {
+        transform: translate(-60px, 0);
+    }
+    to {
+        transform: translate(60px, 8px);
+    }
+}
+
+@keyframes confetti {
+    from {
+        transform: translateY(0) rotate(-20deg);
+    }
+    to {
+        transform: translateY(-40px) rotate(25deg);
+    }
+}
+
+@keyframes typeStrip {
+    0% {
+        transform: scaleX(0);
+    }
+    12%,
+    85% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(0);
+    }
+}
+
+// Chimney smoke: puffs rise, grow and fade.
+.smoke {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: smoke 6s ease-out infinite;
+}
+
+@keyframes smoke {
+    from {
+        transform: translate(0, 0) scale(0.6);
+        opacity: 0.6;
+    }
+    to {
+        transform: translate(26px, -90px) scale(2.2);
+        opacity: 0;
+    }
+}
+
+// Light mode sun paths. They run only while the half is hovered, and stay at the end.
+.sunRise {
+    animation: sunRise 7s ease-out forwards;
+}
+
+.sunSet {
+    animation: sunSet 7s ease-in-out forwards;
+}
+
+@keyframes sunRise {
+    from {
+        transform: translate(-300px, 120px);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes sunSet {
+    from {
+        transform: translate(-240px, -130px);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+
+// Neon glow in the element's own color (set with the CSS color property).
+.glow {
+    filter: drop-shadow(0 0 4px currentColor);
+}
+
+.scan {
+    animation: scan 7s ease-in-out infinite alternate;
+}
+
+// Grid rows start at the horizon and speed up toward the viewer.
+.gridRow {
+    animation: gridRow 4s cubic-bezier(0.55, 0, 1, 0.45) infinite;
+}
+
+@keyframes scan {
+    from {
+        transform: translateY(0);
+        opacity: 0.2;
+    }
+    to {
+        transform: translateY(-460px);
+        opacity: 0.7;
+    }
+}
+
+@keyframes gridRow {
+    from {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    to {
+        transform: translateY(260px);
+        opacity: 1;
+    }
+}
+
+@keyframes sway {
+    from {
+        transform: rotate(-1.5deg);
+    }
+    to {
+        transform: rotate(2deg);
+    }
+}
+
+@keyframes sunSink {
+    from {
+        transform: translateY(-14px);
+    }
+    to {
+        transform: translateY(26px);
+    }
+}
+
+@keyframes stripes {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(26px);
+    }
+}
+
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes flicker {
+    0%,
+    100% {
+        opacity: 0.85;
+    }
+    46% {
+        opacity: 0.15;
+    }
+    52% {
+        opacity: 0.85;
+    }
+    58% {
+        opacity: 0.2;
+    }
+}
+
+@keyframes neon {
+    from {
+        opacity: 0.75;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    from {
+        transform: scaleX(0.82);
+    }
+    to {
+        transform: scaleX(1.08);
+    }
+}
+
+@keyframes drift {
+    from {
+        transform: translateY(0) rotate(-4deg);
+    }
+    to {
+        transform: translateY(-60px) rotate(4deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scene * {
+        animation: none !important;
+    }
+}

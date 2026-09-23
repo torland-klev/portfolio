@@ -3,11 +3,36 @@
     flex-direction: row-reverse;
     justify-content: space-between;
     align-items: center;
-    background-color: #f5f5f5;
-    color: black;
+    background-color: var(--footer-bg);
+    color: var(--text);
     height: 9vh;
+    box-sizing: border-box;
     padding: 0 5vw;
-    border-top: 2px solid #ececec;
+    border-top: 1px solid var(--border);
     font-size: large;
     min-height: 100px;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    a {
+        color: inherit;
+    }
+
+    &.transparent {
+        position: relative;
+        z-index: 1;
+        background-color: transparent;
+        border-top-color: transparent;
+    }
+}
+
+@media (max-width: 800px) {
+    .footer {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: center;
+        height: auto;
+        padding: 24px 16px;
+        font-size: medium;
+    }
 }
