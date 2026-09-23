@@ -1,23 +1,49 @@
 .portfolio {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 91vh;
     animation: fadeIn 1200ms;
-    min-height: 300px;
+
+    // A vector splash, so it stays sharp at any size.
+    // Regenerate it with scripts/generate-splash.mjs.
+    &Backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center top;
+        pointer-events: none;
+    }
+
+    .visuallyHidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
 
     &Body {
-        height: 63%;
-        margin-top: 10vh;
+        position: relative;
+        z-index: 1;
+        // The page runs up behind the header, so leave room for it here.
+        margin: calc(var(--header-h) + 60px) 0 80px;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
-        overflow-y: auto;
         padding: 5px;
     }
 
     &CardContainer {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
         width: 340px;
         height: 325px;
         display: flex;
@@ -27,14 +53,16 @@
     }
 
     &Card {
-        background-color: white;
-        border: 1px solid #ececec;
-        border-radius: 4px;
-        box-shadow: 1px 1px 4px 5px #888888;
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 4px 14px var(--shadow);
 
         width: 300px;
         height: 280px;
-        transition: width 500ms, height 500ms;
+        transition:
+            width 500ms,
+            height 500ms;
 
         padding: 5px;
 
@@ -43,11 +71,12 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
-            transition: width 300ms, height 300ms;
+            transition:
+                width 300ms,
+                height 300ms;
 
-            img {
-                width: 100% !important;
-                height: 260px !important;
+            .logoTile {
+                height: 260px;
             }
 
             .company {
@@ -56,16 +85,10 @@
             }
         }
 
-        img {
-            width: 300px;
-            height: 200px;
-            border-radius: 4px;
-            transition: width 500ms, height 500ms;
-        }
         .company {
             text-align: left;
             font-size: large;
-            font-weight: 450;
+            font-weight: 600;
             margin-top: 15px;
             margin-left: 10px;
             transition: margin-top 300ms;
@@ -74,54 +97,68 @@
             text-align: left;
             font-size: large;
             margin-left: 10px;
+            color: var(--text-secondary);
         }
     }
 
     &PopoutCardContainer {
         position: fixed;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        animation: popupAppear 300ms;
-        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        inset: 0;
+        padding: 16px;
+        background-color: var(--overlay);
         display: flex;
         align-items: center;
         justify-content: center;
         white-space: pre-wrap;
+        animation: overlayIn 200ms;
+        transition: opacity 200ms;
 
         .popoutCard {
-            width: 50%;
-            height: 50%;
-            min-width: 576px;
-            overflow: hidden;
-            min-height: 324px;
-            max-width: 768px;
-            max-height: 540px;
-            background-color: #fcfcfc;
-            border: 2px solid #393e46;
-            border-radius: 4px;
-            position: relative;
-            z-index: 2;
+            width: min(768px, 100%);
+            max-height: 88vh;
             display: flex;
-            justify-content: center;
-            animation: popupCardAppear 300ms;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 12px 40px var(--shadow);
+            position: relative;
+            animation: cardIn 200ms;
+            transition: transform 200ms;
 
             .closeButton {
-                width: 25px;
-                height: 25px;
                 position: absolute;
-                font-size: medium;
-                right: 3px;
-                top: 2px;
-                border-radius: 20px;
-                border: 1px solid #393e46;
-                background-color: transparent;
-                font-weight: 450;
-                &:hover {
-                    border: 2px solid #393e46;
-                    font-weight: 550;
-                    cursor: pointer;
+                right: 10px;
+                top: 10px;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                border: none;
+                background-color: var(--accent);
+                color: var(--on-accent);
+                font-size: 22px;
+                line-height: 1;
+                cursor: pointer;
+                box-shadow: 0 2px 8px var(--shadow);
+
+                &:hover,
+                &:focus-visible {
+                    transform: scale(1.08);
+                }
+            }
+
+            .logoTileLarge {
+                flex-shrink: 0;
+                height: 200px;
+                border-radius: 0;
+                border-bottom: 1px solid var(--border);
+
+                img {
+                    width: 45%;
+                    height: 34%;
                 }
             }
 
@@ -129,18 +166,16 @@
                 display: flex;
                 flex-direction: column;
                 text-align: left;
-                color: #333333;
-                width: 90%;
-                margin-top: 20px;
-                overflow-y: auto;
-
-                &::-webkit-scrollbar {
-                    display: none;
-                }
+                padding: 20px 32px 28px;
 
                 &Project {
-                    font-size: 32pt;
-                    margin-bottom: 8px;
+                    font-size: 28pt;
+                    margin: 0 0 8px 0;
+                }
+
+                &Link {
+                    font-size: large;
+                    margin-top: 16px;
                 }
 
                 .companyAndPeriod {
@@ -148,48 +183,95 @@
                     display: flex;
                     flex-direction: row;
                     justify-content: space-between;
+                    gap: 16px;
                     font-size: large;
-                    border-top: 1px solid darkgrey;
+                    color: var(--text-secondary);
+                    border-top: 1px solid var(--border);
                     margin-bottom: 16px;
                 }
 
                 &Text {
                     font-size: large;
+                    line-height: 1.5;
+
+                    .sectionTitle {
+                        font-weight: 600;
+                    }
                 }
             }
         }
+    }
 
-        .closing {
-            min-width: 0 !important;
-            min-height: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            transition: width 300ms, height 300ms !important;
+    .closing {
+        opacity: 0;
+
+        .popoutCard {
+            transform: scale(0.96);
         }
     }
-    .closing {
-        background-color: rgba(0, 0, 0, 0);
-        transition: background-color 300ms;
+}
+
+// The company logo on a light tile, on cards and in the popup.
+.logoTile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    transition: height 500ms;
+
+    // One box for every logo, so wide and tall logos end up a similar size.
+    img {
+        width: 74%;
+        height: 38%;
+        object-fit: contain;
     }
 }
 
-.portfolioBody::-webkit-scrollbar-track {
-    background-color: transparent;
+@media (max-width: 1150px) {
+    .portfolioBody {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.portfolioBody::-webkit-scrollbar {
-    width: 20px;
-}
+@media (max-width: 800px) {
+    .portfolio {
+        &Body {
+            grid-template-columns: 1fr;
+            margin: calc(var(--header-h) + 24px) 0 48px;
+        }
 
-.portfolioBody::-webkit-scrollbar-thumb {
-    background-color: darkgrey;
-    border-radius: 20px;
-    border: 6px solid transparent;
-    background-clip: content-box;
-}
+        &CardContainer {
+            width: min(340px, calc(100vw - 32px));
+        }
 
-.portfolioBody::-webkit-scrollbar-thumb:hover {
-    background-color: #393e46;
+        &Card {
+            max-width: 100%;
+
+            .logoTile {
+                max-width: 100%;
+            }
+        }
+
+        &PopoutCardContainer .popoutCard {
+            max-height: 92vh;
+
+            .popoutCardBody {
+                padding: 16px 20px 24px;
+
+                &Project {
+                    font-size: 22pt;
+                }
+
+                .companyAndPeriod {
+                    flex-direction: column;
+                    gap: 0;
+                    font-size: medium;
+                }
+            }
+        }
+    }
 }
 
 @keyframes fadeIn {
@@ -204,31 +286,44 @@
     }
 }
 
-@keyframes popupAppear {
-    0% {
-        background-color: transparent;
+@keyframes overlayIn {
+    from {
+        opacity: 0;
     }
-    100% {
-        background-color: rgba(0, 0, 0, 0.5);
+    to {
+        opacity: 1;
     }
 }
 
-@keyframes popupCardAppear {
-    0% {
-        background-color: transparent;
-        height: 0;
-        width: 0;
-        min-height: 0;
-        min-width: 0;
+@keyframes cardIn {
+    from {
+        transform: scale(0.96);
     }
-    50% {
-        background-color: transparent;
+    to {
+        transform: scale(1);
     }
-    100% {
-        background-color: #fcfcfc;
-        height: 50%;
-        width: 50%;
-        min-height: 324px;
-        min-width: 576px;
+}
+
+// One backdrop per theme.
+.dark {
+    display: none;
+}
+
+@mixin dark-backdrop {
+    .light {
+        display: none;
     }
+    .dark {
+        display: block;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) {
+        @include dark-backdrop;
+    }
+}
+
+:global(:root[data-theme='dark']) {
+    @include dark-backdrop;
 }

@@ -1,12 +1,13 @@
-import React from 'react'
 import styles from './header.module.scss'
-import logo from '../../images/logo.png'
 import { Link } from 'react-router-dom'
 
-export default function Logo({ clickHandler }: { clickHandler: () => void }) {
+export default function Logo() {
     return (
-        <Link to={'/'} className={styles.logo} onClick={clickHandler}>
-            <img src={logo} className="App-logo" alt="logo" />
+        <Link to="/" className={styles.logo} aria-label="Henrik Klev, home">
+            <span className={styles.logoText}>
+                klev
+                <span className={styles.logoDot} aria-hidden />
+            </span>
         </Link>
     )
 }

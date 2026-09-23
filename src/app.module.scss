@@ -1,5 +1,21 @@
+// The footer is max(9vh, 100px) tall. The header floats over the page.
+$footer-height: max(9vh, 100px);
+
 .app {
     text-align: center;
-    font-weight: lighter;
-    background-color: #fcfcfc;
+    font-weight: 400;
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+// Leave room under the floating header, and keep the footer at the bottom.
+.main {
+    box-sizing: border-box;
+    padding-top: var(--header-h);
+    min-height: calc(100vh - #{$footer-height});
+
+    // The home page scenes run up behind the header.
+    &.fullBleed {
+        padding-top: 0;
+    }
 }

@@ -15,63 +15,84 @@ export type TagWithCategory = {
     category: TagCategory
 }
 
-export default function Tags({ tags }: { tags: string[] | TagWithCategory[] }) {
-    return tags.length > 0 ? (
-        <div className={styles.tags}>
-            {tags.sort().map((tag, i) => (
-                <Tag key={'tag' + i} tag={tag} />
-            ))}
+const categoryColors: Record<TagCategory, string> = {
+    [TagCategory.LANGUAGE]: '#FFA9AC',
+    [TagCategory.DEVOPS]: '#E3FF9C',
+    [TagCategory.TOOL]: '#84FF74',
+    [TagCategory.FRAMEWORK]: '#FFDC64',
+    [TagCategory.TECHNOLOGY]: '#BDA5FF',
+    [TagCategory.OTHER]: '#98DDFF',
+}
+
+const categoryNames: Record<TagCategory, string> = {
+    [TagCategory.LANGUAGE]: 'Languages',
+    [TagCategory.FRAMEWORK]: 'Frameworks & platforms',
+    [TagCategory.DEVOPS]: 'Cloud & DevOps',
+    [TagCategory.TECHNOLOGY]: 'Data & technologies',
+    [TagCategory.TOOL]: 'Tools',
+    [TagCategory.OTHER]: 'Methods & domains',
+}
+
+const categoryOrder = [
+    TagCategory.LANGUAGE,
+    TagCategory.FRAMEWORK,
+    TagCategory.DEVOPS,
+    TagCategory.TECHNOLOGY,
+    TagCategory.TOOL,
+    TagCategory.OTHER,
+]
+
+export function GroupedTags({ tags }: { tags: TagWithCategory[] }) {
+    return (
+        <div className={styles.tagGroups}>
+            {categoryOrder.map((category) => {
+                const inGroup = tags.filter((t) => t.category === category)
+                if (inGroup.length === 0) return null
+                return (
+                    <section key={category}>
+                        <h3>
+                            <i
+                                style={{
+                                    backgroundColor: categoryColors[category],
+                                }}
+                                aria-hidden
+                            />
+                            {categoryNames[category]}
+                        </h3>
+                        <Tags tags={inGroup} />
+                    </section>
+                )
+            })}
         </div>
-    ) : null
+    )
+}
+
+export default function Tags({ tags }: { tags: (string | TagWithCategory)[] }) {
+    if (tags.length === 0) return null
+    const label = (tag: string | TagWithCategory) =>
+        typeof tag === 'string' ? tag : tag.tag
+    const sorted = [...tags].sort((a, b) => label(a).localeCompare(label(b)))
+
+    return (
+        <ul className={styles.tags}>
+            {sorted.map((tag) => (
+                <Tag key={label(tag)} tag={tag} />
+            ))}
+        </ul>
+    )
 }
 
 function Tag({ tag }: { tag: string | TagWithCategory }) {
-    function getStyle(tag: TagWithCategory): React.CSSProperties {
-        switch (tag.category) {
-            case TagCategory.LANGUAGE:
-                return {
-                    backgroundColor: '#FFA9AC',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-            case TagCategory.DEVOPS:
-                return {
-                    backgroundColor: '#E3FF9C',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-            case TagCategory.TOOL:
-                return {
-                    backgroundColor: '#84FF74',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-            case TagCategory.FRAMEWORK:
-                return {
-                    backgroundColor: '#FFDC64',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-            case TagCategory.TECHNOLOGY:
-                return {
-                    backgroundColor: '#BDA5FF',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-            case TagCategory.OTHER:
-                return {
-                    backgroundColor: '#98DDFF',
-                    color: '#333333',
-                    fontWeight: 450,
-                }
-        }
-    }
+    if (typeof tag === 'string') return <li className={styles.tag}>{tag}</li>
 
-    return typeof tag === 'string' ? (
-        <div className={styles.tag}>{tag}</div>
-    ) : (
-        <div className={styles.tag} style={getStyle(tag)}>
+    const style: React.CSSProperties = {
+        backgroundColor: categoryColors[tag.category],
+        color: '#333333',
+        fontWeight: 450,
+    }
+    return (
+        <li className={styles.tag} style={style}>
             {tag.tag}
-        </div>
+        </li>
     )
 }

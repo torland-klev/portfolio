@@ -1,47 +1,43 @@
-import React from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './about.module.scss'
 import LeftRight from '../common/LeftRight'
-import famsquad from '../../images/famsquad.png'
+import henrik from '../../images/henrik.jpg'
 import scratcher from '../../images/scratcher.jpg'
 import runners from '../../images/runners.jpg'
 import fireside from '../../images/fireside.jpg'
 import fitness from '../../images/fitness.jpg'
-import netlight from '../../images/netlight-color.png'
+import firi from '../../images/firi.jpg'
 import beginners from '../../images/beginners.jpg'
-import coder from '../../images/coder.gif'
-import designer from '../../images/designer.gif'
+import famsquad from '../../images/famsquad.png'
 import Emoji from '../common/Emoji'
-import HalfPage from '../common/HalfPage'
-import Tags from '../common/Tags'
+import { GroupedTags } from '../common/Tags'
 import Typewriter from 'typewriter-effect'
 import { Link } from 'react-router-dom'
-import { Chrono } from 'react-chrono'
-import { skillTags, storyItems } from './items'
+import {
+    education,
+    experience,
+    favoriteLanguages,
+    ResumeEntry,
+    skillTags,
+    spokenLanguages,
+    storyItems,
+} from './items'
+import { socialLinks } from '../socialLinks'
 import SocialsBox from '../common/SocialsBox'
+import WordRoller from '../common/WordRoller'
+import { useMediaQuery, usePageTitle } from '../../hooks'
 
 export default function AboutPage() {
-    function repeat(func: () => void, times: number, timeout: number) {
-        func()
-        times && --times && setTimeout(func, timeout)
-    }
-
-    repeat(
-        function () {
-            // eslint-disable-next-line no-restricted-globals
-            scroll(0, 0)
-        },
-        2,
-        200
-    )
+    usePageTitle('About')
 
     return (
-        <div className={styles.about} id={'about-id'}>
+        <div className={styles.about}>
             <AboutMain />
-            <Hobbies />
-            <Developer />
             <Story />
             <Skills />
-            <Consultant />
+            <Hobbies />
+            <Resume />
+            <Now />
         </div>
     )
 }
@@ -49,36 +45,26 @@ export default function AboutPage() {
 function AboutMain() {
     const Title = () => (
         <>
-            <>Hi! I'm Henrik</> <Emoji symbol={'👋'} margin={'0'} />
+            Hi! I'm Henrik <Emoji symbol={'👋'} margin={'0'} />
         </>
     )
 
-    function ImageSlide() {
-        const Image = ({ src }: { src: string }) => (
-            <div className={styles.imageContainer}>
-                <img src={src} alt={'Loading...'} />
-            </div>
-        )
-
-        return (
-            <div className={styles.imageSlide}>
-                <Image src={beginners} />
-                <Image src={scratcher} />
-                <Image src={runners} />
-                <Image src={fitness} />
-                <Image src={fireside} />
-            </div>
-        )
-    }
+    const images = [beginners, scratcher, runners, fitness, fireside, famsquad]
 
     return (
-        <div>
+        <div className={styles.aboutMain}>
             <LeftRight
                 title={<Title />}
-                img={famsquad}
-                imgStyles={{ padding: '40px', width: '100%' }}
+                img={henrik}
+                imgAlt="Henrik Klev"
+                imgStyles={{
+                    width: 'calc(100% - 80px)',
+                    margin: '40px',
+                    borderRadius: '50%',
+                }}
             >
-                I'm a fullstack developer based in wonderful Oslo, Norway.
+                I'm a senior backend developer at Firi, based in wonderful Oslo,
+                Norway.
                 <br />
                 <br />
                 Since 2015 I've been trying to code the perfect program. I have
@@ -86,98 +72,64 @@ function AboutMain() {
                 the specification.
                 <br />
                 <br />
-                While the specification is magically sorting itself out, I'm
-                working primarily in the financial sector. <br /> Here I've been
-                developing accounting software, banking integrations and payment
-                solutions.
+                While the specification is magically sorting itself out, I've
+                worked mostly in fintech. Here I've been developing accounting
+                software, banking integrations, payment terminals and crypto
+                trading. Along the way, I also led the Android development of an
+                end-to-end encrypted communication platform.
             </LeftRight>
-            <ImageSlide />
+            <div className={styles.imageSlide}>
+                {images.map((src) => (
+                    <div className={styles.imageContainer} key={src}>
+                        <img src={src} alt="" />
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
 
-function Developer() {
-    const Backend = () => (
-        <HalfPage title={'Backend & Operations'} image={coder}>
-            <div style={{ marginLeft: '24px' }}>
-                <ul>
-                    <li>development</li>
-                    <li>integrations</li>
-                    <li>automation</li>
-                    <li>operations</li>
-                </ul>
-                <br /> ... and everything else! <br />
-            </div>
-        </HalfPage>
-    )
+// Single words that say what drives me. The typewriter cycles through them.
+const drivers = [
+    'curiosity.',
+    'craftsmanship.',
+    'rigor.',
+    'simplicity.',
+    'pragmatism.',
+    'ownership.',
+    'fairness.',
+    'clarity.',
+    'coffee.',
+]
 
-    const Frontend = () => (
-        <HalfPage title={'Frontend & Design'} image={designer}>
-            <div style={{ marginLeft: '24px' }}>
-                <ul>
-                    <li>react</li>
-                    <li>typescript</li>
-                    <li>node</li>
-                    <li>jetpack</li>
-                </ul>
-                <br /> ... and a lot more! <br />
-            </div>
-        </HalfPage>
-    )
-
-    return (
-        <div className={styles.developer}>
-            <Backend />
-            <Frontend />
-        </div>
-    )
+function shuffled<T>(array: T[]): T[] {
+    const copy = [...array]
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
 }
 
 function Hobbies() {
-    const activities = [
-        'program.',
-        'watch sports.',
-        'play games.',
-        'work out.',
-        'hike.',
-        'run.',
-        'socialize.',
-        'drink.',
-        'eat.',
-        'shop fancy clothes.',
-        'spend money.',
-        'play chess.',
-        'learn.',
-        'read.',
-        'teach.',
-        'drink coffee.',
-        'swim.',
-        'vibe.',
-        'dance.',
-    ]
-
-    function shuffleArray<T>(array: T[]): T[] {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1))
-            const temp = array[i]
-            array[i] = array[j]
-            array[j] = temp
-        }
-        return array
-    }
+    const strings = useMemo(() => shuffled(drivers), [])
 
     return (
         <div className={styles.hobbies}>
             <div className={styles.hobbiesTitle}>
-                On my free time, I like to
-                <div className={styles.hobbiesTitleActivity}>
+                Driven by
+                {/* Dark mode types the words. Light mode rolls them. */}
+                <div
+                    className={`${styles.hobbiesTitleActivity} ${styles.typewriter}`}
+                >
                     <Typewriter
-                        options={{
-                            strings: shuffleArray(activities),
-                            autoStart: true,
-                            loop: true,
-                        }}
+                        options={{ strings, autoStart: true, loop: true }}
                     />
+                </div>
+                <div
+                    className={`${styles.hobbiesTitleActivity} ${styles.rolling}`}
+                >
+                    <WordRoller words={strings} />
                 </div>
             </div>
         </div>
@@ -187,74 +139,275 @@ function Hobbies() {
 function Skills() {
     return (
         <div className={styles.skills}>
-            <div style={{ maxWidth: '1200px', margin: '2vh 0' }}>
-                <Tags tags={skillTags} />
+            <div className={styles.skillsInner}>
+                <h2 className={styles.sectionTitle}>Skills</h2>
+                <GroupedTags tags={skillTags} />
                 <br />
                 <div className={styles.skillsTitle}>
                     ...and probably a lot more that I've forgotten about!
                 </div>
                 <div className={styles.skillsTitle}>
                     Looking for something specific?{' '}
-                    <Link to={'/contact'}>Contact</Link> me!
+                    <Link to={'/contact'}>Contact me</Link>!
                 </div>
             </div>
         </div>
     )
 }
 
-function Consultant() {
+function ResumeList({ entries }: { entries: ResumeEntry[] }) {
+    return (
+        <ul className={styles.resumeList}>
+            {entries.map((entry) => (
+                <li key={entry.title + entry.period}>
+                    <div className={styles.resumePeriod}>{entry.period}</div>
+                    <div>
+                        <div className={styles.resumeTitle}>{entry.title}</div>
+                        <div className={styles.resumePlace}>{entry.place}</div>
+                        {entry.text && <div>{entry.text}</div>}
+                        {entry.link && (
+                            <a
+                                href={entry.link.url}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                {entry.link.label} ↗
+                            </a>
+                        )}
+                    </div>
+                </li>
+            ))}
+        </ul>
+    )
+}
+
+function Resume() {
+    return (
+        <div className={styles.resume}>
+            <div className={styles.resumeColumn}>
+                <h2 className={styles.resumeHeading}>Experience</h2>
+                <ResumeList entries={experience} />
+            </div>
+            <div className={styles.resumeColumn}>
+                <h2 className={styles.resumeHeading}>Education</h2>
+                <ResumeList entries={education} />
+
+                <h2 className={styles.resumeHeading}>Languages</h2>
+                <div>{spokenLanguages.join(', ')}</div>
+
+                <h2 className={styles.resumeHeading}>
+                    Favorite languages{' '}
+                    <Emoji symbol={'❤️'} fontSize={'16pt'} margin={'0'} />
+                </h2>
+                <div>{favoriteLanguages.join(', ')}</div>
+
+                <h2 className={styles.resumeHeading}>GitHub</h2>
+                <div className={styles.resumeLinks}>
+                    <a
+                        href={socialLinks.github}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        github.com/torland-klev
+                    </a>
+                    <a
+                        href={socialLinks.githubWork}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        github.com/henrik-klev
+                    </a>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function Now() {
     return (
         <div className={styles.consultant}>
             <div className={styles.consultantLeft}>
-                <div className={styles.consultantTitle}>
-                    Did you know you can hire me?
+                <div className={styles.consultantInner}>
+                    <h2 className={styles.sectionTitle}>Where am I now?</h2>
+                    <div className={styles.consultantText}>
+                        I'm a senior backend developer at{' '}
+                        <a
+                            href="https://firi.com"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Firi
+                        </a>
+                        , where I help people buy and store crypto safely.
+                        <br />
+                        <br />
+                        Want to talk tech, fintech or formal verification? Reach
+                        out! I'll buy you a coffee.
+                    </div>
+                    <SocialsBox />
                 </div>
-                <div className={styles.consultantText}>
-                    I'm part the the incredible consulting firm{' '}
-                    <Link to={'https://www.netlight.com/'}>Netlight</Link>,
-                    which means that there is always a possibility that I can
-                    join your team. To check if I'm available and interested,
-                    you can contact me any way you'd like.
-                    <br />
-                    <br />
-                    Even if you're not interested in hiring me, you should reach
-                    out anyways! I'll buy you a coffee.
-                </div>
-                <SocialsBox />
             </div>
             <div className={styles.consultantRight}>
-                <img src={netlight} alt={'Loading...'} />
+                <img src={firi} alt="The Firi website" />
             </div>
         </div>
     )
 }
 
+const SCROLL_STEP_PX = 600
+
 function Story() {
-    const theme = {
-        primary: '#333333',
-        secondary: '#393e46',
-        cardBgColor: '#fcfcfc',
-        cardForeColor: '#333333',
-        titleColor: '#333333',
-        titleColorActive: '#fcfcfc',
-    }
+    const isMobile = useMediaQuery('(max-width: 800px)')
 
     return (
         <div className={styles.story}>
-            <div className={styles.storyTitle} />
-            <div style={{ maxWidth: '3000px', width: '100%' }}>
-                <Chrono
-                    items={storyItems}
-                    mode="HORIZONTAL"
-                    theme={theme}
-                    hideControls
-                    cardPositionHorizontal={'TOP'}
-                    cardWidth={1000}
-                    itemWidth={350}
-                    cardHeight={120}
-                    focusActiveItemOnLoad={false}
-                />
-            </div>
+            <h2 className={styles.sectionTitle}>My story so far</h2>
+            {isMobile ? <VerticalTimeline /> : <HorizontalTimeline />}
         </div>
+    )
+}
+
+function VerticalTimeline() {
+    return (
+        <ol className={styles.timelineVertical}>
+            {storyItems.map((item) => (
+                <li key={item.title}>
+                    <span className={styles.timelineDot} aria-hidden />
+                    <div>
+                        <div className={styles.timelineDatePill}>
+                            {item.title}
+                        </div>
+                        <h3>{item.cardTitle}</h3>
+                        <p>{item.cardDetailedText}</p>
+                    </div>
+                </li>
+            ))}
+        </ol>
+    )
+}
+
+function HorizontalTimeline() {
+    const [selected, setSelected] = useState(0)
+    const [canScroll, setCanScroll] = useState({ left: false, right: false })
+    const trackRef = useRef<HTMLOListElement>(null)
+
+    useEffect(() => {
+        const track = trackRef.current
+        if (!track) return
+        const update = () =>
+            setCanScroll({
+                left: track.scrollLeft > 0,
+                right:
+                    track.scrollLeft + track.clientWidth <
+                    track.scrollWidth - 1,
+            })
+        update()
+        const resizeObserver = new ResizeObserver(update)
+        resizeObserver.observe(track)
+        track.addEventListener('scroll', update, { passive: true })
+        return () => {
+            resizeObserver.disconnect()
+            track.removeEventListener('scroll', update)
+        }
+    }, [])
+
+    function select(index: number, focus = false) {
+        setSelected(index)
+        const button = trackRef.current?.querySelectorAll('button')[index]
+        button?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'nearest',
+        })
+        if (focus) button?.focus()
+    }
+
+    function onKeyDown(e: React.KeyboardEvent) {
+        const last = storyItems.length - 1
+        const next = {
+            ArrowRight: Math.min(selected + 1, last),
+            ArrowLeft: Math.max(selected - 1, 0),
+            Home: 0,
+            End: last,
+        }[e.key]
+        if (next === undefined) return
+        e.preventDefault()
+        select(next, true)
+    }
+
+    const item = storyItems[selected]
+
+    return (
+        <>
+            <div
+                className={`${styles.timeline} ${
+                    canScroll.left ? styles.fadeLeft : ''
+                } ${canScroll.right ? styles.fadeRight : ''}`}
+            >
+                <button
+                    className={`${styles.timelineArrow} ${styles.timelineArrowLeft}`}
+                    onClick={() =>
+                        trackRef.current?.scrollBy({
+                            left: -SCROLL_STEP_PX,
+                            behavior: 'smooth',
+                        })
+                    }
+                    aria-label="Scroll timeline back"
+                    hidden={!canScroll.left}
+                >
+                    ‹
+                </button>
+                <ol
+                    className={styles.timelineTrack}
+                    ref={trackRef}
+                    role="tablist"
+                    aria-label="Timeline"
+                    onKeyDown={onKeyDown}
+                >
+                    {storyItems.map((entry, index) => (
+                        <li key={entry.title}>
+                            <button
+                                role="tab"
+                                id={`story-tab-${index}`}
+                                aria-selected={index === selected}
+                                aria-controls="story-panel"
+                                tabIndex={index === selected ? 0 : -1}
+                                onClick={() => select(index)}
+                            >
+                                <span
+                                    className={styles.timelineDot}
+                                    aria-hidden
+                                />
+                                <span className={styles.timelineDate}>
+                                    {entry.title}
+                                </span>
+                            </button>
+                        </li>
+                    ))}
+                </ol>
+                <button
+                    className={`${styles.timelineArrow} ${styles.timelineArrowRight}`}
+                    onClick={() =>
+                        trackRef.current?.scrollBy({
+                            left: SCROLL_STEP_PX,
+                            behavior: 'smooth',
+                        })
+                    }
+                    aria-label="Scroll timeline forward"
+                    hidden={!canScroll.right}
+                >
+                    ›
+                </button>
+            </div>
+            <div
+                className={styles.timelineCard}
+                id="story-panel"
+                role="tabpanel"
+                aria-labelledby={`story-tab-${selected}`}
+            >
+                <h3>{item.cardTitle}</h3>
+                <p>{item.cardDetailedText}</p>
+            </div>
+        </>
     )
 }

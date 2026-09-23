@@ -5,102 +5,122 @@ $elementBorderRadius: 4px;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 91vh;
-    animation: fadeIn 1200ms;
-    color: #333333;
+    animation: fadeIn 800ms;
+    color: var(--text);
     text-align: left;
 
     &Wrapper {
-        width: fit-content;
-        height: 100%;
-        overflow-y: scroll;
-        margin-top: 50px;
-
-        &::-webkit-scrollbar-track {
-            background-color: transparent;
-        }
-
-        &::-webkit-scrollbar {
-            background-color: transparent;
-            width: 20px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background-color: transparent;
-        }
-        &:hover {
-            &::-webkit-scrollbar-thumb {
-                background-color: darkgrey;
-                border-radius: 20px;
-                border: 6px solid transparent;
-                background-clip: content-box;
-            }
-            &::-webkit-scrollbar-thumb:hover {
-                background-color: #393e46;
-            }
-        }
+        width: min(760px, 100%);
+        box-sizing: border-box;
+        padding: 0 16px;
+        margin: 50px 0 80px;
     }
 
     &Card {
         display: flex;
         flex-direction: column;
         margin-bottom: 50px;
-        padding-bottom: 20px;
-        height: fit-content;
-        width: fit-content;
-        max-width: 40vw;
-        min-width: 600px;
-        border-bottom: 2px solid #ececec;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
 
-        .body {
-            width: 100%;
-            max-width: 39vw;
-            white-space: pre-wrap;
-            line-height: 28px;
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &Post .body {
+        width: 100%;
+        font-size: large;
+        line-height: 1.65;
+
+        img {
+            max-width: 100%;
+            border-radius: $elementBorderRadius;
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            font-size: x-large;
+            margin: 32px 0 0 0;
+        }
+
+        li {
+            margin-bottom: 6px;
         }
     }
 
     &Image {
-        max-width: 100%;
-        border-radius: 4px;
+        display: block;
+        width: 100%;
+        border-radius: 6px;
         max-height: 40vh;
+        object-fit: cover;
+        object-position: left top;
     }
 
     &Title {
         font-size: xx-large;
-        font-weight: 450;
-        margin: 10px 0;
+        margin: 16px 0 8px;
+
+        a {
+            text-decoration: none;
+            &:hover,
+            &:focus-visible {
+                text-decoration: underline;
+            }
+        }
     }
 
     &Subtitle {
         font-size: large;
+        line-height: 1.5;
+        color: var(--text-secondary);
+    }
+
+    &Back {
+        display: inline-block;
+        margin: 0 0 20px;
+        font-size: large;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
+        }
+    }
+
+    &Post &Back:last-child {
+        margin: 40px 0 0;
     }
 
     &ReadMore {
         display: inline-flex;
         align-items: center;
-        margin-bottom: 10px;
+        gap: 15px;
+
         &Button {
+            display: inline-block;
+            text-align: center;
             text-decoration: none;
-            color: #333333;
-            border: 1px solid #393e46;
+            color: var(--text);
+            border: 1px solid var(--border-strong);
             width: 120px;
             padding: 8px 16px;
             border-radius: 4px;
-            background-color: transparent;
-            transition: background-color 200ms, color 200ms;
-            font-weight: 450;
+            font-weight: 500;
+            transition:
+                background-color 200ms,
+                color 200ms;
 
-            &:hover {
-                transition: background-color 200ms, color 200ms;
-                background-color: #393e46;
-                color: #fcfcfc;
+            &:hover,
+            &:focus-visible {
+                background-color: var(--accent);
+                color: var(--on-accent);
             }
         }
 
         &Time {
-            width: 120px;
-            margin-left: 15px;
+            color: var(--text-muted);
         }
     }
 
@@ -112,10 +132,12 @@ $elementBorderRadius: 4px;
         font-size: large;
 
         &Image {
-            height: 45px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         &Text {
-            font-weight: 400;
             margin-left: 10px;
         }
     }

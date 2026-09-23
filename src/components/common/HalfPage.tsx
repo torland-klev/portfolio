@@ -1,33 +1,37 @@
 import styles from './common.module.scss'
 import React, { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 
 export default function HalfPage({
     children,
     title,
-    image,
-    onClick,
+    to,
     titleFontSize,
+    className,
 }: React.PropsWithChildren<{
     title: ReactNode
-    image?: string
-    onClick?: () => {}
+    to?: string
     titleFontSize?: string
+    className?: string
 }>) {
-    return (
-        <div
-            className={`${styles.halfPage} ${onClick ? styles.clickable : ''}`}
-            onClick={onClick}
-        >
-            <div className={styles.textContainer}>
-                <div
-                    className={styles.title}
-                    style={{ fontSize: titleFontSize ?? 'xx-large' }}
-                >
-                    {title}
-                </div>
-                <div className={styles.body}>{children}</div>
+    const content = (
+        <div className={styles.textContainer}>
+            <div
+                className={styles.title}
+                style={{ fontSize: titleFontSize ?? 'xx-large' }}
+            >
+                {title}
             </div>
-            {image && <img src={image} alt={'loading...'} />}
+            {children && <div className={styles.body}>{children}</div>}
         </div>
+    )
+    const classes = `${styles.halfPage} ${className ?? ''}`
+
+    return to ? (
+        <Link to={to} className={`${classes} ${styles.clickable}`}>
+            {content}
+        </Link>
+    ) : (
+        <div className={classes}>{content}</div>
     )
 }

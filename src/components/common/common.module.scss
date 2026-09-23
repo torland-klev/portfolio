@@ -14,9 +14,8 @@
 
         .title {
             width: 300px;
-            font-weight: bold;
             font-size: xx-large;
-            margin-bottom: 10px;
+            margin: 0 0 10px 0;
             text-align: left;
         }
 
@@ -24,6 +23,7 @@
             width: 300px;
             text-align: left;
             font-size: large;
+            line-height: 1.45;
         }
     }
     .right {
@@ -44,13 +44,8 @@
     width: 50%;
     overflow: hidden;
     height: 100%;
-
-    &:hover {
-        img {
-            opacity: 1;
-            transition: opacity 1s;
-        }
-    }
+    color: inherit;
+    text-decoration: none;
 
     .textContainer {
         grid-area: inner-div;
@@ -63,27 +58,18 @@
     }
 
     .title {
-        font-weight: bold;
+        font-weight: 600;
         font-size: 42pt;
-        color: #333333;
+        color: var(--text);
+        margin: 0;
     }
 
     .body {
         text-align: left;
         font-size: 14pt;
-        word-break: break-word;
-        hyphens: auto;
+        line-height: 1.45;
         max-width: 300px;
         min-width: 200px;
-    }
-
-    img {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        opacity: 0;
-        transition: opacity 500ms;
-        grid-area: inner-div;
     }
 }
 
@@ -91,18 +77,42 @@
     display: flex;
     flex-flow: row wrap;
     width: 100%;
-    margin-top: 10px;
+    margin: 10px 0 0 0;
+    padding: 0;
+    list-style: none;
     .tag {
         width: fit-content;
-        border: 1px solid grey;
-        background-color: #f5f5f5;
+        background-color: var(--tag-bg);
         border-radius: 20px;
         margin: 4px 5px;
         padding: 2px 8px;
-        &:hover {
-            background-color: #c5c5c5;
-            cursor: default;
+    }
+}
+
+.tagGroups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px 40px;
+    width: 100%;
+    text-align: left;
+
+    h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: large;
+        margin: 0 0 4px 5px;
+
+        i {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
+    }
+
+    .tags {
+        margin-top: 0;
     }
 }
 
@@ -117,14 +127,89 @@
     margin-left: 20px;
     margin-bottom: 20px;
 
+    a {
+        display: block;
+        border-radius: 20px;
+        &:hover,
+        &:focus-visible {
+            opacity: 0.7;
+        }
+    }
+
     img {
+        display: block;
         height: 80px;
         width: 80px;
         border: 1px solid transparent;
         border-radius: 20px;
-        &:hover {
-            cursor: pointer;
-            opacity: 0.7;
+    }
+}
+
+// The rolling word reel (see WordRoller).
+.roller {
+    display: inline-block;
+    height: 1.25em;
+    overflow: hidden;
+    vertical-align: bottom;
+    text-align: left;
+    white-space: nowrap;
+    transition: width 650ms cubic-bezier(0.65, 0, 0.35, 1);
+
+    &Reel {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: transform 650ms cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    &Word {
+        height: 1.25em;
+        line-height: 1.25em;
+        font-weight: 600;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .roller,
+    .rollerReel {
+        transition: none;
+    }
+}
+
+@media (max-width: 800px) {
+    .leftRight {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 16px;
+        box-sizing: border-box;
+
+        .left {
+            width: 100%;
+            align-items: flex-start;
+            margin-top: 4vh;
+
+            .title,
+            .text {
+                width: 100%;
+            }
         }
+        .right {
+            width: 100%;
+            overflow: hidden;
+        }
+    }
+
+    .halfPage {
+        width: 100%;
+        min-height: 0;
+        padding: 48px 0;
+
+        .textContainer {
+            padding: 0 16px;
+        }
+    }
+
+    .tagGroups {
+        grid-template-columns: 1fr;
     }
 }

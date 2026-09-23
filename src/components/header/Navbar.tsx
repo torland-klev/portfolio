@@ -1,42 +1,22 @@
-import React, { useState } from 'react'
 import styles from './header.module.scss'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-export default function Navbar({
-    navigateToHome,
-    clickHandler,
-}: {
-    navigateToHome?: boolean
-    clickHandler: (active: string) => void
-}) {
-    const [active, setActive] = useState('')
+const pages = ['about', 'blog', 'portfolio', 'contact']
 
-    function NavBarLink({ title }: { title: string }) {
-        return (
-            <Link
-                to={`/${title}`}
-                className={
-                    !navigateToHome &&
-                    (active === title || window.location.href.includes(title))
-                        ? styles.active
-                        : styles.inactive
-                }
-                onClick={() => {
-                    setActive(title)
-                    clickHandler(title)
-                }}
-            >
-                {title}
-            </Link>
-        )
-    }
-
+export default function Navbar() {
     return (
-        <div className={styles.navbar}>
-            <NavBarLink title={'about'} />
-            <NavBarLink title={'blog'} />
-            <NavBarLink title={'portfolio'} />
-            <NavBarLink title={'contact'} />
-        </div>
+        <nav className={styles.navbar}>
+            {pages.map((page) => (
+                <NavLink
+                    key={page}
+                    to={`/${page}`}
+                    className={({ isActive }) =>
+                        isActive ? styles.active : styles.inactive
+                    }
+                >
+                    {page}
+                </NavLink>
+            ))}
+        </nav>
     )
 }
