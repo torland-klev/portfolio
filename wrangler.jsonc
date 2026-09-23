@@ -1,0 +1,11 @@
+// Cloudflare Workers deploy config (used by `npx wrangler deploy`).
+{
+    "$schema": "https://unpkg.com/wrangler/config-schema.json",
+    "name": "portfolio",
+    "compatibility_date": "2026-09-21",
+    "assets": {
+        "directory": "./build",
+        // Serve index.html for unknown paths, so client-side routes like /blog/<id> work on reload.
+        "not_found_handling": "single-page-application"
+    }
+}

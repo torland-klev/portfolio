@@ -32,11 +32,13 @@ Each blog post has its own page at `/blog/<id>`, where `<id>` is the post's `id`
 
 Colors are CSS custom properties in `src/index.css`. The site follows the OS light or dark setting. The toggle in the header overrides it and saves the choice in `localStorage`.
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers)
 
-1. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**, and pick this repository.
-2. Build settings: framework preset **None**, build command `npm run build`, output directory `build`.
-3. Under **Settings → Environment variables**, add `REACT_APP_EMAILJS_TEMPLATE_ID` and `REACT_APP_EMAILJS_PUBLIC_KEY`.
-4. Under **Custom domains**, add your domain and follow the DNS steps.
+The site deploys as static assets on a Cloudflare Worker. `wrangler.jsonc` points Wrangler at `./build` and serves `index.html` for unknown paths, so client-side routes such as `/blog/<id>` work on reload.
 
-Every push to `main` deploys. `public/_redirects` sends every path to `index.html`, so client-side routes such as `/blog/<id>` work on reload.
+1. In the Cloudflare dashboard: **Workers & Pages → Create → Import a repository**, and pick this repository.
+2. Build command: `npm run build`. Deploy command: `npx wrangler deploy`.
+3. Under **Settings → Build → Variables and secrets**, add `REACT_APP_EMAILJS_TEMPLATE_ID` and `REACT_APP_EMAILJS_PUBLIC_KEY`. They are build variables, because Vite puts them into the bundle at build time.
+4. Under **Settings → Domains & Routes**, add your custom domain.
+
+Every push to `main` deploys.

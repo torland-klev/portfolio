@@ -30,3 +30,6 @@ yarn-error.log*
 
 # CV source (contains private contact details)
 main.tex
+
+# Wrangler
+.wrangler
