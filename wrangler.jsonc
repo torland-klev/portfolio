@@ -7,5 +7,11 @@
         "directory": "./build",
         // Serve index.html for unknown paths, so client-side routes like /blog/<id> work on reload.
         "not_found_handling": "single-page-application",
+        // The default "auto-trailing-slash" tries to auto-redirect /index.html to /,
+        // which combined with the single-page-application fallback above makes
+        // Cloudflare's own loop detection reject the deploy ("Invalid _redirects
+        // configuration: infinite loop detected"). We don't link to .html paths, so
+        // disable the automatic redirect generation entirely.
+        "html_handling": "none",
     },
 }
