@@ -54,8 +54,9 @@ function TextBox() {
     )
 }
 
-// The EmailJS service that sends the mail. Not secret.
+// The EmailJS service and template that send the mail. Not secret.
 const EMAILJS_SERVICE_ID = 'service_rofe1wb'
+const EMAILJS_TEMPLATE_ID = 'template_oyl9bzm'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
@@ -86,11 +87,10 @@ function EmailBox() {
         setValidationError(errors)
         if (errors) return
 
-        const templateId = import.meta.env.REACT_APP_EMAILJS_TEMPLATE_ID
         const publicKey = import.meta.env.REACT_APP_EMAILJS_PUBLIC_KEY
-        if (!templateId || !publicKey) {
-            // The EmailJS keys are build variables. Without them, nothing can be sent.
-            console.error('EmailJS keys are missing from the build.')
+        if (!publicKey) {
+            // The public key is a build variable. Without it, nothing can be sent.
+            console.error('The EmailJS public key is missing from the build.')
             setStatus('error')
             return
         }
@@ -99,7 +99,7 @@ function EmailBox() {
         try {
             await emailjs.send(
                 EMAILJS_SERVICE_ID,
-                templateId,
+                EMAILJS_TEMPLATE_ID,
                 {
                     domain: window.location.hostname,
                     name,
