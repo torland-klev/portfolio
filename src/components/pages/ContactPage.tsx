@@ -86,7 +86,9 @@ function EmailBox() {
         const templateId = import.meta.env.REACT_APP_EMAILJS_TEMPLATE_ID
         const publicKey = import.meta.env.REACT_APP_EMAILJS_PUBLIC_KEY
         if (!templateId || !publicKey) {
-            openMailApp()
+            // The EmailJS keys are build variables. Without them, nothing can be sent.
+            console.error('EmailJS keys are missing from the build.')
+            setStatus('error')
             return
         }
 
@@ -107,18 +109,11 @@ function EmailBox() {
             setName('')
             setEmail('')
             setMessage('')
-        } catch {
-            // For example a blocked request. Keep the input and hand it to the mail app.
+        } catch (error) {
+            // Keep the input, so the visitor can try again or copy the message.
+            console.error('EmailJS could not send the message.', error)
             setStatus('error')
-            openMailApp()
         }
-    }
-
-    // Fallback: open the visitor's mail app with the message filled in.
-    function openMailApp() {
-        const subject = encodeURIComponent(`Message from ${name}`)
-        const body = encodeURIComponent(`${message}\n\n${name} (${email})`)
-        window.location.href = `mailto:${socialLinks.email}?subject=${subject}&body=${body}`
     }
 
     function onChange(setter: (value: string) => void) {
