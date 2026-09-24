@@ -47,6 +47,14 @@ test('opens a blog post on its own page', async () => {
     )
 })
 
+test('renders a chart that a post embeds in its body', async () => {
+    renderAt('/blog/knocking-down-the-house')
+    const chart = await screen.findByAltText(/^Bar chart of where 2,324/)
+    // Vite inlines this SVG, so the src is a data URL that react-markdown
+    // would otherwise strip.
+    expect(chart).toHaveAttribute('src', expect.stringMatching(/^data:image\//))
+})
+
 test('sends unknown blog posts back to the list', async () => {
     renderAt('/blog/does-not-exist')
     expect(

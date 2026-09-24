@@ -10,6 +10,7 @@ import tripletexLogo from '../../images/logos/tripletex.svg'
 import uioLogo from '../../images/logos/uio.jpg'
 import imfChart3 from '../../images/imf-chart3.png'
 import intentTestFlow from '../../images/intent-test-flow.png'
+import possessionOutcomes from '../../images/possession-outcomes.svg'
 
 export const skillTags: TagWithCategory[] = [
     { tag: 'Kotlin', category: TagCategory.LANGUAGE },
@@ -731,7 +732,104 @@ If I get a reply, I will update this post.
 - Era Dabla-Norris and Rodrigo Valdés. [High Debt, Hard Choices](https://www.imf.org/en/publications/fandd/issues/2026/03/high-debt-hard-choices-era-dabla-norris). Finance & Development, IMF, March 2026.
 - Francesco Bianchi, Era Dabla-Norris and Salma Khalid. [Perceptions of Public Debt and Policy Expectations: Evidence from Cross-Country Surveys](https://www.nber.org/papers/w34382). NBER Working Paper 34382, 2025.`
 
+const knockingDownTheHouse = `Michael Owen once put the difference between attacking and defending like this:
+
+> It's easier to defend, or spoil, than it is to create. If you asked me to build this house I wouldn't be able to do it. But give me a few weeks, I'd be able to knock it down.
+
+It is a good line, and most people nod along to it. I think it is a drastic simplification, and the data we now have on how possessions actually end shows why.
+
+The analogy smuggles in two assumptions. The first is that building is one event with a yes-or-no outcome: the house stands, or it does not. The second is that knocking it down is the same kind of event in reverse. Football satisfies neither.
+
+## Take the claim at its word
+
+"Easier" only means something if there is a contest with a winner. So let us build one. Every time a team gets the ball, the attack and the defence both have a job, and exactly one of them succeeds. If attacking really were the easier job, an attack ought to win that contest more often than not: at least half the time.
+
+Two large datasets say what actually happens.
+
+Maneiro and colleagues coded 2,324 attacking sequences from UEFA Euro 2020.
+
+![Bar chart of where 2,324 attacking sequences ended at UEFA Euro 2020](${possessionOutcomes})
+
+- 65 per cent broke down before the box,
+- 21 per cent ended with the ball delivered into the box,
+- 12 per cent ended in a shot,
+- and 2 per cent ended in a goal.
+
+Taha and Orlov did the same kind of exercise on 128 matches from the 2018 and 2022 men's World Cups: 22,661 possessions and 370,319 events. Of those possessions, 2,878 ended in a shot (12.7 per cent), and 372 of those shots were goals (12.9 per cent). That is 1.6 per cent of possessions ending in a goal.
+
+Two tournaments, two coding schemes, nearly the same answer: about one attack in eight reaches a shot, and about one in fifty reaches a goal.
+
+Take that seriously inside the boolean framing and defending does not merely have the easier job. It wins 98 times out of 100. Owen's builder-and-wrecker picture undersells his own case by a factor of about twenty-five.
+
+That is the problem, because nobody believes the conclusion. If defending were fifty times easier than attacking, every match would finish goalless and defenders would be the cheapest players in the squad. Owen scored plenty of goals past defenders who, on this reading, had a trivially easy afternoon. The model that produces the 98 per cent is the same model that produces the absurdity. The contest is not a coin flip that defending happens to tip, so "which side has it easier" is not a question you can settle in that form.
+
+Notice also what the ladder of outcomes does to the *attacking* half of the analogy. An attack is not a house that stands or falls. It is a sequence that can die in midfield, reach the box, produce a shot, or produce a goal, and those are four different amounts of building. Taha and Orlov add a fifth dimension: they score each possession for directness, the ratio between the straight-line distance to goal and the distance the ball actually travelled, and directness on its own predicts goals (their coefficient is 1.009, p < 0.0001). The same attack, played more directly, is a different attack.
+
+## Defending is not boolean either
+
+This is the half of the analogy that breaks first, and Opta's own data model is the evidence.
+
+Opta needs two units to describe a passage of play, not one. A **sequence** is "a passage of play that belongs to one team and is ended by a defensive action, a stoppage in play or a shot". A **possession** is "one or more sequences in a row belonging to the same team", and it "is ended by the opposition gaining control of the ball".
+
+Read those two definitions next to each other. A defensive action can end a sequence without ending the possession. Block a cross and watch it run out for a corner, and you have done exactly that: the sequence is over, the possession is not, and the attacking team restarts closer to your goal than where they began. That event is neither "the defence held" nor "the defence failed". If a single boolean were enough, Opta would not need the second unit.
+
+The vocabulary underneath tells the same story. Opta distinguishes:
+
+- a **tackle**, "awarded if a player connects with the ball in a legal, ground-level challenge and successfully takes the ball away";
+- an **interception**, "where a player reads an opponent's pass and intercepts the ball by moving into the line of the intended pass";
+- a **clearance**, "a defensive action when a player attempts to get the ball away from a dangerous zone on the pitch with no immediate target";
+- a **recovery**, "where a player recovers the ball in a situation where neither team has possession";
+- and a **blocked shot**, "an attempt on target that is blocked by an outfield player, where other defenders or a goalkeeper are behind the blocker".
+
+An interception leaves you on the ball and facing forward. A tackle leaves you on the ball. A clearance leaves nobody on the ball, by design: "no immediate target" is the definition admitting that you have solved this second and bought the next one. A block leaves a loose ball that can fall anywhere. Calling all five "successful defending" throws away most of what happened.
+
+Blocks are worth a number. In the 2023/24 Premier League, roughly 2,960 shots were blocked, about 28 per cent of the 10,481 shots taken. Liverpool had 222 of their own 790 shots blocked, Arsenal 217 of 656, Manchester City 209 of 694. (StatMuse labels that column SH-BLK without saying which direction it points. It tracks shots taken almost exactly, top to bottom, so these are shots by the team that were blocked, not blocks made by it.) More than a quarter of all attempts in a Premier League season die on a defender's shin, and every one of them is an outcome the boolean has no name for.
+
+Then there is the direction the analogy never considers: defending produces attacks. Opta counts **high turnovers**, "possessions that start in open play and begin 40 metres or less from the opponent's goal". Liverpool recorded 406 of them in 2019/20. The Analyst also picks out Wilfried Ndidi, a defensive midfielder, for the 17 possessions he won that went on to end in a shot. On the house analogy, the wrecking ball is not supposed to lay bricks.
+
+## The units do not even agree
+
+Maneiro's study puts a team at about 72 attacks per match. Taha and Orlov's 22,661 possessions across 128 matches works out to roughly 89 per team per match. Neither is wrong. They are counting different things, because "an attack" is a modelling choice rather than a fact on the pitch.
+
+That matters for the original claim. To say that one job is easier than the other, you need a shared unit to divide by. Football does not have one.
+
+## What the analogy does get right
+
+There is something true in it, and it is worth separating out. Spoiling is cheaper *per action*. The Analyst breaks down an Arsenal goal that took nearly 22 seconds, 6 players, 5 passes and 142 metres of ball travel to advance 72 metres upfield. A clearance that ends it takes a second and one player.
+
+But cost per action is not difficulty of the job. The defender pays that second about 72 times a match, and has to be right every time, against an opponent who only has to be right once. The builder gets one house and a few weeks. The wrecker gets a new house every forty seconds, and loses the argument the first time he is late.
+
+## What I take from this
+
+- The quote models football as one binary event. It is a ladder of outcomes on both sides: midfield, box, shot, goal for the attack; tackle, interception, clearance, block, corner conceded for the defence.
+- Tested on its own terms, the quote is not slightly wrong. It is wrong by a factor of twenty-five. An attack scores about 2 per cent of the time, not 50.
+- A conclusion that strong that nobody accepts is a sign that the model, not the number, is broken.
+- When a data provider needs two units where you assumed one, that is the shape of your simplification showing up in someone else's schema.
+- Check which way a column points before you quote it. A leaderboard that correlates perfectly with shots taken is not measuring defending.
+
+## Sources
+
+- Rubén Maneiro, Jose Luis Arroyo-del Bosque, Alfonso Amatria-Jiménez and Antonio Iván-Baragaño. [Relationship between possession initiation type and offensive effectiveness in UEFA Euro 2020 football](https://revista-apunts.com/en/relationship-between-possession-initiation-type-and-offensive-effectiveness-in-uefa-euro-2020-football-an-observational-study/). Apunts Educación Física y Deportes 162, 2025.
+- Tim Taha and Ilya Orlov. [More direct attacks increase likelihood of goals in 2018- and 2022-Men's World Cup Soccer Finals](https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0314630). PLOS ONE, March 2025.
+- The Analyst. [Sequences and possessions in football](https://theanalyst.com/articles/possessions-and-sequences-in-football).
+- The Analyst. [Opta football stats definitions](https://theanalyst.com/articles/opta-football-stats-definitions).
+- StatMuse. [Most shots blocked, 2023/24 Premier League teams](https://www.statmuse.com/fc/ask?q=most%20shots%20blocked%2023%2F24%20premier%20league%20teams).`
+
 export const blogItems: BlogItem[] = [
+    {
+        id: 'knocking-down-the-house',
+        image: possessionOutcomes,
+        title: 'Knocking down the house',
+        subtitle:
+            'Michael Owen says it is easier to defend than to create. Taken literally the claim is off by a factor of twenty-five, and neither job is the yes-or-no event the analogy needs.',
+        body: knockingDownTheHouse,
+        meta: {
+            authorImage: defaultAuthor,
+            authorName: 'Henrik Klev',
+            publishDate: '2025-11-28',
+        },
+    },
+
     {
         id: 'verifying-eva',
         image: uioLogo,

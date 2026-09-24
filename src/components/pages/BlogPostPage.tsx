@@ -1,11 +1,17 @@
 import { Link, Navigate, useParams } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { defaultUrlTransform } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './blog.module.scss'
 import { blogItems } from './items'
 import { BlogMetaData } from './BlogPage'
 import { readTime } from './blogFormat'
 import { usePageTitle } from '../../hooks'
+
+// Vite inlines small images as data URLs, and react-markdown drops those by
+// default. The bodies are ours, not user input, so let image data URLs through.
+function urlTransform(url: string): string {
+    return url.startsWith('data:image/') ? url : defaultUrlTransform(url)
+}
 
 export default function BlogPostPage() {
     const { postId } = useParams()
@@ -30,7 +36,10 @@ export default function BlogPostPage() {
                     {readTime(post.body)} read
                 </div>
                 <div className={styles.body}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        urlTransform={urlTransform}
+                    >
                         {post.body}
                     </ReactMarkdown>
                 </div>
