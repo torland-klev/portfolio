@@ -244,6 +244,16 @@
 
         &CardContainer {
             width: min(340px, calc(100vw - 32px));
+            height: 240px;
+        }
+
+        &Card .logoTile {
+            height: 140px;
+        }
+
+        &Card:hover .logoTile,
+        &CardActive .logoTile {
+            height: 160px;
         }
 
         &Card {

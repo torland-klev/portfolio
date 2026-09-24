@@ -6,6 +6,6 @@
     "assets": {
         "directory": "./build",
         // Serve index.html for unknown paths, so client-side routes like /blog/<id> work on reload.
-        "not_found_handling": "single-page-application"
-    }
+        "not_found_handling": "single-page-application",
+    },
 }

@@ -35,6 +35,23 @@ $footer-height: max(9vh, 100px);
         flex: 1;
         min-height: 0;
     }
+
+    // On desktop each section is one half, and the phone-only extras are hidden.
+    .section {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+
+        > * {
+            width: 100%;
+        }
+    }
+
+    .scrollHint,
+    .choiceArrow,
+    .choiceCaption {
+        display: none;
+    }
 }
 
 .backdrop {
@@ -119,19 +136,157 @@ $footer-height: max(9vh, 100px);
         height: auto;
         min-height: 0;
 
-        .intro h1 {
-            font-size: 34px;
+        // The intro fills the first screen, with a hint to scroll.
+        .intro {
+            box-sizing: border-box;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--header-h) 16px 0;
+
+            h1 {
+                font-size: 40px;
+            }
+
+            p {
+                font-size: large;
+            }
+        }
+
+        .scrollHint {
+            display: block;
+            margin-top: 48px;
+            font-size: 36px;
+            line-height: 1;
+            opacity: 0.7;
+            animation: bob 1.8s ease-in-out infinite;
         }
 
         .halves {
             flex-direction: column;
         }
+
+        // Each choice gets its own screen.
+        .section {
+            min-height: 85svh;
+            align-items: center;
+        }
+
+        .commits,
+        .convictions {
+            padding: 0;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .choice {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        // A glass pill, so the word reads as something to press.
+        .choicePill {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 26px 14px;
+            border-radius: 999px;
+            font-size: 44px;
+            background-color: color-mix(in srgb, var(--bg) 55%, transparent);
+            border: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
+            box-shadow: 0 8px 24px var(--shadow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition:
+                transform 150ms,
+                box-shadow 150ms;
+        }
+
+        .choiceArrow {
+            display: inline;
+            font-size: 32px;
+            transition: transform 200ms;
+        }
+
+        .choiceCaption {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 3px 12px;
+            border-radius: 999px;
+            background-color: color-mix(in srgb, var(--bg) 60%, transparent);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .commits:active .choicePill,
+        .convictions:active .choicePill {
+            transform: scale(0.95);
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+
+        .commits:active .choiceArrow,
+        .convictions:active .choiceArrow {
+            transform: translateX(6px);
+        }
     }
 
-    // There is no hover on phones, and the halves stack.
-    .backdrop {
-        display: none;
+    .showCommits .layerCommits,
+    .showConvictions .layerConvictions {
+        opacity: 1;
+
+        * {
+            animation-play-state: running !important;
+        }
     }
+}
+
+@keyframes bob {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(8px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scrollHint {
+        animation: none !important;
+    }
+}
+
+// Keep the words readable on top of the dark scenes on phones as well.
+@mixin dark-mobile-text {
+    @media (max-width: 800px) {
+        .showCommits,
+        .showConvictions {
+            .intro,
+            .halves {
+                text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85);
+            }
+            .intro p {
+                color: var(--text);
+            }
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) {
+        @include dark-mobile-text;
+    }
+}
+
+:global(:root[data-theme='dark']) {
+    @include dark-mobile-text;
 }
 
 @keyframes fadeIn {
