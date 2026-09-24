@@ -14,11 +14,7 @@ npm run preview    # serve ./build
 
 ## Configuration
 
-The contact form sends email through [EmailJS](https://www.emailjs.com/). Set these variables in `.env.local` or in the hosting environment:
-
-```
-REACT_APP_EMAILJS_PUBLIC_KEY=...
-```
+The contact form sends email through [EmailJS](https://www.emailjs.com/). The service ID, template ID and public key are in `src/components/pages/ContactPage.tsx`. None of them are secret.
 
 ## Content
 
@@ -37,7 +33,6 @@ The site deploys as static assets on a Cloudflare Worker. `wrangler.jsonc` point
 
 1. In the Cloudflare dashboard: **Workers & Pages → Create → Import a repository**, and pick this repository.
 2. Build command: `npm run build`. Deploy command: `npx wrangler deploy`.
-3. Under **Settings → Build → Variables and secrets**, add `REACT_APP_EMAILJS_PUBLIC_KEY`. They are build variables, because Vite puts them into the bundle at build time.
-4. Under **Settings → Domains & Routes**, add your custom domain.
+3. Under **Settings → Domains & Routes**, add your custom domain.
 
 Every push to `main` deploys.

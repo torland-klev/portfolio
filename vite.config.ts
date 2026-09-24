@@ -4,8 +4,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
     plugins: [react()],
-    // Keep the CRA env prefix so the existing EmailJS variables still work.
-    envPrefix: ['VITE_', 'REACT_APP_'],
     build: { outDir: 'build' },
     server: { port: 3000 },
     test: {

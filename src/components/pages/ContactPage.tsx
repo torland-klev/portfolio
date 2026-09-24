@@ -54,9 +54,10 @@ function TextBox() {
     )
 }
 
-// The EmailJS service and template that send the mail. Not secret.
+// EmailJS settings. None of these are secret: the public key is meant to be in the browser.
 const EMAILJS_SERVICE_ID = 'service_rofe1wb'
 const EMAILJS_TEMPLATE_ID = 'template_oyl9bzm'
+const EMAILJS_PUBLIC_KEY = 'KAE07bYvdwiZ6DdD5'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
@@ -87,14 +88,6 @@ function EmailBox() {
         setValidationError(errors)
         if (errors) return
 
-        const publicKey = import.meta.env.REACT_APP_EMAILJS_PUBLIC_KEY
-        if (!publicKey) {
-            // The public key is a build variable. Without it, nothing can be sent.
-            console.error('The EmailJS public key is missing from the build.')
-            setStatus('error')
-            return
-        }
-
         setStatus('sending')
         try {
             await emailjs.send(
@@ -106,7 +99,7 @@ function EmailBox() {
                     email,
                     message,
                 },
-                { publicKey }
+                { publicKey: EMAILJS_PUBLIC_KEY }
             )
             setStatus('success')
             setName('')
