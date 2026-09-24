@@ -390,6 +390,7 @@ export const projects: Project[] = [
             'Nexo Acquirer',
             'Docker',
         ],
+        link: { label: 'payex.no', url: 'https://payex.no/' },
     },
     {
         id: 'ztl',
@@ -425,6 +426,7 @@ export const projects: Project[] = [
             'npm',
             'Sass',
         ],
+        link: { label: 'ztlpay.io', url: 'https://www.ztlpay.io/' },
     },
     {
         id: 'tripletex',
@@ -451,6 +453,7 @@ export const projects: Project[] = [
             'Tripletex. This gave customers full control over their accounts, enabled automatic reconciliation and closing of invoices, and let them ' +
             'pay their invoices directly from Tripletex.',
         tags: [...tripletexTags, 'PSD2', 'Open Banking'],
+        link: { label: 'tripletex.no', url: 'https://www.tripletex.no/' },
     },
     {
         id: 'uio-engineer',
