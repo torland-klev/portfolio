@@ -54,6 +54,9 @@ function TextBox() {
     )
 }
 
+// The EmailJS service that sends the mail. Not secret.
+const EMAILJS_SERVICE_ID = 'service_rofe1wb'
+
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 function capitalizeFirstLetter(string: string): string {
@@ -95,7 +98,7 @@ function EmailBox() {
         setStatus('sending')
         try {
             await emailjs.send(
-                'default_service',
+                EMAILJS_SERVICE_ID,
                 templateId,
                 {
                     domain: window.location.hostname,
