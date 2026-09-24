@@ -282,9 +282,8 @@ const tripletexTags = [
 ]
 
 const tripletexBasic =
-    'Tripletex is one of the leading accounting systems in Norway, and has been operational for more than 20 years. ' +
-    'As part of the Piggy Bank Crew, the team responsible for banking and bank integrations, I took part in a couple of projects. ' +
-    'The team consisted of a handful of developers, a QA and a UX designer. ' +
+    'Tripletex is one of the leading accounting systems in Norway, and has been running for more than 20 years. ' +
+    'I was part of the Piggy Bank Crew, the team responsible for banking and bank integrations, with a handful of developers, a QA and a UX designer. ' +
     'I was also a member of the Security Council, the Front-End Developer Council and the Social Committee.'
 
 export const projects: Project[] = [
@@ -297,8 +296,28 @@ export const projects: Project[] = [
         period: 'Feb 2026 - Present',
         text:
             'Firi is a Norwegian cryptocurrency exchange, registered with the Financial Supervisory Authority of Norway. ' +
-            'As a senior backend developer, I work on the systems that let customers buy, sell and store crypto in a safe and simple way.',
-        tags: ['Backend', 'Fintech', 'Crypto'],
+            'As a senior backend developer, I work on the systems that let customers buy, sell and store crypto safely, ' +
+            'and on the compliance systems behind them. ' +
+            'Since I joined in February 2026, I have mainly worked on:\n\n' +
+            '• Automated reporting of suspicious activity to the Norwegian authorities, with accounts, transactions and involved parties, through Maskinporten\n' +
+            '• Better anti-money-laundering checks, using device and login information\n' +
+            '• A more robust card payment pipeline, with Kafka, stored webhooks and retries\n' +
+            '• A second card payment provider, with 3-D Secure, fraud checks and settlement reports\n' +
+            '• Support tools, such as withdrawing coins on behalf of a customer and faster customer search\n' +
+            '• Security checks on withdrawals, and monitoring of staking rewards',
+        tags: [
+            'Go',
+            'gRPC',
+            'Kafka',
+            'PostgreSQL',
+            'Terraform',
+            'TypeScript',
+            'React',
+            'Backend',
+            'Fintech',
+            'Crypto',
+            'KYC/AML',
+        ],
         link: { label: 'firi.com', url: 'https://firi.com' },
     },
     {
@@ -337,8 +356,8 @@ export const projects: Project[] = [
         role: 'Technical advisor',
         period: 'May 2023 - 2025',
         text:
-            'I was the key technical advisor for the startups Remote and Orbit. ' +
-            'I was responsible for the deployment, monitoring, development and architecture of their systems. ' +
+            'Remote and Orbit are two startups. ' +
+            'As their key technical advisor, I was responsible for the deployment, monitoring, development and architecture of their systems. ' +
             'I modernized and deployed the inherited legacy systems, which span several technologies and applications.',
         tags: ['Architecture', 'DevOps', 'Monitoring', 'Legacy modernization'],
         link: { label: 'getorbit.com', url: 'https://www.getorbit.com' },
@@ -351,10 +370,10 @@ export const projects: Project[] = [
         role: 'Android developer, consultant',
         period: 'May 2022 - 2024',
         text:
-            'PayEx is a leading Nordic payment provider that provides complete payment solutions for stores and e-commerce. ' +
-            'As part of a large agile team, I helped develop a next-generation payment application for the PAX terminal family, ' +
-            'built for major retailers such as Coop, Volvo and Reitan Retail. ' +
-            'I led modernization efforts, implemented key features, developed test tools, onboarded team members and automated test procedures.',
+            'PayEx is a leading Nordic payment provider, with complete payment solutions for stores and e-commerce. ' +
+            'As an Android developer in a large agile team, I helped build a next-generation payment app for the PAX terminal family, ' +
+            'used by major retailers such as Coop, Volvo and Reitan Retail. ' +
+            'I led modernization efforts, implemented key features, built test tools, onboarded new team members and automated test procedures.',
         tags: [
             'Kotlin',
             'Android',
@@ -380,11 +399,11 @@ export const projects: Project[] = [
         role: 'Fullstack developer, consultant',
         period: 'Nov 2021 - May 2022',
         text:
-            'ZTL Payment Solution is a fintech scale-up that uses the PSD2 APIs of financial institutions ' +
-            'to provide real-time payment solutions and account services. I worked in an agile team with focus on the transaction reconciliation system, ' +
-            'and helped develop their REST API-based payment solution and internal management system. ' +
-            'The payment solution was written in Kotlin using Ktor, JDBI and PostgreSQL, hosted on Microsoft Azure, ' +
-            'while the management system was based on React and TypeScript.',
+            'ZTL Payment Solution is a fintech scale-up that uses the PSD2 APIs of banks to offer real-time payments and account services. ' +
+            'As a full-stack developer in an agile team, I focused on the transaction reconciliation system, ' +
+            'and helped build their REST API-based payment solution and internal management system. ' +
+            'The payment solution was written in Kotlin with Ktor, JDBI and PostgreSQL, and hosted on Microsoft Azure. ' +
+            'The management system used React and TypeScript.',
         tags: [
             'Kotlin',
             'React',
@@ -417,17 +436,17 @@ export const projects: Project[] = [
         text:
             tripletexBasic +
             '\n\nIncoming payments (Oct 2020 - Feb 2021)\n' +
-            'My first project was to automatically fetch, parse, post and reconcile incoming payments. ' +
+            'My first project was to fetch, parse, post and reconcile incoming payments automatically. ' +
             'When the project was finished, customers received all the payments for their accounts automatically in their accounting systems, ' +
             'where each payment was closed against the correct invoice and reconciled against the corresponding bank statement entry.' +
             '\n\nTechnical debt (Feb 2021 - May 2021)\n' +
-            'My second project focused on removing technical debt. ' +
-            'When a system becomes as large, old and complex as that of Tripletex, the debt starts piling up and ' +
-            'the latency goes through the roof. By systematically analyzing the system in its multi-threaded setting, ' +
+            'My second project was about paying down technical debt. ' +
+            'When a system becomes as large, old and complex as that of Tripletex, technical debt accumulates and ' +
+            'latency increases. By systematically analyzing the system in its multi-threaded setting, ' +
             'and exposing the bottlenecks that caused the most perceived latency, some modules became as ' +
             'much as 15 times more efficient.' +
             '\n\nSbanken integration (May 2021 - Nov 2021)\n' +
-            'My final project was an integration with the PSD2 API of Sbanken. ' +
+            'My last project was an integration with the PSD2 API of Sbanken. ' +
             'As a result, all customers with an account in Sbanken received all their account information and payments directly in ' +
             'Tripletex. This gave customers full control over their accounts, enabled automatic reconciliation and closing of invoices, and let them ' +
             'pay their invoices directly from Tripletex.',
@@ -441,8 +460,9 @@ export const projects: Project[] = [
         role: 'Principal engineer',
         period: 'Aug 2018 - Jun 2020',
         text:
-            'Alongside my studies, I was a front-end developer for internal projects at the University of Oslo. ' +
-            'The projects covered system and user administration, maintenance of technical equipment, and technical support.',
+            'The University of Oslo is the oldest and largest university in Norway. ' +
+            'Alongside my studies, I worked as a front-end developer on internal projects for system and user administration, ' +
+            'maintenance of technical equipment and technical support.',
         tags: ['Frontend', 'Internal tools'],
     },
     {
@@ -453,12 +473,12 @@ export const projects: Project[] = [
         role: 'Researcher',
         period: 'Aug 2018 - Jun 2020',
         text:
-            'For my Master\'s thesis, "Verifying EVA: Formal Verification of the Software Deciding Norwegian Governmental Elections", I formally verified parts of the ' +
-            'official Norwegian electoral system, EVA. With deductive verification and dynamic logic, I ' +
-            'mathematically proved that core components of the system adhere to the program specification, and that' +
-            ' they can never fail to do so. The thesis shows how to apply formal methods to a full-scale project through a case study of a Java-based system, using JML and KeY. ' +
-            'I completed the project with guidance from the Reliable Systems group at the University of Oslo ' +
-            'and the Formal Methods division at the University of Gothenburg. I graduated with a GPA of 3.6/4.',
+            "For my Master's thesis, I formally verified parts of EVA, the official software that calculates the results of Norwegian elections. " +
+            'With deductive verification and dynamic logic, I mathematically proved that core parts of the seat allocation match their specification, ' +
+            'and that they can never fail to do so, no matter the input. ' +
+            'The work was done on the real, Java-based system using JML and KeY, with guidance from the Reliable Systems group at the University of Oslo ' +
+            'and the Formal Methods division at the University of Gothenburg. ' +
+            'I graduated with a GPA of 3.6/4.',
         tags: [
             'Java',
             'JUnit 4',
@@ -753,7 +773,7 @@ export const blogItems: BlogItem[] = [
         image: webDevCover,
         title: 'Still no perfect program',
         subtitle:
-            "In this day and age, everyone and everything has a website. Even me! This is how I created it, and what changed four years later.",
+            'In this day and age, everyone and everything has a website. Even me! This is how I created it, and what changed four years later.',
         body: `Everything that someone made on purpose started as an idea. The idea is often blurry, usually ambitious and nearly always exciting. This website started the same way.
 
 I wanted a personal website long before I knew what it would look like. I wanted a place to present myself and show my work. It would help me professionally, but mostly I was curious: what could I build, what would the result look like, and what would the process be like?
