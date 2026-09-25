@@ -16,7 +16,14 @@ export const FULL_BLEED = ['/', '/portfolio']
 
 function ScrollToTop() {
     const { pathname } = useLocation()
-    useEffect(() => window.scrollTo(0, 0), [pathname])
+    // The block body matters: window.scrollTo does not reliably return
+    // undefined (in Chrome/Edge it returns an object), and a concise-body
+    // arrow function here would hand that value to React as the effect's
+    // cleanup function. React then throws "destroy is not a function" the
+    // next time the effect re-runs or unmounts - i.e. on every navigation.
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [pathname])
     return null
 }
 
