@@ -176,6 +176,33 @@
     }
 }
 
+// The typed word (see TypedWords).
+.typed {
+    font-weight: 600;
+
+    &Cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        margin-left: 2px;
+        background-color: var(--text);
+        vertical-align: -0.15em;
+        animation: typedBlink 1s step-end infinite;
+    }
+}
+
+@keyframes typedBlink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .typedCursor {
+        animation: none;
+    }
+}
+
 @media (max-width: 800px) {
     .leftRight {
         flex-direction: column;

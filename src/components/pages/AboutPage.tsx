@@ -11,7 +11,7 @@ import beginners from '../../images/beginners.jpg'
 import famsquad from '../../images/famsquad.png'
 import Emoji from '../common/Emoji'
 import { GroupedTags } from '../common/Tags'
-import Typewriter from 'typewriter-effect'
+import TypedWords from '../common/TypedWords'
 import { Link } from 'react-router-dom'
 import {
     education,
@@ -122,9 +122,7 @@ function Hobbies() {
                 <div
                     className={`${styles.hobbiesTitleActivity} ${styles.typewriter}`}
                 >
-                    <Typewriter
-                        options={{ strings, autoStart: true, loop: true }}
-                    />
+                    <TypedWords words={strings} />
                 </div>
                 <div
                     className={`${styles.hobbiesTitleActivity} ${styles.rolling}`}
