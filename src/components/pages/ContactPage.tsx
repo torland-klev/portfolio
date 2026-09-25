@@ -56,7 +56,7 @@ function TextBox() {
 
 // EmailJS settings. None of these are secret: the public key is meant to be in the browser.
 const EMAILJS_SERVICE_ID = 'service_rofe1wb'
-const EMAILJS_TEMPLATE_ID = 'template_oyl9bzm'
+const EMAILJS_TEMPLATE_ID = 'template_i9u9f26'
 const EMAILJS_PUBLIC_KEY = 'KAE07bYvdwiZ6DdD5'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
