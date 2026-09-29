@@ -39,21 +39,42 @@
     }
 }
 
-.gravity {
-    display: flex;
-    flex-wrap: wrap;
+.sliders {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 6px 10px;
     margin-bottom: 8px;
 
+    // On a phone, the mark buttons go on a line of their own.
+    @media (max-width: 600px) {
+        grid-template-columns: auto 1fr auto;
+    }
+}
+
+// Each slider is one row of the grid above, so that the rows line up.
+.slider {
+    display: contents;
+
     input {
-        flex: 1 1 160px;
+        min-width: 0;
         accent-color: var(--accent);
     }
 
     output {
         min-width: 7em;
         font-variant-numeric: tabular-nums;
+    }
+}
+
+.marks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    @media (max-width: 600px) {
+        grid-column: 1 / -1;
+        margin-bottom: 6px;
     }
 
     button {

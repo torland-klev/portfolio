@@ -18,6 +18,7 @@
 
 // Earth's standard gravity. Each world can change it.
 export const G = 9.81
+// Air density at sea level, in kg/m³. Each world can change it.
 export const AIR_DENSITY = 1.2
 export const MASS = 65
 // Drag and lift area (the force divided by dynamic pressure), in m².
@@ -149,6 +150,8 @@ export class World {
     jumpers: Jumper[] = []
     // The acceleration of gravity, in m/s².
     gravity = G
+    // The air density, in kg/m³. Drag and lift both scale with it.
+    airDensity = AIR_DENSITY
     onJump: (result: JumpResult) => void = () => {}
     private nextId = 1
     private grid = new Map<number, Segment[]>()
@@ -271,7 +274,7 @@ export class World {
             : flying
               ? DRAG_AREA_FLIGHT
               : DRAG_AREA_INRUN
-        const drag = (0.5 * AIR_DENSITY * dragArea * speed) / MASS
+        const drag = (0.5 * this.airDensity * dragArea * speed) / MASS
         let ax = -drag * j.vx
         let ay = -this.gravity - drag * j.vy
 
@@ -279,7 +282,8 @@ export class World {
         // the upper side. A jumper who falls steeply stalls, so the lift
         // scales with the cosine of the flight path angle.
         if (flying && speed > 0) {
-            const lift = (0.5 * AIR_DENSITY * LIFT_AREA_FLIGHT * speed) / MASS
+            const lift =
+                (0.5 * this.airDensity * LIFT_AREA_FLIGHT * speed) / MASS
             const side = j.vx >= 0 ? 1 : -1
             const stall = Math.abs(j.vx) / speed
             ax += -j.vy * side * lift * stall
@@ -412,13 +416,22 @@ export class World {
 
     private updatePose(j: Jumper, dt: number) {
         if (Math.abs(j.vx) > 0.3) j.facing = j.vx > 0 ? 1 : -1
+        const onGround = j.airTime <= FLIGHT_AFTER
         if (j.crashed) {
             j.pitch += j.spin * dt
+            // On the ground, the fallen figure settles with its skis on the
+            // slope, by the shortest turn.
+            if (onGround) {
+                const turn = slopePitch(j) - j.pitch
+                j.pitch +=
+                    Math.atan2(Math.sin(turn), Math.cos(turn)) *
+                    Math.min(1, dt * 8)
+            }
             return
         }
         let target: number
         let rate = 12
-        if (j.airTime > FLIGHT_AFTER) {
+        if (!onGround) {
             // In flight the skis point a little above the flight path. The
             // air turns the figure, so a slow jumper keeps its pose, and a
             // jumper that falls straight down stays upright.
@@ -427,11 +440,7 @@ export class World {
             target = sideways * (Math.atan2(j.vy, Math.abs(j.vx)) + 0.3)
             rate *= Math.min(1, (speed / 15) ** 2)
         } else {
-            const t =
-                j.tangent.x * j.facing >= 0
-                    ? j.tangent
-                    : { x: -j.tangent.x, y: -j.tangent.y }
-            target = Math.atan2(t.y, Math.abs(t.x))
+            target = slopePitch(j)
         }
         j.pitch += (target - j.pitch) * Math.min(1, dt * rate)
     }
@@ -496,6 +505,15 @@ export class World {
                     found.add(segment)
         return [...found]
     }
+}
+
+// The pitch that puts the skis flat on the last surface, in the facing frame.
+function slopePitch(j: Jumper): number {
+    const t =
+        j.tangent.x * j.facing >= 0
+            ? j.tangent
+            : { x: -j.tangent.x, y: -j.tangent.y }
+    return Math.atan2(t.y, Math.abs(t.x))
 }
 
 function closestPoint(p: Point, a: Point, b: Point): Point {

@@ -153,8 +153,11 @@ test('opens the ski jumper app', async () => {
     )
 
     const gravity = screen.getByLabelText('Gravity')
-    fireEvent.click(screen.getByRole('button', { name: 'Moon' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Gravity: Moon' }))
     expect(gravity).toHaveValue('1.62')
+    const air = screen.getByLabelText('Air density')
+    fireEvent.click(screen.getByRole('button', { name: 'Air density: Vacuum' }))
+    expect(air).toHaveValue('0')
     fireEvent.change(gravity, { target: { value: '20' } })
     expect(
         screen.getByText(

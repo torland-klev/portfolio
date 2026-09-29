@@ -207,3 +207,37 @@ test('a dropped jumper stays upright while it falls straight down', () => {
     }
     expect(jumper.airTime).toBeGreaterThan(1)
 })
+
+test('in a vacuum on perfect ice, a jumper keeps its speed', () => {
+    const world = new World(100, 62.5)
+    world.airDensity = 0
+    world.addStroke(
+        [
+            { x: 1, y: 10 },
+            { x: 99, y: 10 },
+        ],
+        'perfectIce'
+    )
+    const jumper = world.addJumper({ x: 5, y: 10.2 }, { x: 5, y: 0 })
+    run(world, 2)
+    expect(jumper.vx).toBeCloseTo(5, 5)
+})
+
+test('a crashed jumper settles with its skis on the slope', () => {
+    const world = hillWorld()
+    // 4 m above the 33° landing slope: a hard landing that crashes.
+    const jumper = world.addJumper({ x: 62, y: 27 })
+    let settled = false
+    for (let t = 0; t < 3 && !settled; t += STEP) {
+        world.step(STEP)
+        const slope = Math.atan2(jumper.tangent.y, Math.abs(jumper.tangent.x))
+        const turn = Math.atan2(
+            Math.sin(jumper.pitch - slope),
+            Math.cos(jumper.pitch - slope)
+        )
+        if (jumper.crashed && jumper.airTime === 0 && Math.abs(turn) < 0.02)
+            settled = true
+    }
+    expect(jumper.crashed).toBe(true)
+    expect(settled).toBe(true)
+})

@@ -9,6 +9,7 @@ import {
     Point,
     World,
     G,
+    AIR_DENSITY,
 } from './skiJumper/physics'
 
 // The world is 100 m wide. The canvas keeps a 16:10 aspect ratio.
@@ -19,6 +20,13 @@ const ERASE_RADIUS = 2
 // Just above the top of the default in-run, so that the drop is soft even
 // with high gravity.
 const START: Point = { x: 4, y: 54.6 }
+
+// Marks on the air density slider, in kg/m³.
+const AIR_MARKS = [
+    { label: 'Vacuum', value: 0 },
+    { label: 'Mars', value: 0.02 },
+    { label: 'Earth', value: AIR_DENSITY },
+]
 
 // Marks on the gravity slider, in m/s².
 const GRAVITY_MARKS = [
@@ -108,6 +116,7 @@ export default function SkiJumperApp() {
     const [paused, setPaused] = useState(false)
     const [slow, setSlow] = useState(false)
     const [gravity, setGravity] = useState(G)
+    const [airDensity, setAirDensity] = useState(AIR_DENSITY)
     const [count, setCount] = useState(0)
     const [last, setLast] = useState<JumpResult | null>(null)
     const [best, setBest] = useState<JumpResult | null>(null)
@@ -365,51 +374,31 @@ export default function SkiJumperApp() {
                     Reset hill
                 </button>
             </div>
-            <div className={styles.gravity}>
-                <label htmlFor="ski-jumper-gravity">Gravity</label>
-                <input
+            <div className={styles.sliders}>
+                <Slider
                     id="ski-jumper-gravity"
-                    type="range"
-                    min={0}
+                    label="Gravity"
+                    unit="m/s²"
                     max={30}
-                    step={0.01}
                     value={gravity}
-                    list="ski-jumper-gravity-marks"
-                    onChange={(event) => {
-                        const value = Number(event.target.value)
+                    marks={GRAVITY_MARKS}
+                    onChange={(value) => {
                         world.gravity = value
                         setGravity(value)
                     }}
                 />
-                <datalist id="ski-jumper-gravity-marks">
-                    {GRAVITY_MARKS.map((mark) => (
-                        <option
-                            key={mark.label}
-                            value={mark.value}
-                            label={mark.label}
-                        />
-                    ))}
-                </datalist>
-                <output htmlFor="ski-jumper-gravity">
-                    {gravity.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    })}{' '}
-                    m/s²
-                </output>
-                {GRAVITY_MARKS.map((mark) => (
-                    <button
-                        key={mark.label}
-                        type="button"
-                        aria-pressed={gravity === mark.value}
-                        onClick={() => {
-                            world.gravity = mark.value
-                            setGravity(mark.value)
-                        }}
-                    >
-                        {mark.label}
-                    </button>
-                ))}
+                <Slider
+                    id="ski-jumper-air"
+                    label="Air density"
+                    unit="kg/m³"
+                    max={3}
+                    value={airDensity}
+                    marks={AIR_MARKS}
+                    onChange={(value) => {
+                        world.airDensity = value
+                        setAirDensity(value)
+                    }}
+                />
             </div>
             <dl className={styles.stats}>
                 <div>
@@ -429,6 +418,64 @@ export default function SkiJumperApp() {
     )
 }
 
+type Mark = { label: string; value: number }
+
+function Slider(props: {
+    id: string
+    label: string
+    unit: string
+    max: number
+    value: number
+    marks: Mark[]
+    onChange: (value: number) => void
+}) {
+    const { id, label, unit, max, value, marks, onChange } = props
+    return (
+        <div className={styles.slider}>
+            <label htmlFor={id}>{label}</label>
+            <input
+                id={id}
+                type="range"
+                min={0}
+                max={max}
+                step={0.01}
+                value={value}
+                list={`${id}-marks`}
+                onChange={(event) => onChange(Number(event.target.value))}
+            />
+            <datalist id={`${id}-marks`}>
+                {marks.map((mark) => (
+                    <option
+                        key={mark.label}
+                        value={mark.value}
+                        label={mark.label}
+                    />
+                ))}
+            </datalist>
+            <output htmlFor={id}>
+                {value.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })}{' '}
+                {unit}
+            </output>
+            <span className={styles.marks}>
+                {marks.map((mark) => (
+                    <button
+                        key={mark.label}
+                        type="button"
+                        aria-label={`${label}: ${mark.label}`}
+                        aria-pressed={value === mark.value}
+                        onClick={() => onChange(mark.value)}
+                    >
+                        {mark.label}
+                    </button>
+                ))}
+            </span>
+        </div>
+    )
+}
+
 // The toy: a stiff plastic figure that leans forward on long metal skis.
 // The origin is at the feet, and x points the way the jumper faces.
 function drawJumper(ctx: CanvasRenderingContext2D, j: Jumper, pixel: number) {
@@ -436,14 +483,7 @@ function drawJumper(ctx: CanvasRenderingContext2D, j: Jumper, pixel: number) {
     ctx.globalAlpha = Math.max(0, j.opacity)
     ctx.translate(j.x, j.y)
     ctx.scale(j.facing, 1)
-    if (j.crashed) {
-        // Tumble around the hips.
-        ctx.translate(0.25, 0.8)
-        ctx.rotate(j.pitch)
-        ctx.translate(-0.25, -0.8)
-    } else {
-        ctx.rotate(j.pitch)
-    }
+    ctx.rotate(j.pitch)
 
     ctx.strokeStyle = '#8f99a6'
     ctx.lineWidth = Math.max(0.1, 1.5 * pixel)
@@ -457,6 +497,8 @@ function drawJumper(ctx: CanvasRenderingContext2D, j: Jumper, pixel: number) {
     ctx.strokeStyle = color
     ctx.fillStyle = color
     ctx.lineWidth = Math.max(0.3, 2.5 * pixel)
+    // After a crash, the figure lies forward over its skis.
+    if (j.crashed) ctx.rotate(-1.1)
     ctx.beginPath()
     ctx.moveTo(0, 0.1)
     ctx.lineTo(0.25, 0.8)
