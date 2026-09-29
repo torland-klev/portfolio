@@ -343,3 +343,55 @@ test('a jumper does not hop on a flat slope', () => {
     }
     expect(top).toBeLessThan(10.3)
 })
+
+function flatLine(world: World, from: number, to: number, y: number) {
+    world.addStroke(
+        [
+            { x: from, y },
+            { x: to, y },
+        ],
+        'perfectIce'
+    )
+}
+
+test('the body hits a line above the skis', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 99, 10)
+    flatLine(world, 40, 60, 11.3)
+    const jumper = world.addJumper({ x: 30, y: 10.2 }, { x: 3, y: 0 })
+    run(world, 6)
+    expect(jumper.x).toBeLessThan(40)
+    expect(jumper.y).toBeLessThan(10.5)
+})
+
+test('a jumper hops onto a line that starts a little higher', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 50, 10)
+    flatLine(world, 50.5, 99, 10.5)
+    const jumper = world.addJumper({ x: 30, y: 10.2 }, { x: 6, y: 0 })
+    run(world, 5)
+    expect(jumper.x).toBeGreaterThan(55)
+    expect(jumper.y).toBeGreaterThan(10.5)
+    expect(jumper.crashed).toBe(false)
+})
+
+test('a jumper hops onto a higher line that starts above the slope', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 99, 10)
+    flatLine(world, 50, 99, 10.6)
+    const jumper = world.addJumper({ x: 30, y: 10.2 }, { x: 6, y: 0 })
+    run(world, 5)
+    expect(jumper.x).toBeGreaterThan(55)
+    expect(jumper.y).toBeGreaterThan(10.6)
+    expect(jumper.crashed).toBe(false)
+})
+
+test('a jumper passes under a line above its head', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 99, 10)
+    flatLine(world, 40, 60, 12.3)
+    const jumper = world.addJumper({ x: 35, y: 10.2 }, { x: 6, y: 0 })
+    run(world, 5)
+    expect(jumper.x).toBeGreaterThan(60)
+    expect(jumper.y).toBeLessThan(10.5)
+})

@@ -61,6 +61,17 @@ const HOP_MARGIN = 0.4
 const HOP_MIN_SPEED = 0.5
 // A face steeper than this angle from the horizontal counts as steep.
 const STEEP_SLOPE = (55 * Math.PI) / 180
+// The free start of a line ahead, up to this height above the skis, is a
+// ledge to hop onto. A higher line is a ceiling that the body hits.
+const LEDGE_MIN_HEIGHT = 0.1
+const LEDGE_MAX_HEIGHT = 1
+// A line end nearer than this to another line is joined to it, not free.
+const LEDGE_JOIN = 0.3
+// The body touches a surface as a capsule of this radius, from the hips to
+// the head. The points are in the drawing frame of the figure.
+const BODY_RADIUS = 0.2
+const BODY_HIPS = { x: 0.15, y: 0.55 }
+const BODY_HEAD = { x: 0.6, y: 1.62 }
 // No new jump or hop comes this soon after the last one.
 const JUMP_COOLDOWN = 0.25
 
@@ -373,6 +384,7 @@ export class World {
             j.x += (j.vx * dt) / moves
             j.y += (j.vy * dt) / moves
             const contact = this.pushOut(j)
+            if (!j.crashed) this.pushBody(j)
             if (contact === 'hit' || (contact === 'skin' && grounded))
                 touched = true
         }
@@ -407,9 +419,9 @@ export class World {
         if (j.restTime > REST_BEFORE_FADE) j.opacity -= dt / FADE_TIME
     }
 
-    // Looks ahead along the ground for a steep face. If the jumper can clear
-    // the face with a hop, and the face is near enough that the hop peaks
-    // at it, the jumper hops straight up and keeps its speed forward.
+    // Looks ahead along the ground for a steep face or a ledge. If the
+    // jumper can clear it with a hop, and it is near enough that the hop
+    // peaks at it, the jumper hops straight up and keeps its speed forward.
     private hopOverFace(j: Jumper) {
         const ahead = Math.abs(j.vx)
         if (ahead < HOP_MIN_SPEED) return
@@ -421,13 +433,32 @@ export class World {
         )
         const probe = CONTACT_RADIUS * 2
         const segments = this.inBox(
-            j.x,
-            j.y,
+            j.x - dir * probe,
+            j.y - reach,
             j.x + dir * (reach + probe),
             j.y + HOP_MAX_HEIGHT + HOP_MARGIN
         )
+        const obstacle =
+            nearer(
+                this.findFace(j, dir, reach, segments),
+                this.findLedge(j, reach, segments)
+            ) ?? null
+        if (obstacle === null) return
+        const lift = Math.sqrt(2 * g * (obstacle.height + HOP_MARGIN))
+        if (obstacle.distance > obstacle.speed * (lift / g) + CONTACT_RADIUS)
+            return
+        j.vy = Math.max(j.vy, 0) + lift
+        this.leaveGround(j)
+    }
 
-        // The nearest steep face at knee height.
+    // The nearest steep face at knee height, and the height to clear it.
+    private findFace(
+        j: Jumper,
+        dir: number,
+        reach: number,
+        segments: Segment[]
+    ): Obstruction | null {
+        const probe = CONTACT_RADIUS * 2
         const knee = { x: j.x, y: j.y + probe }
         const face = firstHit(
             knee,
@@ -438,27 +469,65 @@ export class World {
                 Math.abs(s.b.y - s.a.y) >
                     Math.abs(s.b.x - s.a.x) * Math.tan(STEEP_SLOPE)
         )
-        if (face === null) return
+        if (face === null) return null
 
         // The lowest height at which the way past the face is clear.
         const past = face + probe
-        let height: number | null = null
         for (let h = probe * 2; h <= HOP_MAX_HEIGHT; h += 0.2) {
             const from = { x: j.x, y: j.y + h }
             const to = { x: j.x + dir * past, y: from.y }
-            if (firstHit(from, to, segments, () => true) === null) {
-                height = h
-                break
-            }
+            if (firstHit(from, to, segments, () => true) === null)
+                return { distance: face, height: h, speed: Math.abs(j.vx) }
         }
         // A face that is too high gets a full hop when the jumper is at it.
-        if (height === null && face > probe) return
-        const lift = Math.sqrt(
-            2 * g * ((height ?? HOP_MAX_HEIGHT) + HOP_MARGIN)
+        if (face > probe) return null
+        return { distance: face, height: HOP_MAX_HEIGHT, speed: Math.abs(j.vx) }
+    }
+
+    // The nearest free line end ahead that is a little above the skis, and
+    // that the line runs on from, away from the jumper. Distances are along
+    // the ground, and heights are at right angles to it.
+    private findLedge(
+        j: Jumper,
+        reach: number,
+        segments: Segment[]
+    ): Obstruction | null {
+        const velocity = j.vx * j.tangent.x + j.vy * j.tangent.y
+        const forward = velocity >= 0 ? 1 : -1
+        const tx = j.tangent.x * forward
+        const ty = j.tangent.y * forward
+        const up = tx >= 0 ? 1 : -1
+        const nx = -ty * up
+        const ny = tx * up
+        let best: Obstruction | null = null
+        for (const s of segments) {
+            if (s.fixed) continue
+            for (const [end, other] of [
+                [s.a, s.b],
+                [s.b, s.a],
+            ]) {
+                const dx = end.x - j.x
+                const dy = end.y - j.y
+                const along = dx * tx + dy * ty
+                const height = dx * nx + dy * ny
+                if (along <= 0 || along > reach) continue
+                if (height < LEDGE_MIN_HEIGHT || height > LEDGE_MAX_HEIGHT)
+                    continue
+                if ((other.x - end.x) * tx + (other.y - end.y) * ty <= 0)
+                    continue
+                if (best && along >= best.distance) continue
+                if (this.joined(end, s, segments)) continue
+                best = { distance: along, height, speed: Math.abs(velocity) }
+            }
+        }
+        return best
+    }
+
+    // True if a line end touches or nearly touches another line.
+    private joined(end: Point, own: Segment, segments: Segment[]): boolean {
+        return segments.some(
+            (s) => s !== own && distanceToSegment(end, s.a, s.b) < LEDGE_JOIN
         )
-        if (face > ahead * (lift / g) + CONTACT_RADIUS) return
-        j.vy = Math.max(j.vy, 0) + lift
-        this.leaveGround(j)
     }
 
     // The segments in the grid cells that cover the box.
@@ -508,11 +577,48 @@ export class World {
         return Math.sqrt(G / Math.max(this.gravity, 0.1))
     }
 
+    // Pushes the body out of every segment nearer than the body radius.
+    // The body does not change the angle of the skis.
+    private pushBody(j: Jumper) {
+        const { hips, head } = bodyCapsule(j)
+        const reach = BODY_RADIUS + CONTACT_SKIN
+        const segments = this.inBox(
+            Math.min(hips.x, head.x) - reach,
+            Math.min(hips.y, head.y) - reach,
+            Math.max(hips.x, head.x) + reach,
+            Math.max(hips.y, head.y) + reach
+        )
+        for (const segment of segments) {
+            const [onBody, onSegment] = closestPoints(
+                hips,
+                head,
+                segment.a,
+                segment.b
+            )
+            const dx = onBody.x - onSegment.x
+            const dy = onBody.y - onSegment.y
+            const distance = Math.hypot(dx, dy)
+            if (distance >= BODY_RADIUS || distance < 1e-9) continue
+            const nx = dx / distance
+            const ny = dy / distance
+            const push = BODY_RADIUS - distance
+            j.x += nx * push
+            j.y += ny * push
+            hips.x += nx * push
+            hips.y += ny * push
+            head.x += nx * push
+            head.y += ny * push
+            this.resolveContact(j, nx, ny, segment, true)
+            if (j.crashed) return
+        }
+    }
+
     private resolveContact(
         j: Jumper,
         nx: number,
         ny: number,
-        segment: Segment
+        segment: Segment,
+        body = false
     ) {
         const material = MATERIALS[segment.material]
         const vn = j.vx * nx + j.vy * ny
@@ -523,9 +629,10 @@ export class World {
 
         // Slow contacts do not bounce, so that a jumper at rest stays at rest.
         const restitution = impact > 1 ? material.restitution : 0
-        const friction = j.crashed
-            ? Math.max(material.friction, BODY_FRICTION)
-            : material.friction
+        const friction =
+            j.crashed || body
+                ? Math.max(material.friction, BODY_FRICTION)
+                : material.friction
 
         const tx = j.vx - vn * nx
         const ty = j.vy - vn * ny
@@ -536,7 +643,7 @@ export class World {
         j.vx = tx * keep - restitution * vn * nx
         j.vy = ty * keep - restitution * vn * ny
 
-        j.tangent = { x: ny, y: -nx }
+        if (!body) j.tangent = { x: ny, y: -nx }
         if (j.crashed) j.spin *= 0.9
     }
 
@@ -639,6 +746,34 @@ export class World {
     }
 }
 
+type Obstruction = { distance: number; height: number; speed: number }
+
+function nearer(
+    a: Obstruction | null,
+    b: Obstruction | null
+): Obstruction | null {
+    if (!a || !b) return a ?? b
+    return a.distance <= b.distance ? a : b
+}
+
+// The hips and the head of the body in the world. A crouch lowers the head
+// the same way as the drawing does.
+function bodyCapsule(j: Jumper): { hips: Point; head: Point } {
+    const cos = Math.cos(j.pitch)
+    const sin = Math.sin(j.pitch)
+    const place = (p: Point) => ({
+        x: j.x + (p.x * cos - p.y * sin) * j.facing,
+        y: j.y + p.x * sin + p.y * cos,
+    })
+    return {
+        hips: place(BODY_HIPS),
+        head: place({
+            x: BODY_HEAD.x + 0.3 * j.charge,
+            y: BODY_HEAD.y - 0.45 * j.charge,
+        }),
+    }
+}
+
 // The pitch that puts the skis flat on the last surface, in the facing frame.
 function slopePitch(j: Jumper): number {
     const t =
@@ -671,6 +806,29 @@ function firstHit(
         if (t < 0 || t > 1 || u < 0 || u > 1 || !test(s)) continue
         const distance = t * Math.hypot(rx, ry)
         if (best === null || distance < best) best = distance
+    }
+    return best
+}
+
+// The nearest pair of points on segment pq and segment ab.
+function closestPoints(p: Point, q: Point, a: Point, b: Point): [Point, Point] {
+    let best: [Point, Point] = [p, closestPoint(p, a, b)]
+    let bestDistance = Infinity
+    const candidates: [Point, Point][] = [
+        [p, closestPoint(p, a, b)],
+        [q, closestPoint(q, a, b)],
+        [closestPoint(a, p, q), a],
+        [closestPoint(b, p, q), b],
+    ]
+    for (const pair of candidates) {
+        const distance = Math.hypot(
+            pair[0].x - pair[1].x,
+            pair[0].y - pair[1].y
+        )
+        if (distance < bestDistance) {
+            best = pair
+            bestDistance = distance
+        }
     }
     return best
 }
