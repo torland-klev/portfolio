@@ -96,6 +96,14 @@
     &[data-tool='erase'] {
         cursor: none;
     }
+
+    &[data-tool='move'] {
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
 }
 
 .stats {

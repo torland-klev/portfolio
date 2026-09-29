@@ -93,6 +93,7 @@ export type MaterialId =
     | 'grass'
     | 'rock'
     | 'rubber'
+    | 'trampoline'
     | 'wood'
     | 'wall'
 
@@ -112,6 +113,9 @@ export type Material = {
     // A jumper that hits this material faster than this (normal to the
     // surface, in m/s) crashes. The toughness of the world scales it.
     crashSpeed: number
+    // A springy material throws a jumper off at least this fast, normal to
+    // the surface, in m/s, however softly the jumper touches it.
+    kick?: number
 }
 
 export const MATERIALS: Record<MaterialId, Material> = {
@@ -141,11 +145,21 @@ export const MATERIALS: Record<MaterialId, Material> = {
         crashSpeed: CRASH_SPEED,
     },
     rock: { label: 'Rock', friction: 0.6, restitution: 0.25, crashSpeed: 2 },
+    // Like a pinball bumper, it kicks back every jumper that touches it.
     rubber: {
         label: 'Bumper',
         friction: 0.5,
-        restitution: 0.8,
+        restitution: 0.9,
         crashSpeed: Infinity,
+        kick: 7,
+    },
+    // The mat keeps a jumper bouncing, and lets it keep its speed forward.
+    trampoline: {
+        label: 'Trampoline',
+        friction: 0.1,
+        restitution: 0.9,
+        crashSpeed: Infinity,
+        kick: 5,
     },
     wood: { label: 'Box', friction: 0.3, restitution: 0.3, crashSpeed: 4 },
     // The edges of the world. Every jumper that reaches one crashes.
@@ -168,7 +182,7 @@ export type Segment = {
     obstacle?: number
 }
 
-export type ObstacleKind = 'rock' | 'bumper' | 'box'
+export type ObstacleKind = 'rock' | 'bumper' | 'box' | 'trampoline'
 
 export type Obstacle = {
     id: number
@@ -285,11 +299,13 @@ export class World {
         const points = obstacleShape(kind, at)
         const material: MaterialId =
             kind === 'rock' ? 'rock' : kind === 'bumper' ? 'rubber' : 'wood'
+        // The first side of a trampoline is the mat, and the rest is its
+        // wooden frame.
         const segments = points.map((p, i) =>
             this.addSegment(
                 p,
                 points[(i + 1) % points.length],
-                material,
+                kind === 'trampoline' && i === 0 ? 'trampoline' : material,
                 false,
                 id
             )
@@ -796,6 +812,12 @@ export class World {
         j.vx = tx * keep - restitution * vn * nx
         j.vy = ty * keep - restitution * vn * ny
 
+        const out = j.vx * nx + j.vy * ny
+        if (material.kick && out < material.kick) {
+            j.vx += (material.kick - out) * nx
+            j.vy += (material.kick - out) * ny
+        }
+
         if (!body) j.tangent = { x: ny, y: -nx }
         if (j.crashed) j.spin *= 0.9
     }
@@ -1089,6 +1111,17 @@ export function smoothStroke(points: Point[]): Point[] {
 }
 
 function obstacleShape(kind: ObstacleKind, at: Point): Point[] {
+    // A 4 m wide mat on a thin frame. The mat is the top side, from left to
+    // right.
+    if (kind === 'trampoline') {
+        const w = 2
+        return [
+            { x: at.x - w, y: at.y },
+            { x: at.x + w, y: at.y },
+            { x: at.x + w, y: at.y - 0.3 },
+            { x: at.x - w, y: at.y - 0.3 },
+        ]
+    }
     if (kind === 'box') {
         const h = 1
         return [

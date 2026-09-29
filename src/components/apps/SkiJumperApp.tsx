@@ -14,11 +14,14 @@ import {
     MAX_TOUGHNESS,
 } from './skiJumper/physics'
 
-// At zoom 1 the world is 100 m wide. Zooming out makes the field bigger. The
-// canvas keeps a 16:10 aspect ratio.
+// At zoom 1 the view and the field are 100 m wide. A view wider than the
+// field, or one dragged past its right or top edge, makes the field bigger.
+// The field never shrinks again, so that nothing drawn is lost. The left
+// edge and the ground stay where they are. The canvas keeps a 16:10 aspect
+// ratio.
 const WIDTH = 100
 const HEIGHT = 62.5
-const ZOOMS = [1, 1.5, 2, 3, 4]
+const ZOOMS = [0.25, 0.5, 1, 1.5, 2, 3, 4]
 const STEP = 1 / 240
 // The eraser is this wide on screen, so it grows in metres as the view
 // zooms out.
@@ -54,9 +57,10 @@ const GRAVITY_MARKS = [
 ]
 
 type DrawMaterial = 'snow' | 'ice' | 'perfectIce' | 'grass'
-type Tool = 'jumper' | DrawMaterial | 'erase' | ObstacleKind
+type Tool = 'move' | 'jumper' | DrawMaterial | 'erase' | ObstacleKind
 
 const TOOLS: { id: Tool; label: string }[] = [
+    { id: 'move', label: 'Move' },
     { id: 'jumper', label: 'Jumper' },
     { id: 'snow', label: 'Draw snow' },
     { id: 'ice', label: 'Draw ice' },
@@ -65,6 +69,7 @@ const TOOLS: { id: Tool; label: string }[] = [
     { id: 'erase', label: 'Erase' },
     { id: 'rock', label: 'Rock' },
     { id: 'bumper', label: 'Bumper' },
+    { id: 'trampoline', label: 'Trampoline' },
     { id: 'box', label: 'Box' },
 ]
 
@@ -88,6 +93,7 @@ const MATERIAL_COLORS: Record<MaterialId, string | null> = {
     grass: '#40a02b',
     rock: '#868e96',
     rubber: '#f76707',
+    trampoline: '#be4bdb',
     wood: '#b5835a',
     wall: null,
 }
@@ -119,6 +125,11 @@ export default function SkiJumperApp() {
     const toolRef = useRef<Tool>('snow')
     const strokeRef = useRef<Point[] | null>(null)
     const hoverRef = useRef<Point | null>(null)
+    // The view: its bottom-left corner in the world, in m, and its width as
+    // a share of 100 m.
+    const viewRef = useRef({ x: 0, y: 0, zoom: 1 })
+    // The pointer that drags the view, and where it was last.
+    const panRef = useRef<{ id: number; x: number; y: number } | null>(null)
     const pausedRef = useRef(false)
     const slowRef = useRef(false)
 
@@ -130,6 +141,7 @@ export default function SkiJumperApp() {
     const [hopHeight, setHopHeight] = useState(HOP_HEIGHT)
     const [toughness, setToughness] = useState(TOUGHNESS)
     const [zoom, setZoom] = useState(1)
+    const [field, setField] = useState({ width: WIDTH, height: HEIGHT })
     const [count, setCount] = useState(0)
     const [last, setLast] = useState<JumpResult | null>(null)
     const [best, setBest] = useState<JumpResult | null>(null)
@@ -220,13 +232,21 @@ export default function SkiJumperApp() {
         ) {
             const css = getComputedStyle(document.documentElement)
             const text = css.getPropertyValue('--text')
-            const scale = canvas.width / world.width
+            const view = viewRef.current
+            const scale = canvas.width / (WIDTH * view.zoom)
             ctx.setTransform(1, 0, 0, 1, 0, 0)
             ctx.fillStyle = css.getPropertyValue('--bg-alt')
             ctx.fillRect(0, 0, canvas.width, canvas.height)
 
             // From here on, draw in metres with the y axis up.
-            ctx.setTransform(scale, 0, 0, -scale, 0, world.height * scale)
+            ctx.setTransform(
+                scale,
+                0,
+                0,
+                -scale,
+                -view.x * scale,
+                (view.y + HEIGHT * view.zoom) * scale
+            )
             const pixel = 1 / scale
             ctx.lineCap = 'round'
             ctx.lineJoin = 'round'
@@ -325,21 +345,48 @@ export default function SkiJumperApp() {
     }, [world])
 
     function eraseRadius(): number {
-        return (ERASE_RADIUS * world.width) / WIDTH
+        return ERASE_RADIUS * viewRef.current.zoom
     }
 
+    // Moves the view, and grows the field to the right and up to cover it.
+    function moveView(x: number, y: number) {
+        const view = viewRef.current
+        view.x = Math.max(x, 0)
+        view.y = Math.max(y, 0)
+        const right = Math.ceil(view.x + WIDTH * view.zoom)
+        const top = Math.ceil(view.y + HEIGHT * view.zoom)
+        if (right > world.width || top > world.height) {
+            world.resize(
+                Math.max(world.width, right),
+                Math.max(world.height, top)
+            )
+            setField({ width: world.width, height: world.height })
+        }
+    }
+
+    // Zooms about the middle of the view.
     function zoomTo(next: number) {
-        world.resize(WIDTH * next, HEIGHT * next)
+        const view = viewRef.current
+        const middle = {
+            x: view.x + (WIDTH * view.zoom) / 2,
+            y: view.y + (HEIGHT * view.zoom) / 2,
+        }
+        view.zoom = next
+        moveView(middle.x - (WIDTH * next) / 2, middle.y - (HEIGHT * next) / 2)
         setZoom(next)
     }
 
     function toWorld(event: React.PointerEvent<HTMLCanvasElement>): Point {
         const rect = event.currentTarget.getBoundingClientRect()
+        const view = viewRef.current
+        const width = WIDTH * view.zoom
+        const height = HEIGHT * view.zoom
         return {
-            x: ((event.clientX - rect.left) / rect.width) * world.width,
+            x: view.x + ((event.clientX - rect.left) / rect.width) * width,
             y:
-                world.height -
-                ((event.clientY - rect.top) / rect.height) * world.height,
+                view.y +
+                height -
+                ((event.clientY - rect.top) / rect.height) * height,
         }
     }
 
@@ -348,7 +395,16 @@ export default function SkiJumperApp() {
         event.currentTarget.setPointerCapture(event.pointerId)
         hoverRef.current = at
         const tool = toolRef.current
-        if (tool === 'jumper') world.addJumper(at)
+        // The move tool, or the middle or right button with any tool, drags
+        // the view.
+        if (tool === 'move' || event.button === 1 || event.button === 2) {
+            event.preventDefault()
+            panRef.current = {
+                id: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+            }
+        } else if (tool === 'jumper') world.addJumper(at)
         else if (isDrawTool(tool)) strokeRef.current = [at]
         else if (tool === 'erase') world.erase(at, eraseRadius())
         else world.addObstacle(tool, at)
@@ -359,6 +415,19 @@ export default function SkiJumperApp() {
         const previous = hoverRef.current ?? at
         hoverRef.current = at
         if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
+        const pan = panRef.current
+        if (pan?.id === event.pointerId) {
+            const rect = event.currentTarget.getBoundingClientRect()
+            const view = viewRef.current
+            const metres = (WIDTH * view.zoom) / rect.width
+            moveView(
+                view.x - (event.clientX - pan.x) * metres,
+                view.y + (event.clientY - pan.y) * metres
+            )
+            pan.x = event.clientX
+            pan.y = event.clientY
+            return
+        }
         const stroke = strokeRef.current
         if (stroke) {
             const tail = stroke[stroke.length - 1]
@@ -369,6 +438,7 @@ export default function SkiJumperApp() {
     }
 
     function onPointerUp() {
+        panRef.current = null
         const stroke = strokeRef.current
         const tool = toolRef.current
         if (stroke && isDrawTool(tool)) world.addStroke(stroke, tool)
@@ -408,12 +478,13 @@ export default function SkiJumperApp() {
                 ref={canvasRef}
                 className={styles.canvas}
                 data-tool={tool}
-                aria-label="Ski jump. Choose a tool, then click or drag to draw a hill and drop jumpers. Hold space to charge a jump, and release it to jump."
+                aria-label="Ski jump. Choose a tool, then click or drag to draw a hill and drop jumpers. Drag with the move tool, or with the right mouse button, to move the view. Dragging past the right or top edge makes the field bigger. Hold space to charge a jump, and release it to jump."
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onPointerCancel={onPointerUp}
                 onPointerLeave={() => (hoverRef.current = null)}
+                onContextMenu={(event) => event.preventDefault()}
             />
             <div className={styles.toolbar}>
                 <button type="button" onClick={togglePause}>
@@ -502,8 +573,8 @@ export default function SkiJumperApp() {
                 <div>
                     <dt>Field</dt>
                     <dd>
-                        {formatMetres(world.width)} ×{' '}
-                        {formatMetres(world.height)} m
+                        {formatMetres(field.width)} ×{' '}
+                        {formatMetres(field.height)} m
                     </dd>
                 </div>
                 <div>

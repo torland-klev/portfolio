@@ -129,6 +129,35 @@ test('a bumper throws a falling jumper back up', () => {
     expect(highest).toBeGreaterThan(15)
 })
 
+test('a bumper kicks back a jumper that slides into it', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 99, 10)
+    world.addObstacle('bumper', { x: 50, y: 11.2 })
+    const jumper = world.addJumper({ x: 44, y: 10.2 }, { x: 2, y: 0 })
+    let fastest = 0
+    for (let t = 0; t < 4; t += STEP) {
+        world.step(STEP)
+        fastest = Math.max(fastest, -jumper.vx)
+    }
+    expect(fastest).toBeGreaterThan(4)
+    expect(jumper.x).toBeLessThan(48)
+})
+
+test('a trampoline keeps a jumper bouncing', () => {
+    const world = new World(100, 62.5)
+    world.addObstacle('trampoline', { x: 50, y: 10 })
+    const jumper = world.addJumper({ x: 50, y: 14 })
+    run(world, 6)
+    let highest = -Infinity
+    for (let t = 0; t < 4; t += STEP) {
+        world.step(STEP)
+        highest = Math.max(highest, jumper.y)
+    }
+    expect(highest).toBeGreaterThan(11)
+    expect(jumper.crashed).toBe(false)
+    expect(Math.abs(jumper.x - 50)).toBeLessThan(2)
+})
+
 test('the eraser removes the slope, and a jumper then falls through', () => {
     const world = hillWorld()
     const before = world.segments.size
