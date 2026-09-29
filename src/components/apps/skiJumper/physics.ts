@@ -417,9 +417,15 @@ export class World {
             return
         }
         let target: number
+        let rate = 12
         if (j.airTime > FLIGHT_AFTER) {
-            // In flight the skis point a little above the flight path.
-            target = Math.atan2(j.vy, Math.abs(j.vx)) + 0.3
+            // In flight the skis point a little above the flight path. The
+            // air turns the figure, so a slow jumper keeps its pose, and a
+            // jumper that falls straight down stays upright.
+            const speed = Math.hypot(j.vx, j.vy)
+            const sideways = speed > 0 ? Math.abs(j.vx) / speed : 0
+            target = sideways * (Math.atan2(j.vy, Math.abs(j.vx)) + 0.3)
+            rate *= Math.min(1, (speed / 15) ** 2)
         } else {
             const t =
                 j.tangent.x * j.facing >= 0
@@ -427,7 +433,7 @@ export class World {
                     : { x: -j.tangent.x, y: -j.tangent.y }
             target = Math.atan2(t.y, Math.abs(t.x))
         }
-        j.pitch += (target - j.pitch) * Math.min(1, dt * 12)
+        j.pitch += (target - j.pitch) * Math.min(1, dt * rate)
     }
 
     // Jumpers bump as circles centred a little above the feet. Only the

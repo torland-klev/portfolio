@@ -197,3 +197,13 @@ test('the landing is harder with stronger gravity', () => {
     expect(jump(9.81).crashed).toBe(false)
     expect(jump(24.79).crashed).toBe(true)
 })
+
+test('a dropped jumper stays upright while it falls straight down', () => {
+    const world = new World(100, 62.5)
+    const jumper = world.addJumper({ x: 50, y: 30 })
+    for (let t = 0; t < 1.5; t += STEP) {
+        world.step(STEP)
+        expect(Math.abs(jumper.pitch)).toBeLessThan(0.01)
+    }
+    expect(jumper.airTime).toBeGreaterThan(1)
+})
