@@ -91,6 +91,7 @@ function describe(jump: JumpResult): string {
 }
 
 export default function SkiJumperApp() {
+    const rootRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     // A new world on each load. Nothing is saved.
     const [world] = useState(newWorld)
@@ -116,6 +117,48 @@ export default function SkiJumperApp() {
                 setBest((best) =>
                     !best || jump.distance > best.distance ? jump : best
                 )
+        }
+    }, [world])
+
+    // Space charges a jump while the canvas is on screen. It does not when
+    // the focus is in a text field or in a control outside the app.
+    useEffect(() => {
+        function onScreen(): boolean {
+            const rect = canvasRef.current?.getBoundingClientRect()
+            return !!rect && rect.bottom > 0 && rect.top < window.innerHeight
+        }
+
+        function isJumpKey(event: KeyboardEvent): boolean {
+            if (event.code !== 'Space' || !onScreen()) return false
+            const focus = document.activeElement
+            if (focus?.closest('input:not([type=range]), textarea, select'))
+                return false
+            return (
+                !focus ||
+                focus === document.body ||
+                !!rootRef.current?.contains(focus)
+            )
+        }
+        function onKeyDown(event: KeyboardEvent) {
+            if (!isJumpKey(event)) return
+            event.preventDefault()
+            if (!event.repeat) world.startCharge()
+        }
+        function onKeyUp(event: KeyboardEvent) {
+            if (event.code !== 'Space' || !world.charging) return
+            event.preventDefault()
+            world.releaseCharge()
+        }
+        function onBlur() {
+            if (world.charging) world.releaseCharge()
+        }
+        window.addEventListener('keydown', onKeyDown)
+        window.addEventListener('keyup', onKeyUp)
+        window.addEventListener('blur', onBlur)
+        return () => {
+            window.removeEventListener('keydown', onKeyDown)
+            window.removeEventListener('keyup', onKeyUp)
+            window.removeEventListener('blur', onBlur)
         }
     }, [world])
 
@@ -313,7 +356,7 @@ export default function SkiJumperApp() {
     }
 
     return (
-        <div className={styles.skiJumper}>
+        <div ref={rootRef} className={styles.skiJumper}>
             <div className={styles.toolbar} role="toolbar" aria-label="Tools">
                 {TOOLS.map((t) => (
                     <button
@@ -330,7 +373,7 @@ export default function SkiJumperApp() {
                 ref={canvasRef}
                 className={styles.canvas}
                 data-tool={tool}
-                aria-label="Ski jump. Choose a tool, then click or drag to draw a hill and drop jumpers."
+                aria-label="Ski jump. Choose a tool, then click or drag to draw a hill and drop jumpers. Hold space to charge a jump, and release it to jump."
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
@@ -476,21 +519,54 @@ function drawJumper(ctx: CanvasRenderingContext2D, j: Jumper, pixel: number) {
     ctx.lineWidth = Math.max(0.3, 2.5 * pixel)
     // After a crash, the figure lies forward over its skis.
     if (j.crashed) ctx.rotate(-1.1)
+    // A charging jumper crouches: the knee goes forward and the body goes
+    // down and leans over the skis.
+    const c = j.charge
+    const knee = { x: 0.25 + 0.35 * c, y: 0.8 - 0.35 * c }
+    const lean = { x: 0.3 * c, y: -0.45 * c }
     ctx.beginPath()
     ctx.moveTo(0, 0.1)
-    ctx.lineTo(0.25, 0.8)
-    ctx.lineTo(0.5, 1.4)
+    ctx.lineTo(knee.x, knee.y)
+    ctx.lineTo(0.5 + lean.x, 1.4 + lean.y)
     ctx.stroke()
     ctx.beginPath()
-    ctx.arc(0.6, 1.62, Math.max(0.17, 2 * pixel), 0, Math.PI * 2)
+    ctx.arc(
+        0.6 + lean.x,
+        1.62 + lean.y,
+        Math.max(0.17, 2 * pixel),
+        0,
+        Math.PI * 2
+    )
     ctx.fill()
 
     // The white bib on the chest.
+    const bib = (t: number) => ({
+        x: knee.x + (0.5 + lean.x - knee.x) * t,
+        y: knee.y + (1.4 + lean.y - knee.y) * t,
+    })
+    const bibFrom = bib(0.37)
+    const bibTo = bib(0.77)
     ctx.strokeStyle = '#ffffff'
     ctx.lineWidth = Math.max(0.12, pixel)
     ctx.beginPath()
-    ctx.moveTo(0.34, 1.02)
-    ctx.lineTo(0.44, 1.26)
+    ctx.moveTo(bibFrom.x, bibFrom.y)
+    ctx.lineTo(bibTo.x, bibTo.y)
     ctx.stroke()
     ctx.restore()
+
+    // A level bar above the head fills with the charge.
+    if (c > 0) {
+        ctx.save()
+        ctx.globalAlpha = Math.max(0, j.opacity)
+        const width = 1.6
+        const x = j.x - width / 2
+        const y = j.y + 2.3
+        const height = Math.max(0.2, 3 * pixel)
+        ctx.strokeStyle = color
+        ctx.lineWidth = Math.max(0.06, pixel)
+        ctx.strokeRect(x, y, width, height)
+        ctx.fillStyle = color
+        ctx.fillRect(x, y, width * c, height)
+        ctx.restore()
+    }
 }

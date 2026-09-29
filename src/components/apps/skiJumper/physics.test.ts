@@ -284,3 +284,62 @@ test('a crashed jumper settles with its skis on the slope', () => {
     expect(jumper.crashed).toBe(true)
     expect(settled).toBe(true)
 })
+
+test('a held jump charges, and a longer charge jumps higher', () => {
+    const peak = (hold: number) => {
+        const world = new World(100, 62.5)
+        const jumper = world.addJumper({ x: 50, y: 0.2 })
+        run(world, 0.5)
+        world.startCharge()
+        run(world, hold)
+        expect(jumper.charge).toBeGreaterThan(0)
+        world.releaseCharge()
+        expect(jumper.charge).toBe(0)
+        let top = jumper.y
+        for (let t = 0; t < 2; t += STEP) {
+            world.step(STEP)
+            top = Math.max(top, jumper.y)
+        }
+        expect(jumper.crashed).toBe(false)
+        return top
+    }
+    const short = peak(0.1)
+    const long = peak(1)
+    expect(short).toBeGreaterThan(0.3)
+    expect(long).toBeGreaterThan(short + 1)
+})
+
+test('a jumper hops over a box in its way', () => {
+    const world = new World(100, 62.5)
+    world.addStroke(
+        [
+            { x: 1, y: 10 },
+            { x: 99, y: 10 },
+        ],
+        'perfectIce'
+    )
+    world.addObstacle('box', { x: 40, y: 11 })
+    const jumper = world.addJumper({ x: 20, y: 10.2 }, { x: 5, y: 0 })
+    run(world, 8)
+    expect(jumper.x).toBeGreaterThan(45)
+    expect(jumper.crashed).toBe(false)
+})
+
+test('a jumper does not hop on a flat slope', () => {
+    const world = new World(100, 62.5)
+    world.addStroke(
+        [
+            { x: 1, y: 10 },
+            { x: 99, y: 10 },
+        ],
+        'snow'
+    )
+    const jumper = world.addJumper({ x: 20, y: 10.2 }, { x: 8, y: 0 })
+    run(world, 0.2)
+    let top = jumper.y
+    for (let t = 0; t < 3; t += STEP) {
+        world.step(STEP)
+        top = Math.max(top, jumper.y)
+    }
+    expect(top).toBeLessThan(10.3)
+})

@@ -46,6 +46,23 @@ const CONTACT_RADIUS = 0.15
 // A jumper this close to a surface still counts as touching it.
 const CONTACT_SKIN = 0.02
 const GRID_CELL = 4
+// A held jump charges to full in this time. The take-off speed goes from the
+// low to the high value with the charge. The high value lands below the
+// crash speed on snow.
+const CHARGE_TIME = 1
+const JUMP_SPEED_MIN = 2
+const JUMP_SPEED_MAX = 6
+// A jumper on the ground looks this far ahead for a steep face. It hops over
+// a face up to the maximum height, and clears the top by the margin.
+const HOP_LOOK_TIME = 1
+const HOP_LOOK_MAX = 8
+const HOP_MAX_HEIGHT = 3
+const HOP_MARGIN = 0.4
+const HOP_MIN_SPEED = 0.5
+// A face steeper than this angle from the horizontal counts as steep.
+const STEEP_SLOPE = (55 * Math.PI) / 180
+// No new jump or hop comes this soon after the last one.
+const JUMP_COOLDOWN = 0.25
 
 export type MaterialId =
     | 'snow'
@@ -137,6 +154,10 @@ export type Jumper = {
     // An index into the toy colors: red, blue or yellow.
     color: number
     takeoff: { x: number; y: number; speed: number } | null
+    // The charge of a held jump, from 0 to 1. The drawing crouches with it.
+    charge: number
+    // Seconds since the last jump or hop.
+    sinceJump: number
     lastContact: { x: number; y: number; speed: number }
 }
 
@@ -152,6 +173,8 @@ export class World {
     gravity = G
     // The air density, in kg/m³. Drag and lift both scale with it.
     airDensity = AIR_DENSITY
+    // True while the player holds the jump key.
+    charging = false
     onJump: (result: JumpResult) => void = () => {}
     private nextId = 1
     private grid = new Map<number, Segment[]>()
@@ -250,11 +273,46 @@ export class World {
             opacity: 1,
             color: Math.floor(Math.random() * 3),
             takeoff: null,
+            charge: 0,
+            sinceJump: JUMP_COOLDOWN,
             lastContact: { x: at.x, y: at.y, speed: 0 },
         }
         this.jumpers.push(jumper)
         if (this.jumpers.length > MAX_JUMPERS) this.jumpers.shift()
         return jumper
+    }
+
+    startCharge() {
+        this.charging = true
+    }
+
+    // Every jumper on the ground jumps with its charge. The others lose it.
+    releaseCharge() {
+        this.charging = false
+        for (const j of this.jumpers) {
+            if (!j.crashed && j.airTime <= FLIGHT_AFTER && j.charge > 0)
+                this.jump(
+                    j,
+                    JUMP_SPEED_MIN +
+                        (JUMP_SPEED_MAX - JUMP_SPEED_MIN) * j.charge
+                )
+            j.charge = 0
+        }
+    }
+
+    // The jumper pushes off at right angles to the skis.
+    private jump(j: Jumper, speed: number) {
+        const up = j.tangent.x >= 0 ? 1 : -1
+        j.vx += -j.tangent.y * up * speed
+        j.vy += j.tangent.x * up * speed
+        this.leaveGround(j)
+    }
+
+    // A jumper that leaves the ground on purpose is not in contact through
+    // the skin on the next step.
+    private leaveGround(j: Jumper) {
+        j.airTime = Math.max(j.airTime, 1e-6)
+        j.sinceJump = 0
     }
 
     step(dt: number) {
@@ -265,6 +323,13 @@ export class World {
     }
 
     private stepJumper(j: Jumper, dt: number) {
+        j.sinceJump += dt
+        if (j.crashed) j.charge = 0
+        else if (this.charging)
+            j.charge = Math.min(1, j.charge + dt / CHARGE_TIME)
+        if (!j.crashed && j.airTime === 0 && j.sinceJump >= JUMP_COOLDOWN)
+            this.hopOverFace(j)
+
         const speed = Math.hypot(j.vx, j.vy)
         const flying = !j.crashed && j.airTime > FLIGHT_AFTER
 
@@ -336,9 +401,76 @@ export class World {
 
         this.updatePose(j, dt)
 
-        const resting = j.airTime === 0 && Math.hypot(j.vx, j.vy) < 0.1
+        const resting =
+            j.airTime === 0 && j.charge === 0 && Math.hypot(j.vx, j.vy) < 0.1
         j.restTime = resting ? j.restTime + dt : 0
         if (j.restTime > REST_BEFORE_FADE) j.opacity -= dt / FADE_TIME
+    }
+
+    // Looks ahead along the ground for a steep face. If the jumper can clear
+    // the face with a hop, and the face is near enough that the hop peaks
+    // at it, the jumper hops straight up and keeps its speed forward.
+    private hopOverFace(j: Jumper) {
+        const ahead = Math.abs(j.vx)
+        if (ahead < HOP_MIN_SPEED) return
+        const dir = j.vx > 0 ? 1 : -1
+        const g = Math.max(this.gravity, 0.1)
+        const reach = Math.min(
+            HOP_LOOK_MAX,
+            ahead * HOP_LOOK_TIME + CONTACT_RADIUS
+        )
+        const probe = CONTACT_RADIUS * 2
+        const segments = this.inBox(
+            j.x,
+            j.y,
+            j.x + dir * (reach + probe),
+            j.y + HOP_MAX_HEIGHT + HOP_MARGIN
+        )
+
+        // The nearest steep face at knee height.
+        const knee = { x: j.x, y: j.y + probe }
+        const face = firstHit(
+            knee,
+            { x: j.x + dir * reach, y: knee.y },
+            segments,
+            (s) =>
+                !s.fixed &&
+                Math.abs(s.b.y - s.a.y) >
+                    Math.abs(s.b.x - s.a.x) * Math.tan(STEEP_SLOPE)
+        )
+        if (face === null) return
+
+        // The lowest height at which the way past the face is clear.
+        const past = face + probe
+        let height: number | null = null
+        for (let h = probe * 2; h <= HOP_MAX_HEIGHT; h += 0.2) {
+            const from = { x: j.x, y: j.y + h }
+            const to = { x: j.x + dir * past, y: from.y }
+            if (firstHit(from, to, segments, () => true) === null) {
+                height = h
+                break
+            }
+        }
+        // A face that is too high gets a full hop when the jumper is at it.
+        if (height === null && face > probe) return
+        const lift = Math.sqrt(
+            2 * g * ((height ?? HOP_MAX_HEIGHT) + HOP_MARGIN)
+        )
+        if (face > ahead * (lift / g) + CONTACT_RADIUS) return
+        j.vy = Math.max(j.vy, 0) + lift
+        this.leaveGround(j)
+    }
+
+    // The segments in the grid cells that cover the box.
+    private inBox(x0: number, y0: number, x1: number, y1: number): Segment[] {
+        const [cx0, cx1] = cellRange(x0, x1)
+        const [cy0, cy1] = cellRange(y0, y1)
+        const found = new Set<Segment>()
+        for (let cx = cx0; cx <= cx1; cx++)
+            for (let cy = cy0; cy <= cy1; cy++)
+                for (const segment of this.grid.get(cellKey(cx, cy)) ?? [])
+                    found.add(segment)
+        return [...found]
     }
 
     // Pushes the jumper out of every segment nearer than the contact
@@ -514,6 +646,33 @@ function slopePitch(j: Jumper): number {
             ? j.tangent
             : { x: -j.tangent.x, y: -j.tangent.y }
     return Math.atan2(t.y, Math.abs(t.x))
+}
+
+// The distance from `from` to the first crossing of the ray with a segment
+// that passes the test, or null.
+function firstHit(
+    from: Point,
+    to: Point,
+    segments: Segment[],
+    test: (s: Segment) => boolean
+): number | null {
+    const rx = to.x - from.x
+    const ry = to.y - from.y
+    let best: number | null = null
+    for (const s of segments) {
+        const sx = s.b.x - s.a.x
+        const sy = s.b.y - s.a.y
+        const denominator = rx * sy - ry * sx
+        if (Math.abs(denominator) < 1e-12) continue
+        const qx = s.a.x - from.x
+        const qy = s.a.y - from.y
+        const t = (qx * sy - qy * sx) / denominator
+        const u = (qx * ry - qy * rx) / denominator
+        if (t < 0 || t > 1 || u < 0 || u > 1 || !test(s)) continue
+        const distance = t * Math.hypot(rx, ry)
+        if (best === null || distance < best) best = distance
+    }
+    return best
 }
 
 function closestPoint(p: Point, a: Point, b: Point): Point {
