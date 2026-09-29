@@ -1,4 +1,4 @@
-import { JumpResult, Point, World } from './physics'
+import { JumpResult, MAX_TOUGHNESS, Point, TOUGHNESS, World } from './physics'
 
 const STEP = 1 / 240
 
@@ -309,8 +309,9 @@ test('a held jump charges, and a longer charge jumps higher', () => {
     expect(long).toBeGreaterThan(short + 1)
 })
 
-test('a jumper hops over a box in its way', () => {
+function boxInTheWay(hopHeight: number) {
     const world = new World(100, 62.5)
+    world.hopHeight = hopHeight
     world.addStroke(
         [
             { x: 1, y: 10 },
@@ -318,30 +319,65 @@ test('a jumper hops over a box in its way', () => {
         ],
         'perfectIce'
     )
+    // The box is 2 m high.
     world.addObstacle('box', { x: 40, y: 11 })
     const jumper = world.addJumper({ x: 20, y: 10.2 }, { x: 5, y: 0 })
     run(world, 8)
+    return jumper
+}
+
+test('a jumper hops over a box when the hop height allows it', () => {
+    const jumper = boxInTheWay(2.5)
     expect(jumper.x).toBeGreaterThan(45)
     expect(jumper.crashed).toBe(false)
 })
 
-test('a jumper does not hop on a flat slope', () => {
+test('a jumper does not hop over a box higher than the hop height', () => {
+    const jumper = boxInTheWay(0.6)
+    expect(jumper.x).toBeLessThan(40)
+})
+
+function gapAhead(hopHeight: number, gap: number) {
     const world = new World(100, 62.5)
-    world.addStroke(
-        [
-            { x: 1, y: 10 },
-            { x: 99, y: 10 },
-        ],
-        'snow'
-    )
-    const jumper = world.addJumper({ x: 20, y: 10.2 }, { x: 8, y: 0 })
-    run(world, 0.2)
+    world.hopHeight = hopHeight
+    flatLine(world, 1, 50, 10)
+    flatLine(world, 50 + gap, 99, 10)
+    const jumper = world.addJumper({ x: 40, y: 10.2 }, { x: 3, y: 0 })
+    let lowest = jumper.y
+    for (let t = 0; t < 6; t += STEP) {
+        world.step(STEP)
+        lowest = Math.min(lowest, jumper.y)
+    }
+    return { jumper, lowest }
+}
+
+test('a jumper hops over a small gap', () => {
+    const { jumper, lowest } = gapAhead(0.6, 1.5)
+    expect(jumper.x).toBeGreaterThan(55)
+    expect(lowest).toBeGreaterThan(9.9)
+    expect(jumper.crashed).toBe(false)
+})
+
+test('a jumper does not hop over a gap too wide for the hop height', () => {
+    const { lowest } = gapAhead(0.4, 1.5)
+    expect(lowest).toBeLessThan(9)
+})
+
+test('a jumper does not hop with the hop height at 0', () => {
+    const { lowest } = gapAhead(0, 1.5)
+    expect(lowest).toBeLessThan(9)
+})
+
+test('a jumper does not hop off the end of a line with no ground near', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 50, 10)
+    const jumper = world.addJumper({ x: 45, y: 10.2 }, { x: 3, y: 0 })
     let top = jumper.y
-    for (let t = 0; t < 3; t += STEP) {
+    for (let t = 0; t < 2; t += STEP) {
         world.step(STEP)
         top = Math.max(top, jumper.y)
     }
-    expect(top).toBeLessThan(10.3)
+    expect(top).toBeLessThan(10.25)
 })
 
 function flatLine(world: World, from: number, to: number, y: number) {
@@ -394,4 +430,110 @@ test('a jumper passes under a line above its head', () => {
     run(world, 5)
     expect(jumper.x).toBeGreaterThan(60)
     expect(jumper.y).toBeLessThan(10.5)
+})
+
+test('a bigger field moves the right edge and keeps the hill', () => {
+    const world = new World(100, 62.5)
+    flatLine(world, 1, 99, 10)
+    world.resize(200, 125)
+    const jumper = world.addJumper({ x: 150, y: 5 }, { x: 10, y: 0 })
+    run(world, 30)
+    expect(jumper.x).toBeGreaterThan(150)
+    expect(jumper.x).toBeLessThan(200)
+    world.resize(100, 62.5)
+    expect(world.jumpers).toHaveLength(0)
+    expect([...world.segments.values()].some((s) => !s.fixed)).toBe(true)
+})
+
+test('a jumper hops over a gap in a downhill line', () => {
+    // A 0.3 slope with a 1.5 m gap. The line past it starts 0.5 m lower.
+    const world = new World(100, 62.5)
+    const line = (from: number, to: number, y: number) => {
+        const points: Point[] = []
+        for (let x = from; x <= to; x += 0.5)
+            points.push({ x, y: y - (x - from) * 0.3 })
+        world.addStroke(points, 'snow')
+    }
+    line(3, 47, 40)
+    const edge = 40 - 44 * 0.3
+    line(48.5, 90, edge - 0.5)
+    const jumper = world.addJumper({ x: 4, y: 40 })
+    let lowest = Infinity
+    for (let t = 0; t < 12 && jumper.x < 60; t += STEP) {
+        world.step(STEP)
+        if (jumper.x > 47 && jumper.x < 48.5)
+            lowest = Math.min(lowest, jumper.y - edge)
+    }
+    expect(jumper.x).toBeGreaterThan(55)
+    expect(lowest).toBeGreaterThan(-0.5)
+    expect(jumper.crashed).toBe(false)
+})
+
+function dropOnSnow(toughness: number) {
+    const world = new World(100, 62.5)
+    world.toughness = toughness
+    flatLine(world, 1, 99, 10)
+    // A 5 m fall lands at about 9.9 m/s.
+    const jumper = world.addJumper({ x: 50, y: 15.2 })
+    run(world, 2)
+    return jumper
+}
+
+test('the toughness sets how hard a jumper can land', () => {
+    expect(dropOnSnow(TOUGHNESS).crashed).toBe(true)
+    expect(dropOnSnow(8).crashed).toBe(false)
+})
+
+test('a jumper with the top toughness never crashes', () => {
+    const world = new World(100, 62.5)
+    world.toughness = MAX_TOUGHNESS
+    flatLine(world, 1, 99, 10)
+    const jumper = world.addJumper({ x: 50, y: 50 })
+    run(world, 4)
+    expect(jumper.crashed).toBe(false)
+})
+
+test('a jumper dropped across a line stands on it', () => {
+    const world = new World(100, 62.5)
+    world.addStroke(
+        [
+            { x: 30, y: 36 },
+            { x: 70, y: 24 },
+        ],
+        'snow'
+    )
+    // The line crosses the figure at its middle.
+    const jumper = world.addJumper({ x: 50, y: 29 })
+    run(world, 2)
+    expect(jumper.x).toBeGreaterThan(52)
+    expect(jumper.y).toBeGreaterThan(36 - (jumper.x - 30) * 0.3)
+})
+
+test('a hop onto a higher line only just reaches its top', () => {
+    // A downhill line, and a second line that starts about 1 m above it.
+    const world = new World(100, 62.5)
+    world.hopHeight = 2.5
+    world.addStroke(
+        [
+            { x: 10.9, y: 35.5 },
+            { x: 38.9, y: 22.7 },
+        ],
+        'perfectIce'
+    )
+    const start = { x: 33.5, y: 26.2 }
+    world.addStroke([start, { x: 54.1, y: 18 }], 'perfectIce')
+    const jumper = world.addJumper({ x: 12, y: 35.2 })
+    let top = -Infinity
+    for (let t = 0; t < 8 && jumper.x < 50; t += STEP) {
+        world.step(STEP)
+        if (jumper.x > start.x - 3 && jumper.x < start.x + 3)
+            top = Math.max(top, jumper.y - start.y)
+    }
+    expect(jumper.x).toBeGreaterThan(40)
+    // On the higher line.
+    const line =
+        start.y + ((jumper.x - start.x) * (18 - start.y)) / (54.1 - start.x)
+    expect(Math.abs(jumper.y - line)).toBeLessThan(0.5)
+    expect(top).toBeLessThan(0.6)
+    expect(jumper.crashed).toBe(false)
 })

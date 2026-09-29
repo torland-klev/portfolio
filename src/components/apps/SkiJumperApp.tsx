@@ -9,13 +9,34 @@ import {
     World,
     G,
     AIR_DENSITY,
+    HOP_HEIGHT,
+    TOUGHNESS,
+    MAX_TOUGHNESS,
 } from './skiJumper/physics'
 
-// The world is 100 m wide. The canvas keeps a 16:10 aspect ratio.
+// At zoom 1 the world is 100 m wide. Zooming out makes the field bigger. The
+// canvas keeps a 16:10 aspect ratio.
 const WIDTH = 100
 const HEIGHT = 62.5
+const ZOOMS = [1, 1.5, 2, 3, 4]
 const STEP = 1 / 240
+// The eraser is this wide on screen, so it grows in metres as the view
+// zooms out.
 const ERASE_RADIUS = 2
+
+// Marks on the toughness slider, in points.
+const TOUGHNESS_MARKS = [
+    { label: 'Fragile', value: 1 },
+    { label: 'Normal', value: TOUGHNESS },
+    { label: 'Invincible', value: MAX_TOUGHNESS },
+]
+
+// Marks on the auto hop slider, in m.
+const HOP_MARKS = [
+    { label: 'Off', value: 0 },
+    { label: 'Small', value: HOP_HEIGHT },
+    { label: 'Box', value: 2.5 },
+]
 
 // Marks on the air density slider, in kg/m³.
 const AIR_MARKS = [
@@ -106,6 +127,9 @@ export default function SkiJumperApp() {
     const [slow, setSlow] = useState(false)
     const [gravity, setGravity] = useState(G)
     const [airDensity, setAirDensity] = useState(AIR_DENSITY)
+    const [hopHeight, setHopHeight] = useState(HOP_HEIGHT)
+    const [toughness, setToughness] = useState(TOUGHNESS)
+    const [zoom, setZoom] = useState(1)
     const [count, setCount] = useState(0)
     const [last, setLast] = useState<JumpResult | null>(null)
     const [best, setBest] = useState<JumpResult | null>(null)
@@ -196,13 +220,13 @@ export default function SkiJumperApp() {
         ) {
             const css = getComputedStyle(document.documentElement)
             const text = css.getPropertyValue('--text')
-            const scale = canvas.width / WIDTH
+            const scale = canvas.width / world.width
             ctx.setTransform(1, 0, 0, 1, 0, 0)
             ctx.fillStyle = css.getPropertyValue('--bg-alt')
             ctx.fillRect(0, 0, canvas.width, canvas.height)
 
             // From here on, draw in metres with the y axis up.
-            ctx.setTransform(scale, 0, 0, -scale, 0, HEIGHT * scale)
+            ctx.setTransform(scale, 0, 0, -scale, 0, world.height * scale)
             const pixel = 1 / scale
             ctx.lineCap = 'round'
             ctx.lineJoin = 'round'
@@ -256,7 +280,7 @@ export default function SkiJumperApp() {
                 ctx.lineWidth = pixel
                 ctx.setLineDash([4 * pixel, 4 * pixel])
                 ctx.beginPath()
-                ctx.arc(hover.x, hover.y, ERASE_RADIUS, 0, Math.PI * 2)
+                ctx.arc(hover.x, hover.y, eraseRadius(), 0, Math.PI * 2)
                 ctx.stroke()
                 ctx.setLineDash([])
             }
@@ -300,11 +324,22 @@ export default function SkiJumperApp() {
         }
     }, [world])
 
+    function eraseRadius(): number {
+        return (ERASE_RADIUS * world.width) / WIDTH
+    }
+
+    function zoomTo(next: number) {
+        world.resize(WIDTH * next, HEIGHT * next)
+        setZoom(next)
+    }
+
     function toWorld(event: React.PointerEvent<HTMLCanvasElement>): Point {
         const rect = event.currentTarget.getBoundingClientRect()
         return {
-            x: ((event.clientX - rect.left) / rect.width) * WIDTH,
-            y: HEIGHT - ((event.clientY - rect.top) / rect.height) * HEIGHT,
+            x: ((event.clientX - rect.left) / rect.width) * world.width,
+            y:
+                world.height -
+                ((event.clientY - rect.top) / rect.height) * world.height,
         }
     }
 
@@ -315,7 +350,7 @@ export default function SkiJumperApp() {
         const tool = toolRef.current
         if (tool === 'jumper') world.addJumper(at)
         else if (isDrawTool(tool)) strokeRef.current = [at]
-        else if (tool === 'erase') world.erase(at, ERASE_RADIUS)
+        else if (tool === 'erase') world.erase(at, eraseRadius())
         else world.addObstacle(tool, at)
     }
 
@@ -329,7 +364,7 @@ export default function SkiJumperApp() {
             const tail = stroke[stroke.length - 1]
             if (Math.hypot(at.x - tail.x, at.y - tail.y) >= 0.3) stroke.push(at)
         } else if (toolRef.current === 'erase') {
-            world.erase(previous, ERASE_RADIUS, at)
+            world.erase(previous, eraseRadius(), at)
         }
     }
 
@@ -393,6 +428,20 @@ export default function SkiJumperApp() {
                 <button type="button" onClick={() => world.clearSlope()}>
                     Clear hill
                 </button>
+                <button
+                    type="button"
+                    disabled={zoom === ZOOMS[ZOOMS.length - 1]}
+                    onClick={() => zoomTo(ZOOMS[ZOOMS.indexOf(zoom) + 1])}
+                >
+                    Zoom out
+                </button>
+                <button
+                    type="button"
+                    disabled={zoom === ZOOMS[0]}
+                    onClick={() => zoomTo(ZOOMS[ZOOMS.indexOf(zoom) - 1])}
+                >
+                    Zoom in
+                </button>
             </div>
             <div className={styles.sliders}>
                 <Slider
@@ -419,8 +468,44 @@ export default function SkiJumperApp() {
                         setAirDensity(value)
                     }}
                 />
+                <Slider
+                    id="ski-jumper-toughness"
+                    label="Skier toughness"
+                    unit="points"
+                    min={1}
+                    max={MAX_TOUGHNESS}
+                    step={1}
+                    value={toughness}
+                    marks={TOUGHNESS_MARKS}
+                    format={(value) =>
+                        value >= MAX_TOUGHNESS ? '∞' : value.toLocaleString()
+                    }
+                    onChange={(value) => {
+                        world.toughness = value
+                        setToughness(value)
+                    }}
+                />
+                <Slider
+                    id="ski-jumper-hop"
+                    label="Auto hop"
+                    unit="m"
+                    max={3}
+                    value={hopHeight}
+                    marks={HOP_MARKS}
+                    onChange={(value) => {
+                        world.hopHeight = value
+                        setHopHeight(value)
+                    }}
+                />
             </div>
             <dl className={styles.stats}>
+                <div>
+                    <dt>Field</dt>
+                    <dd>
+                        {formatMetres(world.width)} ×{' '}
+                        {formatMetres(world.height)} m
+                    </dd>
+                </div>
                 <div>
                     <dt>Jumpers</dt>
                     <dd>{count.toLocaleString()}</dd>
@@ -444,21 +529,26 @@ function Slider(props: {
     id: string
     label: string
     unit: string
+    min?: number
     max: number
+    step?: number
     value: number
     marks: Mark[]
+    // Shows the value in place of the number and the unit.
+    format?: (value: number) => string
     onChange: (value: number) => void
 }) {
-    const { id, label, unit, max, value, marks, onChange } = props
+    const { id, label, unit, max, value, marks, format, onChange } = props
+    const { min = 0, step = 0.01 } = props
     return (
         <div className={styles.slider}>
             <label htmlFor={id}>{label}</label>
             <input
                 id={id}
                 type="range"
-                min={0}
+                min={min}
                 max={max}
-                step={0.01}
+                step={step}
                 value={value}
                 list={`${id}-marks`}
                 onChange={(event) => onChange(Number(event.target.value))}
@@ -473,11 +563,12 @@ function Slider(props: {
                 ))}
             </datalist>
             <output htmlFor={id}>
-                {value.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                })}{' '}
-                {unit}
+                {format
+                    ? format(value)
+                    : `${value.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                      })} ${unit}`}
             </output>
             <span className={styles.marks}>
                 {marks.map((mark) => (

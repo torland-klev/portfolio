@@ -52,19 +52,30 @@ const GRID_CELL = 4
 const CHARGE_TIME = 1
 const JUMP_SPEED_MIN = 2
 const JUMP_SPEED_MAX = 6
-// A jumper on the ground looks this far ahead for a steep face. It hops over
-// a face up to the maximum height, and clears the top by the margin.
+// A jumper on the ground looks this far ahead for a steep face, a ledge or a
+// gap. The hop is small: it clears a face or a ledge up to the hop height of
+// the world, and only just reaches the top. Anything higher stops the
+// jumper. The margin is how much higher than the hop height the arc can go.
+// Each world can change the hop height, and 0 turns the hop off.
+export const HOP_HEIGHT = 0.6
 const HOP_LOOK_TIME = 1
 const HOP_LOOK_MAX = 8
-const HOP_MAX_HEIGHT = 3
-const HOP_MARGIN = 0.4
+const HOP_MARGIN = 0.25
 const HOP_MIN_SPEED = 0.5
+// The feet pass the top of a ledge or a gap this far above it. A hop that
+// only slows a fall comes no later than this far before the ledge.
+const HOP_CLEARANCE = 0.15
+const HOP_MIN_LEAD = 0.5
 // A face steeper than this angle from the horizontal counts as steep.
 const STEEP_SLOPE = (55 * Math.PI) / 180
-// The free start of a line ahead, up to this height above the skis, is a
+// The free start of a line ahead, up to the hop height above the skis, is a
 // ledge to hop onto. A higher line is a ceiling that the body hits.
 const LEDGE_MIN_HEIGHT = 0.1
-const LEDGE_MAX_HEIGHT = 1
+// A gap up to this many hop heights wide, to ground no more than one hop
+// height above or below the edge, gets a hop across. A wider gap or a
+// deeper drop is a take-off.
+const GAP_PER_HEIGHT = 3
+const GAP_PROBE_STEP = 0.1
 // A line end nearer than this to another line is joined to it, not free.
 const LEDGE_JOIN = 0.3
 // The body touches a surface as a capsule of this radius, from the hips to
@@ -85,26 +96,50 @@ export type MaterialId =
     | 'wood'
     | 'wall'
 
+// A jumper that lands on snow faster than this (normal to the slope, in m/s)
+// crashes.
+const CRASH_SPEED = 6.5
+// The toughness of the jumpers is a number of points. The default takes the
+// crash speeds as they are, and each 2.5 points more doubles them. The top
+// score never crashes.
+export const TOUGHNESS = 5
+export const MAX_TOUGHNESS = 10
+
 export type Material = {
     label: string
     friction: number
     restitution: number
     // A jumper that hits this material faster than this (normal to the
-    // surface, in m/s) crashes.
+    // surface, in m/s) crashes. The toughness of the world scales it.
     crashSpeed: number
 }
 
 export const MATERIALS: Record<MaterialId, Material> = {
-    snow: { label: 'Snow', friction: 0.04, restitution: 0, crashSpeed: 6.5 },
-    ice: { label: 'Ice', friction: 0.01, restitution: 0, crashSpeed: 6.5 },
+    snow: {
+        label: 'Snow',
+        friction: 0.04,
+        restitution: 0,
+        crashSpeed: CRASH_SPEED,
+    },
+    ice: {
+        label: 'Ice',
+        friction: 0.01,
+        restitution: 0,
+        crashSpeed: CRASH_SPEED,
+    },
     // No friction at all. Air drag still slows the jumper.
     perfectIce: {
         label: 'Perfect ice',
         friction: 0,
         restitution: 0,
-        crashSpeed: 6.5,
+        crashSpeed: CRASH_SPEED,
     },
-    grass: { label: 'Grass', friction: 0.35, restitution: 0, crashSpeed: 6.5 },
+    grass: {
+        label: 'Grass',
+        friction: 0.35,
+        restitution: 0,
+        crashSpeed: CRASH_SPEED,
+    },
     rock: { label: 'Rock', friction: 0.6, restitution: 0.25, crashSpeed: 2 },
     rubber: {
         label: 'Bumper',
@@ -175,8 +210,9 @@ export type Jumper = {
 export type JumpResult = { distance: number; speed: number; crashed: boolean }
 
 export class World {
-    readonly width: number
-    readonly height: number
+    // The size of the field. Change it with resize.
+    width: number
+    height: number
     segments = new Map<number, Segment>()
     obstacles = new Map<number, Obstacle>()
     jumpers: Jumper[] = []
@@ -184,6 +220,11 @@ export class World {
     gravity = G
     // The air density, in kg/m³. Drag and lift both scale with it.
     airDensity = AIR_DENSITY
+    // The highest face or ledge that a jumper hops onto by itself, in m.
+    // Gaps up to a few times this wide get a hop too.
+    hopHeight = HOP_HEIGHT
+    // How hard a jumper can hit before it crashes, in points.
+    toughness = TOUGHNESS
     // True while the player holds the jump key.
     charging = false
     onJump: (result: JumpResult) => void = () => {}
@@ -194,6 +235,24 @@ export class World {
     constructor(width: number, height: number) {
         this.width = width
         this.height = height
+        this.addEdges()
+    }
+
+    // Changes the size of the field. The ground and the left edge stay where
+    // they are, so the hill keeps its place. A jumper outside the new edges
+    // is gone. Lines outside them stay, and come back into the field when
+    // it grows again.
+    resize(width: number, height: number) {
+        this.width = width
+        this.height = height
+        for (const segment of this.segments.values())
+            if (segment.fixed) this.segments.delete(segment.id)
+        this.jumpers = this.jumpers.filter((j) => j.x < width)
+        this.addEdges()
+    }
+
+    private addEdges() {
+        const { width, height } = this
         const top = height * 4
         this.addSegment({ x: 0, y: 0 }, { x: width, y: 0 }, 'snow', true)
         this.addSegment({ x: 0, y: 0 }, { x: 0, y: top }, 'wall', true)
@@ -267,7 +326,19 @@ export class World {
         this.gridDirty = true
     }
 
+    // Adds a jumper with its feet at the point. A line through the figure,
+    // between the feet and the top of the head, would hold the body in it,
+    // so the jumper stands on the highest such line instead.
     addJumper(at: Point, velocity: Point = { x: 0, y: 0 }): Jumper {
+        const top = { x: at.x, y: at.y + BODY_HEAD.y + BODY_RADIUS }
+        const below = firstHit(
+            top,
+            { x: at.x, y: at.y - CONTACT_RADIUS },
+            [...this.segments.values()],
+            (s) => s.material !== 'wall'
+        )
+        if (below !== null)
+            at = { x: at.x, y: top.y - below + CONTACT_RADIUS + CONTACT_SKIN }
         const jumper: Jumper = {
             id: this.nextId++,
             x: at.x,
@@ -419,45 +490,69 @@ export class World {
         if (j.restTime > REST_BEFORE_FADE) j.opacity -= dt / FADE_TIME
     }
 
-    // Looks ahead along the ground for a steep face or a ledge. If the
-    // jumper can clear it with a hop, and it is near enough that the hop
-    // peaks at it, the jumper hops straight up and keeps its speed forward.
+    // Looks ahead along the ground for a steep face, a ledge or a gap. If
+    // the jumper can clear it with a small hop, and it is near enough, the
+    // jumper hops and keeps its speed forward.
     private hopOverFace(j: Jumper) {
         const ahead = Math.abs(j.vx)
-        if (ahead < HOP_MIN_SPEED) return
+        if (ahead < HOP_MIN_SPEED || this.hopHeight <= 0) return
         const dir = j.vx > 0 ? 1 : -1
-        const g = Math.max(this.gravity, 0.1)
         const reach = Math.min(
             HOP_LOOK_MAX,
             ahead * HOP_LOOK_TIME + CONTACT_RADIUS
         )
         const probe = CONTACT_RADIUS * 2
+        const gap = this.hopHeight * GAP_PER_HEIGHT
         const segments = this.inBox(
             j.x - dir * probe,
-            j.y - reach,
-            j.x + dir * (reach + probe),
-            j.y + HOP_MAX_HEIGHT + HOP_MARGIN
+            j.y - reach - this.hopHeight,
+            j.x + dir * (reach + probe + gap),
+            j.y + reach + this.hopHeight + HOP_MARGIN
         )
-        const obstacle =
-            nearer(
-                this.findFace(j, dir, reach, segments),
-                this.findLedge(j, reach, segments)
-            ) ?? null
-        if (obstacle === null) return
-        const lift = Math.sqrt(2 * g * (obstacle.height + HOP_MARGIN))
-        if (obstacle.distance > obstacle.speed * (lift / g) + CONTACT_RADIUS)
-            return
-        j.vy = Math.max(j.vy, 0) + lift
+        const hop = [
+            this.findFace(j, dir, reach, segments),
+            this.findLedge(j, reach, segments),
+            this.findGap(j, dir, segments),
+        ].reduce(nearer, null)
+        if (hop === null || !hop.ready || hop.vy <= j.vy) return
+        j.vy = hop.vy
         this.leaveGround(j)
     }
 
-    // The nearest steep face at knee height, and the height to clear it.
+    // A hop whose feet pass the target just as they reach it. The jumper
+    // keeps its speed forward, so the vertical speed follows from the time
+    // it takes to get there. The hop waits until the target can be the top
+    // of the arc, so that the jumper only just reaches it. On a downhill
+    // slope the target can be below the feet, and the hop only slows the
+    // fall. A hop higher than the hop height is no hop.
+    private hopTo(
+        j: Jumper,
+        distance: number,
+        target: Point,
+        ready?: boolean
+    ): Hop | null {
+        const g = Math.max(this.gravity, 0.1)
+        const speed = Math.abs(j.vx)
+        const dx = Math.max(Math.abs(target.x - j.x), 1e-3)
+        const rise = target.y - j.y
+        const time = dx / speed
+        const vy = (rise + (g * time * time) / 2) / time
+        if (vy > 0 && (vy * vy) / (2 * g) > this.hopHeight + HOP_MARGIN)
+            return null
+        const lead = Math.max(
+            speed * Math.sqrt((2 * Math.max(rise, 0)) / g) + CONTACT_RADIUS,
+            HOP_MIN_LEAD
+        )
+        return { distance, vy, ready: ready ?? dx <= lead }
+    }
+
+    // The nearest steep face at knee height, and a hop to its top.
     private findFace(
         j: Jumper,
         dir: number,
         reach: number,
         segments: Segment[]
-    ): Obstruction | null {
+    ): Hop | null {
         const probe = CONTACT_RADIUS * 2
         const knee = { x: j.x, y: j.y + probe }
         const face = firstHit(
@@ -471,35 +566,32 @@ export class World {
         )
         if (face === null) return null
 
-        // The lowest height at which the way past the face is clear.
+        // The lowest height at which the way past the face is clear. A
+        // higher face stops the jumper.
         const past = face + probe
-        for (let h = probe * 2; h <= HOP_MAX_HEIGHT; h += 0.2) {
+        for (let h = probe * 2; h <= this.hopHeight + 1e-9; h += 0.1) {
             const from = { x: j.x, y: j.y + h }
             const to = { x: j.x + dir * past, y: from.y }
             if (firstHit(from, to, segments, () => true) === null)
-                return { distance: face, height: h, speed: Math.abs(j.vx) }
+                return this.hopTo(j, face, {
+                    x: j.x + dir * face,
+                    y: from.y + CONTACT_RADIUS + HOP_CLEARANCE,
+                })
         }
-        // A face that is too high gets a full hop when the jumper is at it.
-        if (face > probe) return null
-        return { distance: face, height: HOP_MAX_HEIGHT, speed: Math.abs(j.vx) }
+        return null
     }
 
     // The nearest free line end ahead that is a little above the skis, and
-    // that the line runs on from, away from the jumper. Distances are along
-    // the ground, and heights are at right angles to it.
+    // that the line runs on from, away from the jumper, and a hop onto it.
+    // The ledge is along the ground, and its height is at right angles to
+    // it.
     private findLedge(
         j: Jumper,
         reach: number,
         segments: Segment[]
-    ): Obstruction | null {
-        const velocity = j.vx * j.tangent.x + j.vy * j.tangent.y
-        const forward = velocity >= 0 ? 1 : -1
-        const tx = j.tangent.x * forward
-        const ty = j.tangent.y * forward
-        const up = tx >= 0 ? 1 : -1
-        const nx = -ty * up
-        const ny = tx * up
-        let best: Obstruction | null = null
+    ): Hop | null {
+        const { tx, ty, nx, ny } = groundFrame(j)
+        let best: { along: number; end: Point } | null = null
         for (const s of segments) {
             if (s.fixed) continue
             for (const [end, other] of [
@@ -511,16 +603,69 @@ export class World {
                 const along = dx * tx + dy * ty
                 const height = dx * nx + dy * ny
                 if (along <= 0 || along > reach) continue
-                if (height < LEDGE_MIN_HEIGHT || height > LEDGE_MAX_HEIGHT)
+                if (height < LEDGE_MIN_HEIGHT || height > this.hopHeight)
                     continue
                 if ((other.x - end.x) * tx + (other.y - end.y) * ty <= 0)
                     continue
-                if (best && along >= best.distance) continue
+                if (best && along >= best.along) continue
                 if (this.joined(end, s, segments)) continue
-                best = { distance: along, height, speed: Math.abs(velocity) }
+                best = { along, end }
             }
         }
-        return best
+        if (!best) return null
+        return this.hopTo(j, best.along, {
+            x: best.end.x,
+            y: best.end.y + CONTACT_RADIUS + HOP_CLEARANCE,
+        })
+    }
+
+    // The free end of the line under the skis, when the ground goes on a
+    // short way past it, no more than a hop height up or down. The hop
+    // starts at the end, and passes the start of that ground a little above
+    // it.
+    private findGap(j: Jumper, dir: number, segments: Segment[]): Hop | null {
+        const { tx, ty } = groundFrame(j)
+        const probe = CONTACT_RADIUS * 2
+        const h = this.hopHeight
+        for (const s of segments) {
+            if (s.fixed) continue
+            for (const [end, other] of [
+                [s.a, s.b],
+                [s.b, s.a],
+            ]) {
+                // The end under the skis, with the line behind it.
+                const along = (end.x - j.x) * tx + (end.y - j.y) * ty
+                if (along <= 0 || along > probe) continue
+                if (distanceToSegment(j, s.a, s.b) > probe) continue
+                if ((other.x - end.x) * tx + (other.y - end.y) * ty >= 0)
+                    continue
+                if (this.joined(end, s, segments)) continue
+
+                for (
+                    let w = GAP_PROBE_STEP;
+                    w <= h * GAP_PER_HEIGHT;
+                    w += GAP_PROBE_STEP
+                ) {
+                    const x = end.x + dir * w
+                    const below = firstHit(
+                        { x, y: end.y + h },
+                        { x, y: end.y - h },
+                        segments,
+                        (t) => t !== s && t.material !== 'wall'
+                    )
+                    if (below === null) continue
+                    const ground = end.y + h - below
+                    return this.hopTo(
+                        j,
+                        along,
+                        { x, y: ground + CONTACT_RADIUS + HOP_CLEARANCE },
+                        true
+                    )
+                }
+                return null
+            }
+        }
+        return null
     }
 
     // True if a line end touches or nearly touches another line.
@@ -577,6 +722,13 @@ export class World {
         return Math.sqrt(G / Math.max(this.gravity, 0.1))
     }
 
+    // True if a hit this much harder than the crash speed of the default
+    // toughness crashes the jumper.
+    private crashes(impact: number, crashSpeed: number): boolean {
+        if (this.toughness >= MAX_TOUGHNESS) return false
+        return impact > crashSpeed * 2 ** ((this.toughness - TOUGHNESS) / 2.5)
+    }
+
     // Pushes the body out of every segment nearer than the body radius.
     // The body does not change the angle of the skis.
     private pushBody(j: Jumper) {
@@ -625,7 +777,8 @@ export class World {
         if (vn >= 0) return
         const impact = -vn
 
-        if (!j.crashed && impact > material.crashSpeed) this.crash(j)
+        if (!j.crashed && this.crashes(impact, material.crashSpeed))
+            this.crash(j)
 
         // Slow contacts do not bounce, so that a jumper at rest stays at rest.
         const restitution = impact > 1 ? material.restitution : 0
@@ -708,7 +861,7 @@ export class World {
                 p.vy -= impulse * ny
                 q.vx += impulse * nx
                 q.vy += impulse * ny
-                if (closing > JUMPER_CRASH_SPEED) {
+                if (this.crashes(closing, JUMPER_CRASH_SPEED)) {
                     if (!p.crashed) this.crash(p)
                     if (!q.crashed) this.crash(q)
                 }
@@ -746,14 +899,24 @@ export class World {
     }
 }
 
-type Obstruction = { distance: number; height: number; speed: number }
+// A hop over an obstacle this far ahead along the ground. Once it is ready,
+// the jumper hops with this vertical speed.
+type Hop = { distance: number; vy: number; ready: boolean }
 
-function nearer(
-    a: Obstruction | null,
-    b: Obstruction | null
-): Obstruction | null {
+function nearer(a: Hop | null, b: Hop | null): Hop | null {
     if (!a || !b) return a ?? b
     return a.distance <= b.distance ? a : b
+}
+
+// The ground under a jumper: the tangent in the way it moves, the normal
+// away from the ground, and the speed along it.
+function groundFrame(j: Jumper) {
+    const velocity = j.vx * j.tangent.x + j.vy * j.tangent.y
+    const forward = velocity >= 0 ? 1 : -1
+    const tx = j.tangent.x * forward
+    const ty = j.tangent.y * forward
+    const up = tx >= 0 ? 1 : -1
+    return { tx, ty, nx: -ty * up, ny: tx * up, speed: Math.abs(velocity) }
 }
 
 // The hips and the head of the body in the world. A crouch lowers the head
