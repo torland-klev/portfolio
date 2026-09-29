@@ -821,18 +821,13 @@ But cost per action is not difficulty of the job. The defender pays that second 
 - The Analyst. [Opta football stats definitions](https://theanalyst.com/articles/opta-football-stats-definitions).
 - StatMuse. [Most shots blocked, 2023/24 Premier League teams](https://www.statmuse.com/fc/ask?q=most%20shots%20blocked%2023%2F24%20premier%20league%20teams).`
 
-const cells = `Every square below is a switch. Click one to switch it on or off. Everyone on this page sees the same grid, and your click shows on their screen at once. The grid stays as you leave it.
-
-With a mouse, drag to paint many cells. On a phone, tap a cell. Pinch to zoom in if the cells are too small.`
-
 export const blogItems: BlogItem[] = [
     {
         id: 'cells',
         image: cellsCover,
         title: 'Cells',
-        subtitle:
-            'A grid of 10,000 switches that everyone shares. Switch one, and every other visitor sees it at once.',
-        body: cells,
+        subtitle: '',
+        body: '',
         app: lazy(() => import('../apps/CellsApp')),
         meta: {
             authorImage: defaultAuthor,
