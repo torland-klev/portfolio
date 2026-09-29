@@ -92,3 +92,31 @@ test('the eraser removes the slope, and a jumper then falls through', () => {
     world.erase({ x: 20, y: 44 }, 2)
     expect(world.segments.size).toBeLessThan(before)
 })
+
+test('jumpers follow a shaky valley up its sides and never fall through', () => {
+    let seed = 1
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+    const valley = (x: number) => 20 + ((x - 50) / 45) ** 2 * 30
+    for (let trial = 0; trial < 4; trial++) {
+        const world = new World(100, 62.5)
+        const points = []
+        for (let x = 5; x <= 95; x += 0.4)
+            points.push({
+                x: x + (random() - 0.5) * 0.3,
+                y: valley(x) + (random() - 0.5) * 0.4,
+            })
+        world.addStroke(points, trial % 2 ? 'ice' : 'snow')
+        const jumpers = Array.from({ length: 10 }, () =>
+            world.addJumper(
+                { x: 10 + random() * 80, y: 52 + random() * 8 },
+                { x: (random() - 0.5) * 20, y: 0 }
+            )
+        )
+        for (let t = 0; t < 10; t += STEP) {
+            world.step(STEP)
+            for (const j of jumpers)
+                if (j.x > 6 && j.x < 94)
+                    expect(j.y).toBeGreaterThan(valley(j.x) - 1)
+        }
+    }
+})

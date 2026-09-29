@@ -7,7 +7,7 @@
 // the surface, and Coulomb friction takes mu times that impulse from the
 // velocity along it. The slope is a set of short straight segments, so a
 // jumper leaves the surface at a convex edge (the take-off) and lands on the
-// next surface it crosses.
+// next surface it touches.
 //
 // Sources for the constants:
 // - W. Müller, "Physics of ski jumping", 2009: air density, and drag and
@@ -38,7 +38,11 @@ const JUMPER_CRASH_SPEED = 5
 const REST_BEFORE_FADE = 3
 const FADE_TIME = 1
 export const MAX_JUMPERS = 200
-const CONTACT_OFFSET = 1e-4
+// The jumper touches a surface as a circle of this radius around the feet:
+// about half the width of a drawn line, so the skis sit on top of it.
+const CONTACT_RADIUS = 0.15
+// A jumper this close to a surface still counts as touching it.
+const CONTACT_SKIN = 0.02
 const GRID_CELL = 4
 
 export type MaterialId =
@@ -265,22 +269,17 @@ export class World {
         j.vx += ax * dt
         j.vy += ay * dt
 
-        let remaining = dt
+        // Each move is shorter than half the contact radius, so the jumper
+        // cannot pass through a line between two checks.
+        const moves = Math.max(
+            1,
+            Math.ceil((Math.hypot(j.vx, j.vy) * dt) / (CONTACT_RADIUS / 2))
+        )
         let touched = false
-        for (let iteration = 0; iteration < 4 && remaining > 0; iteration++) {
-            const toX = j.x + j.vx * remaining
-            const toY = j.y + j.vy * remaining
-            const hit = this.firstHit(j.x, j.y, toX, toY)
-            if (!hit) {
-                j.x = toX
-                j.y = toY
-                break
-            }
-            j.x = hit.x + hit.nx * CONTACT_OFFSET
-            j.y = hit.y + hit.ny * CONTACT_OFFSET
-            this.resolveContact(j, hit)
-            touched = true
-            remaining *= 1 - hit.t
+        for (let m = 0; m < moves; m++) {
+            j.x += (j.vx * dt) / moves
+            j.y += (j.vy * dt) / moves
+            if (this.pushOut(j)) touched = true
         }
 
         if (touched) {
@@ -312,9 +311,42 @@ export class World {
         if (j.restTime > REST_BEFORE_FADE) j.opacity -= dt / FADE_TIME
     }
 
-    private resolveContact(j: Jumper, hit: Hit) {
-        const material = MATERIALS[hit.segment.material]
-        const vn = j.vx * hit.nx + j.vy * hit.ny
+    // Pushes the jumper out of every segment nearer than the contact
+    // radius, along the line from the nearest point on the segment. The
+    // nearest point can be an end, so a joint between two segments pushes
+    // the right way too.
+    private pushOut(j: Jumper): boolean {
+        let touched = false
+        for (let pass = 0; pass < 2; pass++) {
+            let moved = false
+            for (const segment of this.near(j.x, j.y)) {
+                const c = closestPoint(j, segment.a, segment.b)
+                const dx = j.x - c.x
+                const dy = j.y - c.y
+                const distance = Math.hypot(dx, dy)
+                if (distance >= CONTACT_RADIUS + CONTACT_SKIN) continue
+                touched = true
+                if (distance >= CONTACT_RADIUS || distance < 1e-9) continue
+                const nx = dx / distance
+                const ny = dy / distance
+                j.x = c.x + nx * CONTACT_RADIUS
+                j.y = c.y + ny * CONTACT_RADIUS
+                this.resolveContact(j, nx, ny, segment)
+                moved = true
+            }
+            if (!moved) break
+        }
+        return touched
+    }
+
+    private resolveContact(
+        j: Jumper,
+        nx: number,
+        ny: number,
+        segment: Segment
+    ) {
+        const material = MATERIALS[segment.material]
+        const vn = j.vx * nx + j.vy * ny
         if (vn >= 0) return
         const impact = -vn
 
@@ -326,16 +358,16 @@ export class World {
             ? Math.max(material.friction, BODY_FRICTION)
             : material.friction
 
-        const tx = j.vx - vn * hit.nx
-        const ty = j.vy - vn * hit.ny
+        const tx = j.vx - vn * nx
+        const ty = j.vy - vn * ny
         const tangentSpeed = Math.hypot(tx, ty)
         const frictionLoss = friction * (1 + restitution) * impact
         const keep =
             tangentSpeed > frictionLoss ? 1 - frictionLoss / tangentSpeed : 0
-        j.vx = tx * keep - restitution * vn * hit.nx
-        j.vy = ty * keep - restitution * vn * hit.ny
+        j.vx = tx * keep - restitution * vn * nx
+        j.vy = ty * keep - restitution * vn * ny
 
-        j.tangent = { x: hit.ny, y: -hit.nx }
+        j.tangent = { x: ny, y: -nx }
         if (j.crashed) j.spin *= 0.9
     }
 
@@ -413,71 +445,32 @@ export class World {
         this.gridDirty = false
     }
 
-    // The first segment that the move from (x, y) to (toX, toY) crosses.
-    private firstHit(
-        x: number,
-        y: number,
-        toX: number,
-        toY: number
-    ): Hit | null {
-        const [x0, x1] = cellRange(x, toX)
-        const [y0, y1] = cellRange(y, toY)
-        let best: Hit | null = null
-        const seen = new Set<number>()
+    // The segments in the grid cells around (x, y).
+    private near(x: number, y: number): Segment[] {
+        const [x0, x1] = cellRange(x, x)
+        const [y0, y1] = cellRange(y, y)
+        if (x0 === x1 && y0 === y1) return this.grid.get(cellKey(x0, y0)) ?? []
+        const found = new Set<Segment>()
         for (let cx = x0; cx <= x1; cx++)
-            for (let cy = y0; cy <= y1; cy++) {
-                const cell = this.grid.get(cellKey(cx, cy))
-                if (!cell) continue
-                for (const segment of cell) {
-                    if (seen.has(segment.id)) continue
-                    seen.add(segment.id)
-                    const hit = crossing(x, y, toX, toY, segment)
-                    if (hit && (!best || hit.t < best.t)) best = hit
-                }
-            }
-        return best
+            for (let cy = y0; cy <= y1; cy++)
+                for (const segment of this.grid.get(cellKey(cx, cy)) ?? [])
+                    found.add(segment)
+        return [...found]
     }
 }
 
-type Hit = {
-    t: number
-    x: number
-    y: number
-    // The unit normal on the side the jumper came from.
-    nx: number
-    ny: number
-    segment: Segment
-}
-
-function crossing(
-    x: number,
-    y: number,
-    toX: number,
-    toY: number,
-    segment: Segment
-): Hit | null {
-    const { a, b } = segment
-    const rx = toX - x
-    const ry = toY - y
+function closestPoint(p: Point, a: Point, b: Point): Point {
     const sx = b.x - a.x
     const sy = b.y - a.y
-    const denominator = rx * sy - ry * sx
-    if (Math.abs(denominator) < 1e-12) return null
-    const qx = a.x - x
-    const qy = a.y - y
-    const t = (qx * sy - qy * sx) / denominator
-    const u = (qx * ry - qy * rx) / denominator
-    // The small margin on u closes the gap at the joint of two segments.
-    if (t < 0 || t > 1 || u < -1e-3 || u > 1 + 1e-3) return null
-
-    const length = Math.hypot(sx, sy)
-    let nx = -sy / length
-    let ny = sx / length
-    if (nx * (x - a.x) + ny * (y - a.y) < 0) {
-        nx = -nx
-        ny = -ny
-    }
-    return { t, x: x + rx * t, y: y + ry * t, nx, ny, segment }
+    const lengthSq = sx * sx + sy * sy
+    const t =
+        lengthSq === 0
+            ? 0
+            : Math.max(
+                  0,
+                  Math.min(1, ((p.x - a.x) * sx + (p.y - a.y) * sy) / lengthSq)
+              )
+    return { x: a.x + t * sx, y: a.y + t * sy }
 }
 
 function cellRange(a: number, b: number): [number, number] {
@@ -493,17 +486,8 @@ function cellKey(cx: number, cy: number): number {
 }
 
 export function distanceToSegment(p: Point, a: Point, b: Point): number {
-    const sx = b.x - a.x
-    const sy = b.y - a.y
-    const lengthSq = sx * sx + sy * sy
-    const t =
-        lengthSq === 0
-            ? 0
-            : Math.max(
-                  0,
-                  Math.min(1, ((p.x - a.x) * sx + (p.y - a.y) * sy) / lengthSq)
-              )
-    return Math.hypot(p.x - (a.x + t * sx), p.y - (a.y + t * sy))
+    const c = closestPoint(p, a, b)
+    return Math.hypot(p.x - c.x, p.y - c.y)
 }
 
 const STROKE_SPACING = 0.75
