@@ -12,6 +12,7 @@ import uioLogo from '../../images/logos/uio.jpg'
 import imfChart3 from '../../images/imf-chart3.png'
 import intentTestFlow from '../../images/intent-test-flow.png'
 import possessionOutcomes from '../../images/possession-outcomes.svg'
+import skiJumperCover from '../../images/ski-jumper-cover.svg'
 
 export const skillTags: TagWithCategory[] = [
     { tag: 'Kotlin', category: TagCategory.LANGUAGE },
@@ -821,6 +822,19 @@ But cost per action is not difficulty of the job. The defender pays that second 
 - StatMuse. [Most shots blocked, 2023/24 Premier League teams](https://www.statmuse.com/fc/ask?q=most%20shots%20blocked%2023%2F24%20premier%20league%20teams).`
 
 export const blogItems: BlogItem[] = [
+    {
+        id: 'ski-jumper',
+        image: skiJumperCover,
+        title: 'Ski jumper',
+        subtitle: '',
+        body: '',
+        app: lazy(() => import('../apps/SkiJumperApp')),
+        meta: {
+            authorImage: defaultAuthor,
+            authorName: 'Henrik Klev',
+            publishDate: '2026-09-29',
+        },
+    },
     {
         id: 'cells',
         // The Worker draws the current grid (worker/snapshot.ts).

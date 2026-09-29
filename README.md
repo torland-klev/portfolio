@@ -32,6 +32,10 @@ A post with an `app` is an app post. Its page shows the body, then the app compo
 
 The "Cells" post is a grid of 100 × 100 cells that all visitors share. One Durable Object (`Grid` in `worker/index.ts`) holds the grid in its storage and sends each change to every open WebSocket. `src/components/apps/cellsProtocol.ts` describes the messages. The blog card image is `/api/cells.svg`. The Worker draws it from the middle third of the grid (`worker/snapshot.ts`), and it can be up to 10 seconds old.
 
+### Ski jumper
+
+The "Ski jumper" post is a hill that you draw, with jumpers that look like the old plastic toy. It runs only in the browser and starts new on each load. The physics (`src/components/apps/skiJumper/physics.ts`) uses SI units: gravity, snow friction, and air drag and lift with values from ski-jumping research. The comments in that file list the sources.
+
 ## Theme
 
 Colors are CSS custom properties in `src/index.css`. The site follows the OS light or dark setting. The toggle in the header overrides it and saves the choice in `localStorage`.

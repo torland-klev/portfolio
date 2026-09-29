@@ -135,5 +135,20 @@ test('labels app posts in the blog list', async () => {
     expect(
         await screen.findByRole('link', { name: 'Cells' })
     ).toBeInTheDocument()
-    expect(screen.getByText('Interactive')).toBeInTheDocument()
+    expect(screen.getAllByText('Interactive')).toHaveLength(2)
+})
+
+test('opens the ski jumper app', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+    renderAt('/blog/ski-jumper')
+    expect(
+        await screen.findByRole('heading', { level: 1, name: 'Ski jumper' })
+    ).toBeInTheDocument()
+    const ice = await screen.findByRole('button', { name: 'Draw ice' })
+    fireEvent.click(ice)
+    expect(ice).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Jumper' })).toHaveAttribute(
+        'aria-pressed',
+        'false'
+    )
 })
