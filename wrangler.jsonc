@@ -3,6 +3,8 @@
     "$schema": "https://unpkg.com/wrangler/config-schema.json",
     "name": "portfolio",
     "compatibility_date": "2026-09-21",
+    // The Worker only handles /api/*. Everything else is a static asset.
+    "main": "worker/index.ts",
     "assets": {
         "directory": "./build",
         // Serve index.html for unknown paths, so client-side routes like /blog/<id> work on reload.
@@ -13,5 +15,13 @@
         // configuration: infinite loop detected"). We don't link to .html paths, so
         // disable the automatic redirect generation entirely.
         "html_handling": "none",
+        // Without this, the single-page-application fallback above answers
+        // /api/* with index.html before the Worker sees the request.
+        "run_worker_first": ["/api/*"],
     },
+    // The shared grid in the "Cells" blog post.
+    "durable_objects": {
+        "bindings": [{ "name": "GRID", "class_name": "Grid" }],
+    },
+    "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Grid"] }],
 }

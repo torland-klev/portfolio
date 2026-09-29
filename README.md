@@ -10,7 +10,10 @@ npm start          # dev server on http://localhost:3000
 npm test           # smoke tests (Vitest)
 npm run build      # type check and build to ./build
 npm run preview    # serve ./build
+npm run worker     # run the Worker (the /api routes) on http://localhost:8787
 ```
+
+The dev server sends `/api` to the Worker on port 8787, so run `npm run worker` next to `npm start` to use app posts. `npm run worker` serves `./build` too, so run `npm run build` first.
 
 ## Configuration
 
@@ -23,13 +26,19 @@ The contact form sends email through [EmailJS](https://www.emailjs.com/). The se
 
 Each blog post has its own page at `/blog/<id>`, where `<id>` is the post's `id` in `items.ts`. If a post's body already shows its cover image, the post page does not repeat it at the top.
 
+A post with an `app` is an app post. Its page shows the body, then the app component. The blog list labels it "Interactive". App components are in `src/components/apps/`.
+
+### Cells
+
+The "Cells" post is a grid of 100 × 100 cells that all visitors share. One Durable Object (`Grid` in `worker/index.ts`) holds the grid in its storage and sends each change to every open WebSocket. `src/components/apps/cellsProtocol.ts` describes the messages.
+
 ## Theme
 
 Colors are CSS custom properties in `src/index.css`. The site follows the OS light or dark setting. The toggle in the header overrides it and saves the choice in `localStorage`.
 
 ## Deploy (Cloudflare Workers)
 
-The site deploys as static assets on a Cloudflare Worker. `wrangler.jsonc` points Wrangler at `./build` and serves `index.html` for unknown paths, so client-side routes such as `/blog/<id>` work on reload.
+The site deploys as static assets on a Cloudflare Worker. `wrangler.jsonc` points Wrangler at `./build` and serves `index.html` for unknown paths, so client-side routes such as `/blog/<id>` work on reload. The Worker script in `worker/` handles only `/api/*`.
 
 1. In the Cloudflare dashboard: **Workers & Pages → Create → Import a repository**, and pick this repository.
 2. Build command: `npm run build`. Deploy command: `npx wrangler deploy`.

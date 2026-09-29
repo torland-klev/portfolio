@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 import { projects } from './components/pages/items'
@@ -72,4 +72,62 @@ test('toggles and remembers the theme', () => {
     const after = document.documentElement.dataset.theme
     expect(after).not.toBe(before)
     expect(localStorage.getItem('theme')).toBe(after)
+})
+
+test('opens an app post and shows the shared grid', async () => {
+    class FakeSocket {
+        static OPEN = 1
+        static last: FakeSocket
+        readyState = FakeSocket.OPEN
+        binaryType = ''
+        sent: string[] = []
+        onopen = () => {}
+        onmessage: (event: { data: unknown }) => void = () => {}
+        onclose = () => {}
+        constructor() {
+            FakeSocket.last = this
+        }
+        send(message: string) {
+            this.sent.push(message)
+        }
+        close() {}
+    }
+    vi.stubGlobal('WebSocket', FakeSocket)
+    // jsdom has no canvas drawing.
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+
+    renderAt('/blog/cells')
+    expect(
+        await screen.findByRole('heading', { level: 1, name: 'Cells' })
+    ).toBeInTheDocument()
+    expect(await screen.findByText('Connecting…')).toBeInTheDocument()
+
+    // The server sends the full grid first: here, cells 0 and 9 on.
+    const grid = new Uint8Array(10_000 / 8)
+    grid[0] = 0b1
+    grid[1] = 0b10
+    act(() => FakeSocket.last.onmessage({ data: grid.buffer }))
+    act(() => FakeSocket.last.onmessage({ data: '{"online":3}' }))
+    expect(screen.getByText('Live · 3 people here')).toBeInTheDocument()
+    expect(screen.getByText('2 of 10,000 on')).toBeInTheDocument()
+
+    // Another visitor switches cell 5 on.
+    act(() => FakeSocket.last.onmessage({ data: '{"i":5,"v":1}' }))
+    expect(screen.getByText('3 of 10,000 on')).toBeInTheDocument()
+
+    // Space on the focused grid switches the cell under the cursor (cell 0).
+    const canvas = screen.getByLabelText(/^Shared grid of 100 by 100 cells/)
+    fireEvent.keyDown(canvas, { key: ' ' })
+    expect(FakeSocket.last.sent).toEqual(['{"i":0,"v":0}'])
+    expect(screen.getByText('2 of 10,000 on')).toBeInTheDocument()
+
+    vi.unstubAllGlobals()
+})
+
+test('labels app posts in the blog list', async () => {
+    renderAt('/blog')
+    expect(
+        await screen.findByRole('link', { name: 'Cells' })
+    ).toBeInTheDocument()
+    expect(screen.getByText('Interactive')).toBeInTheDocument()
 })

@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -26,14 +27,14 @@ export default function BlogPostPage() {
                 <Link to="/blog" className={styles.blogBack}>
                     ← All posts
                 </Link>
-                {!post.body.includes(post.image) && (
+                {!post.app && !post.body.includes(post.image) && (
                     <img src={post.image} alt="" className={styles.blogImage} />
                 )}
                 <h1 className={styles.blogTitle}>{post.title}</h1>
                 <div className={styles.blogSubtitle}>{post.subtitle}</div>
                 <BlogMetaData data={post.meta} />
                 <div className={styles.blogReadMoreTime}>
-                    {readTime(post.body)} read
+                    {post.app ? 'Interactive' : `${readTime(post.body)} read`}
                 </div>
                 <div className={styles.body}>
                     <ReactMarkdown
@@ -43,6 +44,11 @@ export default function BlogPostPage() {
                         {post.body}
                     </ReactMarkdown>
                 </div>
+                {post.app && (
+                    <Suspense fallback={null}>
+                        <post.app />
+                    </Suspense>
+                )}
                 <Link to="/blog" className={styles.blogBack}>
                     ← All posts
                 </Link>

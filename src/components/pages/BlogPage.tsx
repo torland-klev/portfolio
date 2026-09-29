@@ -33,10 +33,10 @@ function BlogCard({ blogItem }: { blogItem: BlogItem }) {
             <BlogMetaData data={blogItem.meta} />
             <div className={styles.blogReadMore}>
                 <Link to={to} className={styles.blogReadMoreButton}>
-                    Read more
+                    {blogItem.app ? 'Open' : 'Read more'}
                 </Link>
                 <div className={styles.blogReadMoreTime}>
-                    {readTime(blogItem.body)}
+                    {blogItem.app ? 'Interactive' : readTime(blogItem.body)}
                 </div>
             </div>
         </article>

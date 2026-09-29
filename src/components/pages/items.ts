@@ -1,3 +1,4 @@
+import { ComponentType, lazy, LazyExoticComponent } from 'react'
 import { TagCategory, TagWithCategory } from '../common/Tags'
 import webDevCover from '../../images/still-no-perfect-program.jpg'
 import defaultAuthor from '../../images/henrik-avatar.jpg'
@@ -11,6 +12,7 @@ import uioLogo from '../../images/logos/uio.jpg'
 import imfChart3 from '../../images/imf-chart3.png'
 import intentTestFlow from '../../images/intent-test-flow.png'
 import possessionOutcomes from '../../images/possession-outcomes.svg'
+import cellsCover from '../../images/cells-cover.svg'
 
 export const skillTags: TagWithCategory[] = [
     { tag: 'Kotlin', category: TagCategory.LANGUAGE },
@@ -511,8 +513,12 @@ export type BlogItem = {
     image: string
     title: string
     subtitle: string
+    // Markdown. In an app post, it is the text above the app.
     body: string
     meta: BlogItemMetaData
+    // An app post shows this component after the body, and the blog list
+    // labels the post "Interactive" instead of a read time.
+    app?: LazyExoticComponent<ComponentType>
 }
 
 const verifyingEva = `In 2020 I finished my master's thesis at the University of Oslo: [Verifying EVA: Formal Verification of the Software Deciding Norwegian Governmental Elections](https://www.mn.uio.no/ifi/english/research/groups/psy/completedmasters/2020/klev/). It is 137 pages long, and took 5 years to create. This post is the short version, which explains it in 5 minutes.
@@ -815,7 +821,25 @@ But cost per action is not difficulty of the job. The defender pays that second 
 - The Analyst. [Opta football stats definitions](https://theanalyst.com/articles/opta-football-stats-definitions).
 - StatMuse. [Most shots blocked, 2023/24 Premier League teams](https://www.statmuse.com/fc/ask?q=most%20shots%20blocked%2023%2F24%20premier%20league%20teams).`
 
+const cells = `Every square below is a switch. Click one to switch it on or off. Everyone on this page sees the same grid, and your click shows on their screen at once. The grid stays as you leave it.
+
+With a mouse, drag to paint many cells. On a phone, tap a cell. Pinch to zoom in if the cells are too small.`
+
 export const blogItems: BlogItem[] = [
+    {
+        id: 'cells',
+        image: cellsCover,
+        title: 'Cells',
+        subtitle:
+            'A grid of 10,000 switches that everyone shares. Switch one, and every other visitor sees it at once.',
+        body: cells,
+        app: lazy(() => import('../apps/CellsApp')),
+        meta: {
+            authorImage: defaultAuthor,
+            authorName: 'Henrik Klev',
+            publishDate: '2026-09-29',
+        },
+    },
     {
         id: 'knocking-down-the-house',
         image: possessionOutcomes,
