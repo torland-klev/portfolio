@@ -836,6 +836,19 @@ export const blogItems: BlogItem[] = [
         },
     },
     {
+        id: 'lucky-stabs',
+        image: intentTestFlow,
+        title: 'Lucky stabs and the average person',
+        subtitle:
+            "Norway's Supreme Court set aside a conviction for attempted murder. The case shows how hard it is to judge very different people by one standard, and why attempted murder is a blunt tool.",
+        body: luckyStabs,
+        meta: {
+            authorImage: defaultAuthor,
+            authorName: 'Henrik Klev',
+            publishDate: '2026-09-23',
+        },
+    },
+    {
         id: 'cells',
         // The Worker draws the current grid (worker/snapshot.ts).
         image: '/api/cells.svg',
@@ -847,6 +860,19 @@ export const blogItems: BlogItem[] = [
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
             publishDate: '2026-07-03',
+        },
+    },
+    {
+        id: 'reading-between-the-dots',
+        image: imfChart3,
+        title: 'Reading between the dots',
+        subtitle:
+            'An IMF chart compares people who trust their government with people who do not. I wanted to know how you build a chart like that from a survey. Here is what I found.',
+        body: readingBetweenTheDots,
+        meta: {
+            authorImage: defaultAuthor,
+            authorName: 'Henrik Klev',
+            publishDate: '2026-04-02',
         },
     },
     {
@@ -862,7 +888,6 @@ export const blogItems: BlogItem[] = [
             publishDate: '2025-11-28',
         },
     },
-
     {
         id: 'verifying-eva',
         image: uioLogo,
@@ -874,32 +899,6 @@ export const blogItems: BlogItem[] = [
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
             publishDate: '2024-01-29',
-        },
-    },
-    {
-        id: 'lucky-stabs',
-        image: intentTestFlow,
-        title: 'Lucky stabs and the average person',
-        subtitle:
-            "Norway's Supreme Court set aside a conviction for attempted murder. The case shows how hard it is to judge very different people by one standard, and why attempted murder is a blunt tool.",
-        body: luckyStabs,
-        meta: {
-            authorImage: defaultAuthor,
-            authorName: 'Henrik Klev',
-            publishDate: '2026-09-23',
-        },
-    },
-    {
-        id: 'reading-between-the-dots',
-        image: imfChart3,
-        title: 'Reading between the dots',
-        subtitle:
-            'An IMF chart compares people who trust their government with people who do not. I wanted to know how you build a chart like that from a survey. Here is what I found.',
-        body: readingBetweenTheDots,
-        meta: {
-            authorImage: defaultAuthor,
-            authorName: 'Henrik Klev',
-            publishDate: '2026-04-02',
         },
     },
     {
