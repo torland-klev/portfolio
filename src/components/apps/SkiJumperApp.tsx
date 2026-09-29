@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './skiJumper.module.scss'
 import {
-    defaultHill,
     Jumper,
     JumpResult,
     MaterialId,
@@ -17,9 +16,6 @@ const WIDTH = 100
 const HEIGHT = 62.5
 const STEP = 1 / 240
 const ERASE_RADIUS = 2
-// Just above the top of the default in-run, so that the drop is soft even
-// with high gravity.
-const START: Point = { x: 4, y: 54.6 }
 
 // Marks on the air density slider, in kg/m³.
 const AIR_MARKS = [
@@ -75,16 +71,8 @@ const MATERIAL_COLORS: Record<MaterialId, string | null> = {
     wall: null,
 }
 
-function addDefaultHill(world: World) {
-    const hill = defaultHill()
-    world.addStroke(hill.inrun, 'snow')
-    world.addStroke(hill.landing, 'snow')
-}
-
 function newWorld(): World {
-    const world = new World(WIDTH, HEIGHT)
-    addDefaultHill(world)
-    return world
+    return new World(WIDTH, HEIGHT)
 }
 
 function formatMetres(metres: number): string {
@@ -106,13 +94,13 @@ export default function SkiJumperApp() {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     // A new world on each load. Nothing is saved.
     const [world] = useState(newWorld)
-    const toolRef = useRef<Tool>('jumper')
+    const toolRef = useRef<Tool>('snow')
     const strokeRef = useRef<Point[] | null>(null)
     const hoverRef = useRef<Point | null>(null)
     const pausedRef = useRef(false)
     const slowRef = useRef(false)
 
-    const [tool, setTool] = useState<Tool>('jumper')
+    const [tool, setTool] = useState<Tool>('snow')
     const [paused, setPaused] = useState(false)
     const [slow, setSlow] = useState(false)
     const [gravity, setGravity] = useState(G)
@@ -324,11 +312,6 @@ export default function SkiJumperApp() {
         setSlow(slowRef.current)
     }
 
-    function resetHill() {
-        world.clearSlope()
-        addDefaultHill(world)
-    }
-
     return (
         <div className={styles.skiJumper}>
             <div className={styles.toolbar} role="toolbar" aria-label="Tools">
@@ -347,7 +330,7 @@ export default function SkiJumperApp() {
                 ref={canvasRef}
                 className={styles.canvas}
                 data-tool={tool}
-                aria-label="Ski jump. Choose a tool, then click or drag on the hill."
+                aria-label="Ski jump. Choose a tool, then click or drag to draw a hill and drop jumpers."
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
@@ -355,9 +338,6 @@ export default function SkiJumperApp() {
                 onPointerLeave={() => (hoverRef.current = null)}
             />
             <div className={styles.toolbar}>
-                <button type="button" onClick={() => world.addJumper(START)}>
-                    Drop at the top
-                </button>
                 <button type="button" onClick={togglePause}>
                     {paused ? 'Play' : 'Pause'}
                 </button>
@@ -369,9 +349,6 @@ export default function SkiJumperApp() {
                 </button>
                 <button type="button" onClick={() => world.clearSlope()}>
                     Clear hill
-                </button>
-                <button type="button" onClick={resetHill}>
-                    Reset hill
                 </button>
             </div>
             <div className={styles.sliders}>
