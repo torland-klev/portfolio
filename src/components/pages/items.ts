@@ -846,7 +846,7 @@ export const blogItems: BlogItem[] = [
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
-            publishDate: '2026-09-29',
+            publishDate: '2026-07-03',
         },
     },
     {
