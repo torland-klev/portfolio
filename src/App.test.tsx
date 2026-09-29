@@ -151,4 +151,14 @@ test('opens the ski jumper app', async () => {
         'aria-pressed',
         'false'
     )
+
+    const gravity = screen.getByLabelText('Gravity')
+    fireEvent.click(screen.getByRole('button', { name: 'Moon' }))
+    expect(gravity).toHaveValue('1.62')
+    fireEvent.change(gravity, { target: { value: '20' } })
+    expect(
+        screen.getByText(
+            `${(20).toLocaleString(undefined, { minimumFractionDigits: 2 })} m/s²`
+        )
+    ).toBeInTheDocument()
 })

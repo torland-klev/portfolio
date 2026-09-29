@@ -120,3 +120,36 @@ test('jumpers follow a shaky valley up its sides and never fall through', () => 
         }
     }
 })
+
+test('perfect ice has no friction, so only air drag slows a jumper', () => {
+    const world = new World(100, 62.5)
+    world.addStroke(
+        [
+            { x: 1, y: 10 },
+            { x: 99, y: 10 },
+        ],
+        'perfectIce'
+    )
+    const jumper = world.addJumper({ x: 5, y: 10.2 }, { x: 5, y: 0 })
+    run(world, 2)
+    // Drag at 5 m/s takes about 0.1 m/s in 2 s. Snow would take 0.8 m/s.
+    expect(jumper.vx).toBeGreaterThan(4.85)
+    expect(jumper.vx).toBeLessThan(5)
+})
+
+test('a jumper falls with the gravity of the world', () => {
+    const fallTime = (gravity: number) => {
+        const world = new World(100, 62.5)
+        world.gravity = gravity
+        const jumper = world.addJumper({ x: 50, y: 20.15 })
+        let t = 0
+        while (jumper.airTime > 0 || t === 0) {
+            world.step(STEP)
+            t += STEP
+        }
+        return t
+    }
+    // Free fall from 20 m: t = √(2h / g). Drag makes it a little slower.
+    expect(fallTime(9.81)).toBeCloseTo(Math.sqrt(40 / 9.81), 0)
+    expect(fallTime(1.62)).toBeCloseTo(Math.sqrt(40 / 1.62), 0)
+})

@@ -1,3 +1,29 @@
+@mixin button {
+    font: inherit;
+    font-size: small;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+
+    &:hover {
+        border-color: var(--border-strong);
+    }
+
+    &[aria-pressed='true'] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--on-accent);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
 .skiJumper {
     margin: 24px 0;
 }
@@ -9,29 +35,29 @@
     margin-bottom: 8px;
 
     button {
-        font: inherit;
-        font-size: small;
-        color: var(--text);
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 4px 10px;
-        cursor: pointer;
+        @include button;
+    }
+}
 
-        &:hover {
-            border-color: var(--border-strong);
-        }
+.gravity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-bottom: 8px;
 
-        &[aria-pressed='true'] {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--on-accent);
-        }
+    input {
+        flex: 1 1 160px;
+        accent-color: var(--accent);
+    }
 
-        &:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
+    output {
+        min-width: 7em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    button {
+        @include button;
     }
 }
 

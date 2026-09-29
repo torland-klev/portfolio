@@ -8,6 +8,7 @@ import {
     ObstacleKind,
     Point,
     World,
+    G,
 } from './skiJumper/physics'
 
 // The world is 100 m wide. The canvas keeps a 16:10 aspect ratio.
@@ -17,13 +18,22 @@ const STEP = 1 / 240
 const ERASE_RADIUS = 2
 const START: Point = { x: 4, y: 56 }
 
-type DrawMaterial = 'snow' | 'ice' | 'grass'
+// Marks on the gravity slider, in m/s².
+const GRAVITY_MARKS = [
+    { label: 'Moon', value: 1.62 },
+    { label: 'Mars', value: 3.71 },
+    { label: 'Earth', value: G },
+    { label: 'Jupiter', value: 24.79 },
+]
+
+type DrawMaterial = 'snow' | 'ice' | 'perfectIce' | 'grass'
 type Tool = 'jumper' | DrawMaterial | 'erase' | ObstacleKind
 
 const TOOLS: { id: Tool; label: string }[] = [
     { id: 'jumper', label: 'Jumper' },
     { id: 'snow', label: 'Draw snow' },
     { id: 'ice', label: 'Draw ice' },
+    { id: 'perfectIce', label: 'Draw perfect ice' },
     { id: 'grass', label: 'Draw grass' },
     { id: 'erase', label: 'Erase' },
     { id: 'rock', label: 'Rock' },
@@ -32,7 +42,12 @@ const TOOLS: { id: Tool; label: string }[] = [
 ]
 
 function isDrawTool(tool: Tool): tool is DrawMaterial {
-    return tool === 'snow' || tool === 'ice' || tool === 'grass'
+    return (
+        tool === 'snow' ||
+        tool === 'ice' ||
+        tool === 'perfectIce' ||
+        tool === 'grass'
+    )
 }
 
 // The colors of the plastic toy.
@@ -42,6 +57,7 @@ const MATERIAL_COLORS: Record<MaterialId, string | null> = {
     // Snow uses the text color, so that it shows on both themes.
     snow: null,
     ice: '#4dabf7',
+    perfectIce: '#a5f3fc',
     grass: '#40a02b',
     rock: '#868e96',
     rubber: '#f76707',
@@ -89,6 +105,7 @@ export default function SkiJumperApp() {
     const [tool, setTool] = useState<Tool>('jumper')
     const [paused, setPaused] = useState(false)
     const [slow, setSlow] = useState(false)
+    const [gravity, setGravity] = useState(G)
     const [count, setCount] = useState(0)
     const [last, setLast] = useState<JumpResult | null>(null)
     const [best, setBest] = useState<JumpResult | null>(null)
@@ -344,6 +361,52 @@ export default function SkiJumperApp() {
                 <button type="button" onClick={resetHill}>
                     Reset hill
                 </button>
+            </div>
+            <div className={styles.gravity}>
+                <label htmlFor="ski-jumper-gravity">Gravity</label>
+                <input
+                    id="ski-jumper-gravity"
+                    type="range"
+                    min={0}
+                    max={30}
+                    step={0.01}
+                    value={gravity}
+                    list="ski-jumper-gravity-marks"
+                    onChange={(event) => {
+                        const value = Number(event.target.value)
+                        world.gravity = value
+                        setGravity(value)
+                    }}
+                />
+                <datalist id="ski-jumper-gravity-marks">
+                    {GRAVITY_MARKS.map((mark) => (
+                        <option
+                            key={mark.label}
+                            value={mark.value}
+                            label={mark.label}
+                        />
+                    ))}
+                </datalist>
+                <output htmlFor="ski-jumper-gravity">
+                    {gravity.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })}{' '}
+                    m/s²
+                </output>
+                {GRAVITY_MARKS.map((mark) => (
+                    <button
+                        key={mark.label}
+                        type="button"
+                        aria-pressed={gravity === mark.value}
+                        onClick={() => {
+                            world.gravity = mark.value
+                            setGravity(mark.value)
+                        }}
+                    >
+                        {mark.label}
+                    </button>
+                ))}
             </div>
             <dl className={styles.stats}>
                 <div>

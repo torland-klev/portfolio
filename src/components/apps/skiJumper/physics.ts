@@ -16,6 +16,7 @@
 // - FIS hill standards allow an equivalent landing height of about 0.7 m
 //   (3.7 m/s normal speed). A normal speed above 6.5 m/s crashes here.
 
+// Earth's standard gravity. Each world can change it.
 export const G = 9.81
 export const AIR_DENSITY = 1.2
 export const MASS = 65
@@ -46,7 +47,14 @@ const CONTACT_SKIN = 0.02
 const GRID_CELL = 4
 
 export type MaterialId =
-    'snow' | 'ice' | 'grass' | 'rock' | 'rubber' | 'wood' | 'wall'
+    | 'snow'
+    | 'ice'
+    | 'perfectIce'
+    | 'grass'
+    | 'rock'
+    | 'rubber'
+    | 'wood'
+    | 'wall'
 
 export type Material = {
     label: string
@@ -60,6 +68,13 @@ export type Material = {
 export const MATERIALS: Record<MaterialId, Material> = {
     snow: { label: 'Snow', friction: 0.04, restitution: 0, crashSpeed: 6.5 },
     ice: { label: 'Ice', friction: 0.01, restitution: 0, crashSpeed: 6.5 },
+    // No friction at all. Air drag still slows the jumper.
+    perfectIce: {
+        label: 'Perfect ice',
+        friction: 0,
+        restitution: 0,
+        crashSpeed: 6.5,
+    },
     grass: { label: 'Grass', friction: 0.35, restitution: 0, crashSpeed: 6.5 },
     rock: { label: 'Rock', friction: 0.6, restitution: 0.25, crashSpeed: 2 },
     rubber: {
@@ -132,6 +147,8 @@ export class World {
     segments = new Map<number, Segment>()
     obstacles = new Map<number, Obstacle>()
     jumpers: Jumper[] = []
+    // The acceleration of gravity, in m/s².
+    gravity = G
     onJump: (result: JumpResult) => void = () => {}
     private nextId = 1
     private grid = new Map<number, Segment[]>()
@@ -253,7 +270,7 @@ export class World {
               : DRAG_AREA_INRUN
         const drag = (0.5 * AIR_DENSITY * dragArea * speed) / MASS
         let ax = -drag * j.vx
-        let ay = -G - drag * j.vy
+        let ay = -this.gravity - drag * j.vy
 
         // Lift: F = ½ ρ (C_L A) v², at right angles to the velocity and to
         // the upper side. A jumper who falls steeply stalls, so the lift
