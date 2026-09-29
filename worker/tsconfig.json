@@ -12,5 +12,10 @@
         "noEmit": true,
         "types": ["@cloudflare/workers-types"]
     },
-    "include": ["index.ts", "../src/components/apps/cellsProtocol.ts"]
+    "include": [
+        "index.ts",
+        "snapshot.ts",
+        "snapshot.test.ts",
+        "../src/components/apps/cellsProtocol.ts"
+    ]
 }

@@ -30,7 +30,7 @@ A post with an `app` is an app post. Its page shows the body, then the app compo
 
 ### Cells
 
-The "Cells" post is a grid of 100 × 100 cells that all visitors share. One Durable Object (`Grid` in `worker/index.ts`) holds the grid in its storage and sends each change to every open WebSocket. `src/components/apps/cellsProtocol.ts` describes the messages.
+The "Cells" post is a grid of 100 × 100 cells that all visitors share. One Durable Object (`Grid` in `worker/index.ts`) holds the grid in its storage and sends each change to every open WebSocket. `src/components/apps/cellsProtocol.ts` describes the messages. The blog card image is `/api/cells.svg`. The Worker draws it from the middle third of the grid (`worker/snapshot.ts`), and it can be up to 10 seconds old.
 
 ## Theme
 

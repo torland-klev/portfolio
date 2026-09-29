@@ -109,17 +109,23 @@ test('opens an app post and shows the shared grid', async () => {
     act(() => FakeSocket.last.onmessage({ data: grid.buffer }))
     act(() => FakeSocket.last.onmessage({ data: '{"online":3}' }))
     expect(screen.getByText('Live · 3 people here')).toBeInTheDocument()
-    expect(screen.getByText('2/10.000')).toBeInTheDocument()
+    expect(
+        screen.getByText(`2/${(10_000).toLocaleString()}`)
+    ).toBeInTheDocument()
 
     // Another visitor switches cell 5 on.
     act(() => FakeSocket.last.onmessage({ data: '{"i":5,"v":1}' }))
-    expect(screen.getByText('3/10.000')).toBeInTheDocument()
+    expect(
+        screen.getByText(`3/${(10_000).toLocaleString()}`)
+    ).toBeInTheDocument()
 
     // Space on the focused grid switches the cell under the cursor (cell 0).
     const canvas = screen.getByLabelText(/^Shared grid of 100 by 100 cells/)
     fireEvent.keyDown(canvas, { key: ' ' })
     expect(FakeSocket.last.sent).toEqual(['{"i":0,"v":0}'])
-    expect(screen.getByText('2/10.000')).toBeInTheDocument()
+    expect(
+        screen.getByText(`2/${(10_000).toLocaleString()}`)
+    ).toBeInTheDocument()
 
     vi.unstubAllGlobals()
 })

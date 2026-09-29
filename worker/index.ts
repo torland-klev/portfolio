@@ -1,15 +1,34 @@
 import { DurableObject } from 'cloudflare:workers'
 import { CELLS, parseSet } from '../src/components/apps/cellsProtocol'
+import { snapshotSvg } from './snapshot'
 
 interface Env {
     GRID: DurableObjectNamespace<Grid>
 }
 
+// The blog card image. It can be this many seconds old.
+const SNAPSHOT_MAX_AGE = 10
+
 export default {
-    async fetch(request: Request, env: Env): Promise<Response> {
+    async fetch(request: Request, env: Env, ctx): Promise<Response> {
         const { pathname } = new URL(request.url)
-        if (pathname === '/api/cells')
-            return env.GRID.get(env.GRID.idFromName('main')).fetch(request)
+        const grid = env.GRID.get(env.GRID.idFromName('main'))
+        if (pathname === '/api/cells') return grid.fetch(request)
+        if (pathname === '/api/cells.svg' && request.method === 'GET') {
+            // The edge cache stops a busy blog list from waking the grid on
+            // every view. It works on the custom domain, not on workers.dev.
+            const cache = caches.default
+            const cached = await cache.match(request)
+            if (cached) return cached
+            const response = new Response(snapshotSvg(await grid.snapshot()), {
+                headers: {
+                    'Content-Type': 'image/svg+xml',
+                    'Cache-Control': `public, max-age=${SNAPSHOT_MAX_AGE}`,
+                },
+            })
+            ctx.waitUntil(cache.put(request, response.clone()))
+            return response
+        }
         return new Response('Not found', { status: 404 })
     },
 } satisfies ExportedHandler<Env>
@@ -38,6 +57,10 @@ export class Grid extends DurableObject<Env> {
         server.send(this.cells)
         this.broadcastOnline()
         return new Response(null, { status: 101, webSocket: client })
+    }
+
+    snapshot(): Uint8Array {
+        return this.cells
     }
 
     async webSocketMessage(_ws: WebSocket, message: string | ArrayBuffer) {

@@ -290,8 +290,7 @@ export default function CellsApp() {
                     {statusText}
                 </span>
                 <span>
-                    {/* 'de' groups thousands with a dot: 10.000. */}
-                    {on.toLocaleString('de')}/{CELLS.toLocaleString('de')}
+                    {on.toLocaleString()}/{CELLS.toLocaleString()}
                 </span>
             </div>
             <canvas

@@ -12,7 +12,6 @@ import uioLogo from '../../images/logos/uio.jpg'
 import imfChart3 from '../../images/imf-chart3.png'
 import intentTestFlow from '../../images/intent-test-flow.png'
 import possessionOutcomes from '../../images/possession-outcomes.svg'
-import cellsCover from '../../images/cells-cover.svg'
 
 export const skillTags: TagWithCategory[] = [
     { tag: 'Kotlin', category: TagCategory.LANGUAGE },
@@ -824,7 +823,8 @@ But cost per action is not difficulty of the job. The defender pays that second 
 export const blogItems: BlogItem[] = [
     {
         id: 'cells',
-        image: cellsCover,
+        // The Worker draws the current grid (worker/snapshot.ts).
+        image: '/api/cells.svg',
         title: 'Cells',
         subtitle: '',
         body: '',
