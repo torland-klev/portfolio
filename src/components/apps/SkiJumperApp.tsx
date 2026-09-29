@@ -16,7 +16,9 @@ const WIDTH = 100
 const HEIGHT = 62.5
 const STEP = 1 / 240
 const ERASE_RADIUS = 2
-const START: Point = { x: 4, y: 56 }
+// Just above the top of the default in-run, so that the drop is soft even
+// with high gravity.
+const START: Point = { x: 4, y: 54.6 }
 
 // Marks on the gravity slider, in m/s².
 const GRAVITY_MARKS = [
@@ -279,6 +281,7 @@ export default function SkiJumperApp() {
 
     function onPointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
         const at = toWorld(event)
+        const previous = hoverRef.current ?? at
         hoverRef.current = at
         if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
         const stroke = strokeRef.current
@@ -286,7 +289,7 @@ export default function SkiJumperApp() {
             const tail = stroke[stroke.length - 1]
             if (Math.hypot(at.x - tail.x, at.y - tail.y) >= 0.3) stroke.push(at)
         } else if (toolRef.current === 'erase') {
-            world.erase(at, ERASE_RADIUS)
+            world.erase(previous, ERASE_RADIUS, at)
         }
     }
 

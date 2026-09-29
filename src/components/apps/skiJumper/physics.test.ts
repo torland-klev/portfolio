@@ -18,7 +18,7 @@ test('a jumper on the default hill lands a jump, then crashes at the edge', () =
     const world = hillWorld()
     const jumps: JumpResult[] = []
     world.onJump = (jump) => jumps.push(jump)
-    const jumper = world.addJumper({ x: 4, y: 56 })
+    const jumper = world.addJumper({ x: 4, y: 54.6 })
 
     run(world, 6.5)
     expect(jumps).toHaveLength(1)
@@ -152,4 +152,48 @@ test('a jumper falls with the gravity of the world', () => {
     // Free fall from 20 m: t = √(2h / g). Drag makes it a little slower.
     expect(fallTime(9.81)).toBeCloseTo(Math.sqrt(40 / 9.81), 0)
     expect(fallTime(1.62)).toBeCloseTo(Math.sqrt(40 / 1.62), 0)
+})
+
+test('the eraser removes the whole path between two pointer events', () => {
+    const world = new World(100, 62.5)
+    world.addStroke(
+        [
+            { x: 10, y: 30 },
+            { x: 90, y: 30 },
+        ],
+        'snow'
+    )
+    // A fast drag across the line. Neither end is near it.
+    world.erase({ x: 50, y: 40 }, 2, { x: 50, y: 20 })
+    const left = [...world.segments.values()].filter((s) => !s.fixed)
+    expect(left.some((s) => s.a.x < 50 && s.b.x > 50)).toBe(false)
+    expect(left.length).toBeGreaterThan(90)
+})
+
+test('a jump on the Moon counts as a jump', () => {
+    const world = hillWorld()
+    world.gravity = 1.62
+    const jumps: JumpResult[] = []
+    world.onJump = (jump) => jumps.push(jump)
+    world.addJumper({ x: 4, y: 54.6 })
+    run(world, 25)
+    expect(jumps.length).toBeGreaterThan(0)
+    expect(jumps[0].distance).toBeGreaterThan(20)
+})
+
+test('the landing is harder with stronger gravity', () => {
+    // On the same hill every speed scales with √g, also the landing speed
+    // into the slope. The body does not get stronger, so a jump that lands
+    // safely on Earth crashes with the gravity of Jupiter.
+    const jump = (gravity: number) => {
+        const world = hillWorld()
+        world.gravity = gravity
+        const jumps: JumpResult[] = []
+        world.onJump = (result) => jumps.push(result)
+        world.addJumper({ x: 4, y: 54.6 })
+        run(world, 30 / Math.sqrt(gravity))
+        return jumps[0]
+    }
+    expect(jump(9.81).crashed).toBe(false)
+    expect(jump(24.79).crashed).toBe(true)
 })

@@ -201,11 +201,14 @@ export class World {
         this.obstacles.set(id, { id, kind, points, segments })
     }
 
-    // Removes every segment that comes nearer to `at` than `radius`.
-    erase(at: Point, radius: number) {
+    // Removes every segment that comes nearer than `radius` to the eraser
+    // path from `from` to `to`. A fast drag moves far between two pointer
+    // events, so the path, not only its ends, must count.
+    erase(from: Point, radius: number, to: Point = from) {
         for (const segment of this.segments.values()) {
             if (segment.fixed) continue
-            if (distanceToSegment(at, segment.a, segment.b) > radius) continue
+            if (segmentDistance(from, to, segment.a, segment.b) > radius)
+                continue
             this.segments.delete(segment.id)
             this.gridDirty = true
             if (segment.obstacle !== undefined) {
@@ -292,15 +295,21 @@ export class World {
             1,
             Math.ceil((Math.hypot(j.vx, j.vy) * dt) / (CONTACT_RADIUS / 2))
         )
+        // A real contact ends a flight. The skin only keeps a jumper that is
+        // already on the ground in contact, so that a flight does not end
+        // one step before the impact.
+        const grounded = j.airTime === 0
         let touched = false
         for (let m = 0; m < moves; m++) {
             j.x += (j.vx * dt) / moves
             j.y += (j.vy * dt) / moves
-            if (this.pushOut(j)) touched = true
+            const contact = this.pushOut(j)
+            if (contact === 'hit' || (contact === 'skin' && grounded))
+                touched = true
         }
 
         if (touched) {
-            if (j.takeoff && j.airTime >= MIN_JUMP_TIME) {
+            if (j.takeoff && j.airTime >= MIN_JUMP_TIME * this.timeScale()) {
                 this.onJump({
                     distance: Math.hypot(j.x - j.takeoff.x, j.y - j.takeoff.y),
                     speed: j.takeoff.speed,
@@ -316,7 +325,7 @@ export class World {
                 !j.takeoff &&
                 !j.crashed &&
                 j.airTime > FLIGHT_AFTER &&
-                j.lastContact.speed >= MIN_TAKEOFF_SPEED
+                j.lastContact.speed >= MIN_TAKEOFF_SPEED / this.timeScale()
             )
                 j.takeoff = { ...j.lastContact }
         }
@@ -332,8 +341,8 @@ export class World {
     // radius, along the line from the nearest point on the segment. The
     // nearest point can be an end, so a joint between two segments pushes
     // the right way too.
-    private pushOut(j: Jumper): boolean {
-        let touched = false
+    private pushOut(j: Jumper): 'hit' | 'skin' | null {
+        let contact: 'hit' | 'skin' | null = null
         for (let pass = 0; pass < 2; pass++) {
             let moved = false
             for (const segment of this.near(j.x, j.y)) {
@@ -342,8 +351,9 @@ export class World {
                 const dy = j.y - c.y
                 const distance = Math.hypot(dx, dy)
                 if (distance >= CONTACT_RADIUS + CONTACT_SKIN) continue
-                touched = true
+                contact ??= 'skin'
                 if (distance >= CONTACT_RADIUS || distance < 1e-9) continue
+                contact = 'hit'
                 const nx = dx / distance
                 const ny = dy / distance
                 j.x = c.x + nx * CONTACT_RADIUS
@@ -353,7 +363,13 @@ export class World {
             }
             if (!moved) break
         }
-        return touched
+        return contact
+    }
+
+    // On the same hill, speeds scale with √g and times with 1/√g. The jump
+    // limits above are for Earth, so they scale by this factor.
+    private timeScale(): number {
+        return Math.sqrt(G / Math.max(this.gravity, 0.1))
     }
 
     private resolveContact(
@@ -505,6 +521,25 @@ function cellKey(cx: number, cy: number): number {
 export function distanceToSegment(p: Point, a: Point, b: Point): number {
     const c = closestPoint(p, a, b)
     return Math.hypot(p.x - c.x, p.y - c.y)
+}
+
+function cross(o: Point, a: Point, b: Point): number {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+}
+
+// The shortest distance between segment pq and segment ab.
+function segmentDistance(p: Point, q: Point, a: Point, b: Point): number {
+    const d1 = cross(p, q, a)
+    const d2 = cross(p, q, b)
+    const d3 = cross(a, b, p)
+    const d4 = cross(a, b, q)
+    if (d1 * d2 < 0 && d3 * d4 < 0) return 0
+    return Math.min(
+        distanceToSegment(p, a, b),
+        distanceToSegment(q, a, b),
+        distanceToSegment(a, p, q),
+        distanceToSegment(b, p, q)
+    )
 }
 
 const STROKE_SPACING = 0.75
