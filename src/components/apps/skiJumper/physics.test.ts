@@ -143,6 +143,26 @@ test('a bumper kicks back a jumper that slides into it', () => {
     expect(jumper.x).toBeLessThan(48)
 })
 
+test('a bumper throws off a jumper that hits it head first', () => {
+    // One flies up into the bumper from below, one into its side.
+    for (const [at, velocity] of [
+        [
+            { x: 54.16, y: 15.89 },
+            { x: -7.93, y: 10.06 },
+        ],
+        [
+            { x: 45.31, y: 19.41 },
+            { x: 12.05, y: 3.4 },
+        ],
+    ]) {
+        const world = new World(100, 62.5)
+        world.addObstacle('bumper', { x: 50, y: 20 })
+        const jumper = world.addJumper(at, velocity)
+        run(world, 2)
+        expect(Math.hypot(jumper.x - 50, jumper.y - 20)).toBeGreaterThan(4)
+    }
+})
+
 test('a trampoline keeps a jumper bouncing', () => {
     const world = new World(100, 62.5)
     world.addObstacle('trampoline', { x: 50, y: 10 })

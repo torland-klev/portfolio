@@ -781,6 +781,21 @@ export class World {
         }
     }
 
+    // True if the body touches no segment.
+    private bodyFits(j: Jumper): boolean {
+        if (j.crashed) return true
+        const { hips, head } = bodyCapsule(j)
+        const segments = this.inBox(
+            Math.min(hips.x, head.x) - BODY_RADIUS,
+            Math.min(hips.y, head.y) - BODY_RADIUS,
+            Math.max(hips.x, head.x) + BODY_RADIUS,
+            Math.max(hips.y, head.y) + BODY_RADIUS
+        )
+        return segments.every(
+            (s) => segmentDistance(hips, head, s.a, s.b) >= BODY_RADIUS
+        )
+    }
+
     private resolveContact(
         j: Jumper,
         nx: number,
@@ -829,8 +844,20 @@ export class World {
     }
 
     private updatePose(j: Jumper, dt: number) {
-        if (Math.abs(j.vx) > 0.3) j.facing = j.vx > 0 ? 1 : -1
         const onGround = j.airTime <= FLIGHT_AFTER
+        // Turning round swings the head to the other side of the feet. On
+        // the ground the skis stay on the slope. A jumper next to a line
+        // waits until the turn does not put the body through it, or the
+        // body would be stuck on the far side.
+        const facing: 1 | -1 = j.vx > 0 ? 1 : -1
+        if (Math.abs(j.vx) > 0.3 && facing !== j.facing) {
+            const turned = { ...j, facing }
+            if (onGround && !j.crashed) turned.pitch = slopePitch(turned)
+            if (this.bodyFits(turned)) {
+                j.facing = turned.facing
+                j.pitch = turned.pitch
+            }
+        }
         if (j.crashed) {
             j.pitch += j.spin * dt
             // On the ground, the fallen figure settles with its skis on the
@@ -959,13 +986,11 @@ function bodyCapsule(j: Jumper): { hips: Point; head: Point } {
     }
 }
 
-// The pitch that puts the skis flat on the last surface, in the facing frame.
+// The pitch that puts the skis flat on the last surface, in the facing frame,
+// with the body on the side the surface faces. On a wall or under a ceiling
+// that is past upright, so the body never points into the surface.
 function slopePitch(j: Jumper): number {
-    const t =
-        j.tangent.x * j.facing >= 0
-            ? j.tangent
-            : { x: -j.tangent.x, y: -j.tangent.y }
-    return Math.atan2(t.y, Math.abs(t.x))
+    return Math.atan2(j.tangent.y * j.facing, j.tangent.x)
 }
 
 // The distance from `from` to the first crossing of the ray with a segment
