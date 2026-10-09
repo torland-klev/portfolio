@@ -315,6 +315,48 @@ test('in a vacuum on perfect ice, a jumper keeps its speed', () => {
     expect(jumper.vx).toBeCloseTo(5, 5)
 })
 
+test('accelerated ice pushes a jumper on the way it slides', () => {
+    for (const [boost, direction] of [
+        [1, 1],
+        [4, 1],
+        [10, -1],
+    ]) {
+        const world = new World(100, 62.5)
+        world.airDensity = 0
+        world.iceBoost = boost
+        world.addStroke(
+            [
+                { x: 1, y: 10 },
+                { x: 99, y: 10 },
+            ],
+            'acceleratedIce'
+        )
+        const jumper = world.addJumper(
+            { x: 50, y: 10.16 },
+            { x: 5 * direction, y: 0 }
+        )
+        run(world, 0.5)
+        const expected = 5 + (boost - 1) * 9.81 * 0.5
+        expect(jumper.vx * direction).toBeCloseTo(expected, 1)
+        expect(jumper.airTime).toBe(0)
+    }
+})
+
+test('accelerated ice leaves a jumper at rest at rest', () => {
+    const world = new World(100, 62.5)
+    world.iceBoost = 10
+    world.addStroke(
+        [
+            { x: 1, y: 10 },
+            { x: 99, y: 10 },
+        ],
+        'acceleratedIce'
+    )
+    const jumper = world.addJumper({ x: 50, y: 10.2 })
+    run(world, 1)
+    expect(Math.abs(jumper.vx)).toBeLessThan(0.1)
+})
+
 test('a crashed jumper settles with its skis on the slope', () => {
     const world = hillWorld()
     // 4 m above the 33° landing slope: a hard landing that crashes.

@@ -12,6 +12,8 @@ import {
     HOP_HEIGHT,
     TOUGHNESS,
     MAX_TOUGHNESS,
+    ICE_BOOST,
+    MAX_ICE_BOOST,
 } from './skiJumper/physics'
 
 // At zoom 1 the view and the field are 100 m wide. A view wider than the
@@ -56,7 +58,14 @@ const GRAVITY_MARKS = [
     { label: 'Jupiter', value: 24.79 },
 ]
 
-type DrawMaterial = 'snow' | 'ice' | 'perfectIce' | 'grass'
+// Marks on the accelerated ice slider, as a boost.
+const ICE_BOOST_MARKS = [
+    { label: 'Perfect ice', value: 1 },
+    { label: 'Fast', value: ICE_BOOST },
+    { label: 'Rocket', value: MAX_ICE_BOOST },
+]
+
+type DrawMaterial = 'snow' | 'ice' | 'perfectIce' | 'acceleratedIce' | 'grass'
 type Tool = 'move' | 'jumper' | DrawMaterial | 'erase' | ObstacleKind
 
 const TOOLS: { id: Tool; label: string }[] = [
@@ -65,6 +74,7 @@ const TOOLS: { id: Tool; label: string }[] = [
     { id: 'snow', label: 'Draw snow' },
     { id: 'ice', label: 'Draw ice' },
     { id: 'perfectIce', label: 'Draw perfect ice' },
+    { id: 'acceleratedIce', label: 'Draw accelerated ice' },
     { id: 'grass', label: 'Draw grass' },
     { id: 'erase', label: 'Erase' },
     { id: 'rock', label: 'Rock' },
@@ -78,6 +88,7 @@ function isDrawTool(tool: Tool): tool is DrawMaterial {
         tool === 'snow' ||
         tool === 'ice' ||
         tool === 'perfectIce' ||
+        tool === 'acceleratedIce' ||
         tool === 'grass'
     )
 }
@@ -90,6 +101,7 @@ const MATERIAL_COLORS: Record<MaterialId, string | null> = {
     snow: null,
     ice: '#4dabf7',
     perfectIce: '#a5f3fc',
+    acceleratedIce: '#7950f2',
     grass: '#40a02b',
     rock: '#868e96',
     rubber: '#f76707',
@@ -140,6 +152,7 @@ export default function SkiJumperApp() {
     const [airDensity, setAirDensity] = useState(AIR_DENSITY)
     const [hopHeight, setHopHeight] = useState(HOP_HEIGHT)
     const [toughness, setToughness] = useState(TOUGHNESS)
+    const [iceBoost, setIceBoost] = useState(ICE_BOOST)
     const [zoom, setZoom] = useState(1)
     const [field, setField] = useState({ width: WIDTH, height: HEIGHT })
     const [count, setCount] = useState(0)
@@ -554,6 +567,26 @@ export default function SkiJumperApp() {
                     onChange={(value) => {
                         world.toughness = value
                         setToughness(value)
+                    }}
+                />
+                <Slider
+                    id="ski-jumper-ice-boost"
+                    label="Accelerated ice"
+                    unit="×"
+                    min={1}
+                    max={MAX_ICE_BOOST}
+                    step={0.1}
+                    value={iceBoost}
+                    marks={ICE_BOOST_MARKS}
+                    format={(value) =>
+                        `${value.toLocaleString(undefined, {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                        })}×`
+                    }
+                    onChange={(value) => {
+                        world.iceBoost = value
+                        setIceBoost(value)
                     }}
                 />
                 <Slider

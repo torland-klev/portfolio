@@ -90,12 +90,21 @@ export type MaterialId =
     | 'snow'
     | 'ice'
     | 'perfectIce'
+    | 'acceleratedIce'
     | 'grass'
     | 'rock'
     | 'rubber'
     | 'trampoline'
     | 'wood'
     | 'wall'
+
+// Accelerated ice pushes a jumper on its skis along the surface, the way it
+// slides. Each 1× of boost above 1× adds this much push, in m/s². The
+// jumper needs this much speed along the surface to have a way to go.
+const ICE_PUSH = G
+const ICE_MIN_SPEED = 0.1
+export const ICE_BOOST = 2
+export const MAX_ICE_BOOST = 10
 
 // A jumper that lands on snow faster than this (normal to the slope, in m/s)
 // crashes.
@@ -134,6 +143,14 @@ export const MATERIALS: Record<MaterialId, Material> = {
     // No friction at all. Air drag still slows the jumper.
     perfectIce: {
         label: 'Perfect ice',
+        friction: 0,
+        restitution: 0,
+        crashSpeed: CRASH_SPEED,
+    },
+    // Perfect ice that also pushes the jumper on. The boost of the world
+    // sets how hard.
+    acceleratedIce: {
+        label: 'Accelerated ice',
         friction: 0,
         restitution: 0,
         crashSpeed: CRASH_SPEED,
@@ -200,6 +217,8 @@ export type Jumper = {
     crashed: boolean
     // Seconds since the last contact with a surface.
     airTime: number
+    // The material of the last surface the feet touched.
+    surface: MaterialId | null
     // The tangent of the last surface, for drawing.
     tangent: Point
     // 1 faces right, -1 faces left.
@@ -239,6 +258,9 @@ export class World {
     hopHeight = HOP_HEIGHT
     // How hard a jumper can hit before it crashes, in points.
     toughness = TOUGHNESS
+    // How much accelerated ice pushes, from 1 (no push, like perfect ice)
+    // to the maximum.
+    iceBoost = ICE_BOOST
     // True while the player holds the jump key.
     charging = false
     onJump: (result: JumpResult) => void = () => {}
@@ -363,6 +385,7 @@ export class World {
             vy: velocity.y,
             crashed: false,
             airTime: 0,
+            surface: null,
             tangent: { x: 1, y: 0 },
             facing: velocity.x < 0 ? -1 : 1,
             pitch: 0,
@@ -451,6 +474,17 @@ export class World {
             const stall = Math.abs(j.vx) / speed
             ax += -j.vy * side * lift * stall
             ay += j.vx * side * lift * stall
+        }
+
+        // Accelerated ice pushes along the surface, the way the jumper
+        // slides.
+        if (!j.crashed && j.airTime === 0 && j.surface === 'acceleratedIce') {
+            const along = j.vx * j.tangent.x + j.vy * j.tangent.y
+            if (Math.abs(along) > ICE_MIN_SPEED) {
+                const push = (this.iceBoost - 1) * ICE_PUSH * Math.sign(along)
+                ax += push * j.tangent.x
+                ay += push * j.tangent.y
+            }
         }
 
         j.vx += ax * dt
@@ -718,6 +752,7 @@ export class World {
                 const distance = Math.hypot(dx, dy)
                 if (distance >= CONTACT_RADIUS + CONTACT_SKIN) continue
                 contact ??= 'skin'
+                j.surface = segment.material
                 if (distance >= CONTACT_RADIUS || distance < 1e-9) continue
                 contact = 'hit'
                 const nx = dx / distance
