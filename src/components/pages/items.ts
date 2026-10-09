@@ -1,6 +1,6 @@
 import { ComponentType, lazy, LazyExoticComponent } from 'react'
 import { TagCategory, TagWithCategory } from '../common/Tags'
-import webDevCover from '../../images/still-no-perfect-program.jpg'
+import webDevCover from '../../images/piczo.jpg'
 import defaultAuthor from '../../images/henrik-avatar.jpg'
 import firiLogo from '../../images/logos/firi.svg'
 import skytaleLogo from '../../images/logos/skytale.png'
@@ -906,42 +906,19 @@ export const blogItems: BlogItem[] = [
         image: webDevCover,
         title: 'Still no perfect program',
         subtitle:
-            'In this day and age, everyone and everything has a website. Even me! This is how I created it, and what changed four years later.',
-        body: `Everything that someone made on purpose started as an idea. The idea is often blurry, usually ambitious and nearly always exciting. This website started the same way.
+            `When I was in middle school, everyone had their own little digital playground: a hosted website with glowy art and edgy memes. These days, everything is corporate and generated; everything single-page applications with neutral tones, perfect fonts, none of the personalisation. I think we should bring back personality.`,
+        body: `When I was in middle school, everyone had their own little digital playground: a hosted website with glowy art and edgy memes. These days, everything is corporate and generated; everything single-page applications with neutral tones, perfect fonts, none of the personalisation. I think we should bring back personality.
 
-I wanted a personal website long before I knew what it would look like. I wanted a place to present myself and show my work. It would help me professionally, but mostly I was curious: what could I build, what would the result look like, and what would the process be like?
+In November 2012, millions (maybe) of users lost their digital orphanage for good as piczo.com shut down. Those of you slightly older, or younger, than me will likely never have heard of piczo.com before. Piczo was a simple drag-and-drop HTML-CSS renderer, where everyone could create an account to get their own personal website and domain. Most of us used this to host a single HTML-page, propped full of glowy widgets, pixelated screenshots of memes, copyrighted photographs of Steven Gerrard and Zayn, and blog-entries that, if not lost to time, could be used by friends and foes as cringe-inducing weapon that could, literally, body you. However, for our generation, it was more than that. It was our way of expressing personality and individuality. Our digitalized version of the poster-riddled bedroom walls the generation before us had, and a less life-haunting version of the social media that the current generation, begrudgingly, live in. Oh man, it was great. It was great, ugly, clumsy, cringy, flawed, awkward, crude, raw. And real. And free. It was free. Not as in monetary, but as in freedom. Full creative freedom. We could explore the new world, explore ourselves and others, with this creative outlet where we could, very importantly, be non-judgementally cringe. A middle-school student will be bullied for wearing a slightly off-color t-shirt, or holding the pen “wierd”, but in the online space, nobody cared. It’s a shame it's gone. It’s a shame the rest of you lost out.
 
-## Step 1: Find inspiration
+Personalized websites still exist. And they are, at least in my line of work, very common. But the reason they exist changed sometime. I’m not sure if it was gradually, or over-night, but the glowy text faded and became monochrome, Steven Gerrard got replaced by project summarizes, and the personal feeling was shoved off the sidewalk by capitalism to let pre-insanity Linked-In lunatics charge fist-first into the vanity-fueled circlejerk-pile of marketing middle managers getting off to the idea of going viral with their “I missed out on the birth of my first child today to close a deal selling seltzer to cats. This is what it taught me about B2B-sales”-post. Personal websites are now a sales-tool. An apparatus that recruiters can be mildly impressed about, though not impressed at the website itself, but impressed by the candidates willingness to part in the business-social play by pretending that they care more about shareholder value than the well-being of themselves and their loved ones. It is not too wild to claim that the growing Serverance-correlative separation of personalities between work and private, carved cleaner than the muddy detachment of Church and State, has made its way into the digital world. One of the last frontiers of humanity is less human every day. With this there seems to be an inherent rise in spookiness to expressing your non-conforming sides in the business-world. That is, unless your adopted personality coincidentally radiates social capital. Websites must be professional, not personal, and so must you. The passionate socialist must drink champagne at product-launch events, the communist pigs must be indistinguishable from humans at synergy-connecting sales pitches, and the socially liberal fiscal-conservative must hand over their souls to Raytheon. The business world is a socially acceptable Anthrocon, where the suits just look different, and the dual persona enables a different form of degeneracy: dilution of empathy in one part, with protection of innocence in the other.
 
-The first step was to decide how the site should look. This is where ambition can take over and make the whole thing feel overwhelming. It helps to remember that millions of people have built a website before you, so there is plenty of inspiration out there.
-
-So I started searching, and found the article [30 Web Developer Portfolios to Inspire You](https://hashnode.com/post/30-web-developer-portfolios-to-inspire-you-cknfx6wdg069kxws1bjjv8mhw). The range of sites helped the most. Many of them looked like the GitHub design team had built them together, but quite a few were unique and interesting. After clicking around, I got a better idea of what I wanted, and a much clearer idea of what I did not want. In the end, I used the website of [Adham Dannaway](https://www.adhamdannaway.com/) as a template. That gave me something concrete to start from.
-
-## Step 2: Build the structure
-
-With a layout in mind, the next step was the "infrastructure": the components that hold the images, the text and the styling. Here I had to trust the process and have fun with it. Keep asking questions such as "what if this looked like this?" and "should I move this?". Be critical too: "do I need this?" and "did that really look good?". Before you know it, you have something that you are proud of.
-
-## Step 3: Fill it
-
-The last step is to add content, and only your imagination sets the limit: photos, stories, anecdotes, travel tips, previous work. Remember that you do this for yourself. In all honesty, you are probably the only one who will ever read it.
-
-## Update, September 2026: four years later
-
-In 2026, the site got a big refresh. The original tools had aged: Create React App and node-sass are no longer maintained. The site now builds with Vite, React 19 and TypeScript. In the same round, I:
-
-- made the layout work on phones,
-- cut the images from about 32 MB to about 3 MB,
-- replaced the timeline library with a small custom component,
-- gave each blog post its own page, so that you can link to it,
-- and added a dark mode.
-
-The design is mostly the same. The question from step 2 still holds up: "do I need this?". A large part of the refresh was removing things.
-
-If you have read this far, contact me. We should have coffee together.`,
+However, it doesn’t have to be like this. The Berlin-esque wall between private and business has been put up, and what goes up, must come down. Perhaps all that is needed to test the fragility of the metaphorical wall is a Schabowski-level catalyst. Perhaps, as in middle school, there can be a separation between the physical and digital world, where you can physically conform, and be digitally free. Perhaps personalized websites can be that catalyst. And like a modern day Martin Luther (you can pick either one for this to work), or, more fittingly, Brian in Brian Writes a Bestseller, someone has to lay the intellectual foundation that social revisions can be built on. This website is a foundation that I’ve built. I’ve built the foundation, now it's up to others to do the change. 
+`,
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
-            publishDate: '2022-08-14',
+            publishDate: ''2026-10-09',
         },
     },
 ].sort((a, b) => b.meta.publishDate.localeCompare(a.meta.publishDate))
