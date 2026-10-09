@@ -650,30 +650,15 @@ The charge can fail in two directions:
 
 My own reading of this case is that A was aware that B could die, and stabbed anyway. That B survived was luck, not A's choice. But under letter b, "could die" is exactly what the law says is not enough. My description sounds closer to letter c: seeing death as possible and choosing to act anyway. The Supreme Court did not assess letter c, because the case was about letter b. I would like to know why.
 
-## A practical bundle, not a perfect theory
-
 In practice, attempted murder bundles very different acts into one charge. You can miss a shot, be too weak to stangle, or stab impulsively during a debt dispute. In all cases, death came close, and that the prosecution believes that it can prove intent to kill.
 
 This doesn't feel to me like the perfect way to enact justice. A better system would grade the act by the risk that the person knowingly created, not by where the blade happened to land. But the justice system cannot measure the risk that someone saw in their own head. It has a few labels: bodily harm, aggravated bodily harm (§ 274, up to 10 years in prison), attempted murder, and murder (§ 275, 8 to 21 years). It must fit messy events into them. Attempted murder is the label for the space between "badly hurt" and "dead" when the prosecution thinks that the intent went all the way. The courts then use the sentence to adjust for everything that the label cannot express.
 
 Seen this way, the decision is not a technicality. It forces the court of appeal to describe the actual act before it applies the label.
 
-## What happens next
 
-The Supreme Court set aside the conviction for attempted murder, the sentence for the deprivation of liberty, and the compensation for non-economic loss. It set the sentence for the drug and traffic counts to eight months in prison. The court of appeal must now assess the attempted murder count again. A has not been acquitted.
+The Supreme Court set aside the conviction for attempted murder, the sentence for the deprivation of liberty, and the compensation for non-economic loss. It set the sentence for the drug and traffic counts to eight months in prison. The court of appeal must now assess the attempted murder count again. A has not been acquitted.`
 
-## What I take from this
-
-- A legal standard built on the "normally equipped person" is practical, but it can fail both people who know less and people who know more.
-- For intent, the question is always about this person and this act. A general category, such as "a knife in the chest", is not enough.
-- With attempted murder, luck decides much of the outcome. The charge can be too lenient and too strict.
-- In practice, the charge bundles many kinds of acts. The precision must come from the reasons and the sentence.
-
-## Sources
-
-- Supreme Court of Norway. [HR-2026-1432-A, summary](https://www.domstol.no/no/hoyesterett/avgjorelser/avgjorelser-2026/hoyesterett---straff/HR-2026-1432-A/) and [full judgment (PDF)](https://www.domstol.no/globalassets/upload/hret/avgjorelser/2026/juni/hr-2026-1432-a.pdf). 25 June 2026.
-- The judgment on Lovdata: [HR-2026-1432-A](https://lovdata.no/dokument/HRSTR/avgjorelse/hr-2026-1432-a?q=26-019785STR-HRET).
-- [The Penal Code (straffeloven)](https://lovdata.no/lov/2005-05-20-28), §§ 16, 22, 80, 274 and 275.`
 
 const readingBetweenTheDots = `In March 2026, the IMF published [High Debt, Hard Choices](https://www.imf.org/en/publications/fandd/issues/2026/03/high-debt-hard-choices-era-dabla-norris) by Era Dabla-Norris and Rodrigo Valdés. The article argues that high public debt forces governments into hard trade-offs, and that public trust decides whether citizens accept those trade-offs.
 
