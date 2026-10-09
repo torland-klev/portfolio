@@ -583,6 +583,7 @@ Elections depend on trust. As more of the process becomes digital, people need r
 - Henrik Torland Klev. [Verifying EVA: Formal Verification of the Software Deciding Norwegian Governmental Elections](https://www.mn.uio.no/ifi/english/research/groups/psy/completedmasters/2020/klev/) ([PDF](https://www.mn.uio.no/ifi/english/research/groups/psy/completedmasters/2020/klev/masterthesis-klev.pdf)). Master's thesis, University of Oslo, 2020.
 - [The KeY Project](https://www.key-project.org/) and the [Java Modeling Language](https://en.wikipedia.org/wiki/Java_Modeling_Language).`
 
+/*
 const luckyStabs = `On 25 June 2026, the Norwegian Supreme Court set aside a conviction for attempted murder ([HR-2026-1432-A](https://www.domstol.no/no/hoyesterett/avgjorelser/avgjorelser-2026/hoyesterett---straff/HR-2026-1432-A/)). The court did not say that the accused was innocent. It said that the court of appeal had asked the wrong question, and had not explained its answer well enough for anyone to check it.
 
 I am not a lawyer, but I do appreciate it when judges and lawyers must pretend to be philosophers.
@@ -612,8 +613,19 @@ Okay, yes: a dead debtor pays nothing. But the argument cuts both ways. In a dru
 B's death could be in the interest of A.
 
 ![How the court decides what A knew: the two-step test, and where the court of appeal went wrong](${intentTestFlow})
+*/
+const luckyStabs =  `The Norwegian Supreme Court set aside a conviction for attempted murder, because a collector of drug-dept cannot reasonably understand that driving a kitchen knife into the chest might be fatal. I agree with the ruling, but it might be time to patch the “attempted murder”-concept.
 
-## One standard, many kinds of people
+In February 2023, an event taken straight out of either a critically acclaimed 70s mobster movie, a Netflix series designed to make teenage boys and podcasters idolize violent crimes by self-inserted characters, or a piece of way to expensive, space-filling, barely categorizable as a movie, straight to streaming, Amazon Prime-slop, occurred in Oslo: some unfortunate soul went to an apartment to pay of drug debt, only to end up short and stabbed. The debtee was beaten and stabbed five times with a large kitchen knife. Fortunately for all parties involved, the debtee survived partly because they received emergency medical treatment, and partly because the debtor has the luck of Darryl Baum. During the proceedings in court, a forensic expert attested that one of the stabs to the side of the chest could have killed the debtee “after a relatively short time”. The two first judicial instances, Tingretten and Lagmannsretten, therefore used this stab as their basis for concluding that the debtor should be sentenced for attempted murder and given 6.5 years in prison. Their basis for this sentence was that it is “common knowledge” that a stab to the chest may kill a person. A basis which, you would think, is hard to disagree with. Funnily enough, several legal experts did just that.
+
+On 25 June 2026, the Norwegian Supreme Court set aside the conviction for attempted murder ([HR-2026-1432-A](https://www.domstol.no/no/hoyesterett/avgjorelser/avgjorelser-2026/hoyesterett---straff/HR-2026-1432-A/)). Their reasoning was that the previous judicial instances had asked the wrong question when basing their sentence. Under § 22 of the Penal Code, intent has three forms: (a) purpose, (b) awareness that the act "certainly or most likely" fulfills the offence, or (c) seeing the outcome as possible and choosing to act anyway. For this case, the middle part was what the court wanted to apply: the debtor must have been aware that the debtee would most likely die by being repeatedly stabbed. However, the court is very precise about one specific detail: it is "not sufficient that the offender realised that the act was dangerous, that the victim could die, or that death was foreseeable". Therefore, the court applies a two-step test that was affirmed in earlier cases: 
+
+1. is it common knowledge that a stab like this will most likely kill, and 
+2. if so, is there anything to suggest that A, in this situation, did not have that knowledge? 
+
+The court's answer to the first step was mentioned previously: it is common knowledge that a large kitchen knife stabbed with some force into the chest will most likely cause death. The Supreme Court in their decision concluded that this is the wrong level to think about things. The question cannot be about a general stab to the chest - it has to consider the specific stab in question. Namely, a stab to the side of the chest, about two centimetres deep, into a lung. I have definitely heard of people puncturing a lung and surviving (quite clever of us to grow two!), so I must agree that this is less clear-cut than the previous court's answer. 
+
+Further, the previous court didn’t really seem to bother with question 2. You know, the one about the situation. Here, the Supreme Court concluded that it does not make sense for a debt collector to kill their indebted counterpart, because that would negatively impact their bottom line. Famously, gangsters and mobsters never kill people that owe them money. You know, because of the bottom-line thing. And also, perhaps, it could send a signal that if you don’t pay your debt, they might hurt you, which would be horrible for business-savvy debtors of Oslo. I mean, who in their right minds wants to lend money from shady, off-the-books enterprises?
 
 The test is built around a "normally equipped person". The court presumes that A knew what everyone knows, unless there are concrete signs that he did not. This is a practical solution. A court must judge people of every kind: calm, panicked, sober, drunk, quick, slow, people who have never seen violence and people who love it. It cannot build a separate standard for each person, so it starts from the average and adjusts.
 
@@ -626,7 +638,6 @@ The standard can fail at both ends of the spectrum:
 
 In both directions, the more a case depends on what an average person knows, the less it depends on what this person knew. The Supreme Court gives a good control question: is there a realistic possibility that a normally equipped person would not understand that the stab would most likely kill? If yes, the presumption cannot carry a conviction.
 
-## Attempted murder is a blunt charge
 
 The case also shows why I think attempted murder is often a poor fit.
 
@@ -838,9 +849,9 @@ export const blogItems: BlogItem[] = [
     {
         id: 'lucky-stabs',
         image: intentTestFlow,
-        title: 'Lucky stabs and the average person',
+        title: 'Many Men (Wish Death)',
         subtitle:
-            "Norway's Supreme Court set aside a conviction for attempted murder. The case shows how hard it is to judge very different people by one standard, and why attempted murder is a blunt tool.",
+            "The Norwegian Supreme Court set aside a conviction for attempted murder, because a collector of drug-dept cannot reasonably understand that driving a kitchen knife into the chest might be fatal. I agree with the ruling, but it might be time to patch the “attempted murder”-concept.",
         body: luckyStabs,
         meta: {
             authorImage: defaultAuthor,
