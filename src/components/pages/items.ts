@@ -918,7 +918,7 @@ However, it doesn’t have to be like this. The Berlin-esque wall between privat
         meta: {
             authorImage: defaultAuthor,
             authorName: 'Henrik Klev',
-            publishDate: ''2026-10-09',
+            publishDate: '2026-10-09',
         },
     },
 ].sort((a, b) => b.meta.publishDate.localeCompare(a.meta.publishDate))
