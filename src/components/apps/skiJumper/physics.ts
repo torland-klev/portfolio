@@ -227,6 +227,9 @@ export type Jumper = {
     // crash. Both only change the drawing.
     pitch: number
     spin: number
+    // The pitch of the slope under the skis at the last step, or null in
+    // the air.
+    slope: number | null
     restTime: number
     // 1 is visible, 0 is gone.
     opacity: number
@@ -389,6 +392,7 @@ export class World {
             tangent: { x: 1, y: 0 },
             facing: velocity.x < 0 ? -1 : 1,
             pitch: 0,
+            slope: null,
             spin: 0,
             restTime: 0,
             opacity: 1,
@@ -891,6 +895,7 @@ export class World {
             if (this.bodyFits(turned)) {
                 j.facing = turned.facing
                 j.pitch = turned.pitch
+                j.slope = null
             }
         }
         if (j.crashed) {
@@ -898,10 +903,8 @@ export class World {
             // On the ground, the fallen figure settles with its skis on the
             // slope, by the shortest turn.
             if (onGround) {
-                const turn = slopePitch(j) - j.pitch
                 j.pitch +=
-                    Math.atan2(Math.sin(turn), Math.cos(turn)) *
-                    Math.min(1, dt * 8)
+                    shortestTurn(j.pitch, slopePitch(j)) * Math.min(1, dt * 8)
             }
             return
         }
@@ -915,10 +918,20 @@ export class World {
             const sideways = speed > 0 ? Math.abs(j.vx) / speed : 0
             target = sideways * (Math.atan2(j.vy, Math.abs(j.vx)) + 0.3)
             rate *= Math.min(1, (speed / 15) ** 2)
+            j.slope = null
         } else {
+            // The skis turn with the slope at once, so that the body keeps
+            // clear of a tight curve, like a loop, at any speed. What is
+            // left from the landing eases out.
             target = slopePitch(j)
+            if (j.slope !== null) j.pitch += shortestTurn(j.slope, target)
+            j.slope = target
         }
-        j.pitch += (target - j.pitch) * Math.min(1, dt * rate)
+        // By the shortest turn: upside down in a loop, the slope angle goes
+        // from a half turn one way to a half turn the other, and the long way
+        // round would swing the body through the line.
+        j.pitch += shortestTurn(j.pitch, target) * Math.min(1, dt * rate)
+        j.pitch = shortestTurn(0, j.pitch)
     }
 
     // Jumpers bump as circles centred a little above the feet. Only the
@@ -1026,6 +1039,12 @@ function bodyCapsule(j: Jumper): { hips: Point; head: Point } {
 // that is past upright, so the body never points into the surface.
 function slopePitch(j: Jumper): number {
     return Math.atan2(j.tangent.y * j.facing, j.tangent.x)
+}
+
+// The angle from one angle to another, the short way round.
+function shortestTurn(from: number, to: number): number {
+    const turn = to - from
+    return Math.atan2(Math.sin(turn), Math.cos(turn))
 }
 
 // The distance from `from` to the first crossing of the ray with a segment

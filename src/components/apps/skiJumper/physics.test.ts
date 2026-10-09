@@ -357,6 +357,39 @@ test('accelerated ice leaves a jumper at rest at rest', () => {
     expect(Math.abs(jumper.vx)).toBeLessThan(0.1)
 })
 
+test('a jumper goes round a loop of accelerated ice and stays in it', () => {
+    // A closed loop of radius 5 m. The jumper starts at the bottom, inside.
+    for (const [boost, speed] of [
+        [3, 10],
+        [10, 20],
+    ]) {
+        const world = new World(100, 62.5)
+        world.iceBoost = boost
+        world.toughness = MAX_TOUGHNESS
+        const loop: Point[] = []
+        for (let i = 0; i <= 320; i++) {
+            const angle = -Math.PI / 2 + (i / 320) * Math.PI * 2
+            loop.push({
+                x: 50 + Math.cos(angle) * 5,
+                y: 20 + Math.sin(angle) * 5,
+            })
+        }
+        world.addStroke(loop, 'acceleratedIce')
+        const jumper = world.addJumper({ x: 50, y: 15.16 }, { x: speed, y: 0 })
+        let turned = 0
+        let last = Math.atan2(jumper.y - 20, jumper.x - 50)
+        for (let t = 0; t < 4; t += STEP) {
+            world.step(STEP)
+            expect(Math.hypot(jumper.x - 50, jumper.y - 20)).toBeLessThan(5)
+            const angle = Math.atan2(jumper.y - 20, jumper.x - 50)
+            const step = angle - last
+            turned += Math.atan2(Math.sin(step), Math.cos(step))
+            last = angle
+        }
+        expect(turned / (Math.PI * 2)).toBeGreaterThan(2)
+    }
+})
+
 test('a crashed jumper settles with its skis on the slope', () => {
     const world = hillWorld()
     // 4 m above the 33° landing slope: a hard landing that crashes.
