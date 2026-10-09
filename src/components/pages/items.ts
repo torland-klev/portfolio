@@ -904,7 +904,7 @@ export const blogItems: BlogItem[] = [
     {
         id: 'create-a-website',
         image: webDevCover,
-        title: 'Still no perfect program',
+        title: 'Piczo.com and George Orwell',
         subtitle:
             `When I was in middle school, everyone had their own little digital playground: a hosted website with glowy art and edgy memes. These days, everything is corporate and generated; everything single-page applications with neutral tones, perfect fonts, none of the personalisation. I think we should bring back personality.`,
         body: `When I was in middle school, everyone had their own little digital playground: a hosted website with glowy art and edgy memes. These days, everything is corporate and generated; everything single-page applications with neutral tones, perfect fonts, none of the personalisation. I think we should bring back personality.
