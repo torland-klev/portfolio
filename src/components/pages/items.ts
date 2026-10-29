@@ -10,7 +10,7 @@ import ztlLogo from '../../images/logos/ztl.svg'
 import tripletexLogo from '../../images/logos/tripletex.svg'
 import uioLogo from '../../images/logos/uio.jpg'
 import imfChart3 from '../../images/imf-chart3.png'
-import intentTestFlow from '../../images/intent-test-flow.png'
+import intentTestFlow from '../../images/do-you-feel-lucky.jpg'
 import possessionOutcomes from '../../images/possession-outcomes.svg'
 import skiJumperCover from '../../images/ski-jumper-cover.svg'
 
