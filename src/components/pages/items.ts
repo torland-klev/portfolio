@@ -614,7 +614,7 @@ B's death could be in the interest of A.
 
 ![How the court decides what A knew: the two-step test, and where the court of appeal went wrong](${intentTestFlow})
 */
-const luckyStabs =  `Do you believe that a stab to the chest with a knife might be fatal? Apparently, The Norwegian Supreme Court believes you’re too dumb to know what, since recently they formally agreed that one cannot reasonably know if thrusting kitchen knife into a persons chest might kill them. This sounds incredibly dumb, but I completely agree.
+const luckyStabs =  `Do you believe that a stab to the chest with a knife might be fatal? Apparently, the Norwegian Supreme Court believes you’re too dumb to know what, since recently they formally agreed that one cannot reasonably know if thrusting kitchen knife into a persons chest might kill them. This sounds incredibly dumb, but I completely agree.
 
 In February 2023, Oslo set the scene for an event taken straight out of either a critically acclaimed 70s mobster movie, a Netflix series designed to make teenage boys and podcasters idolise violent crimes commited by self-inserted characters, or an audiovisual piece of way too expensive, space-filling, barely categorizable as a movie, straight to streaming, Amazon Prime-slop: some unfortunate soul went to an apartment to pay of drug debt, only to end up shot and stabbed five times with a large kitchen knife. Fortunately for all parties involved, the debtee survived partly because they received emergency medical treatment, and partly because the debtor has the luck of Darryl Baum. During the proceedings in court, a forensic expert attested that one of the stabs that the debtee received at the side of their chest could have killed them “after a relatively short time”. Therefore, the two first judicial instances, Tingretten and Lagmannsretten, relied on this stab as their basis for sentencing the debtor 6.5 years in prison on an attempted murder charge. They explained that it is “common knowledge” that a stab to the chest may kill a person, which you’d think everyone above the age of 4 would agree with. Funnily enough, legal experts apparently stop maturing at around 40 months post birth, since the basis for sentencing was quite quick to come under scrutiny. 
 
@@ -815,7 +815,7 @@ export const blogItems: BlogItem[] = [
         image: intentTestFlow,
         title: 'Many Men (Wish Death)',
         subtitle:
-            "Do you believe that a stab to the chest with a knife might be fatal? Apparently, The Norwegian Supreme Court believes you’re too dumb to know what, since recently they formally agreed that one cannot reasonably know if thrusting kitchen knife into a persons chest might kill them. This sounds incredibly dumb, but I completely agree.",
+            "Do you believe that a stab to the chest with a knife might be fatal? Apparently, the Norwegian Supreme Court believes you’re too dumb to know what, since recently they formally agreed that one cannot reasonably know if thrusting kitchen knife into a persons chest might kill them. This sounds incredibly dumb, but I completely agree.",
         body: luckyStabs,
         meta: {
             authorImage: defaultAuthor,
